@@ -1,8 +1,0 @@
-# tsc_cobbler
-allow_dynamic_settings: true
-anamon_enabled: true
-default_password_crypted: "$1$l1apPYtK$t3KY6wSkYjjSJb0gyjViS1"
-manage_dhcp: true
-manage_dhcp_v4: true
-next_server_v4: 172.16.233.28
-server: 172.16.233.28

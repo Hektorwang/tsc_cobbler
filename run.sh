@@ -147,11 +147,11 @@ server: ${cobbler_ip}" >"${output_file}"
     fi
     if ! ls /var/www/html/FHOS-x86_64/Packages/FitStarrySkyOS-release-22.06.1-*.x86_64.rpm; then
         # cobbler distro remove --recursive --name FHOS-x86_64
-        rm -f /var/lib/cobbler/collections/{distros,profiles}FHOS-x86_64
+        rm -f /var/lib/cobbler/collections/{distros,profiles}/FHOS-x86_64
     fi
     if ! ls /var/www/html/FHOS-aarch64/Packages/FitStarrySkyOS-release-22.06.1-*.aarch64.rpm; then
         # cobbler distro remove --recursive --name FHOS-aarch64
-        rm -f /var/lib/cobbler/collections/{distros,profiles}/ FHOS-aarch64
+        rm -f /var/lib/cobbler/collections/{distros,profiles}/FHOS-aarch64
     fi
     systemctl restart cobblerd
     cobbler distro edit --name EL7-x86_64 --autoinstall-meta=tree=http://${cobbler_ip}/EL7-x86_64/
