@@ -1,0 +1,391 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>netaddr.ip.glob &#8212; netaddr 0.8.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="copyright" title="Copyright" href="../../../copyright.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">netaddr 0.8.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../ip.html" accesskey="U">netaddr.ip</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">netaddr.ip.glob</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for netaddr.ip.glob</h1><div class="highlight"><pre>
+<span></span><span class="c1">#-----------------------------------------------------------------------------</span>
+<span class="c1">#   Copyright (c) 2008 by David P. D. Moss. All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1">#   Released under the BSD license. See the LICENSE file for details.</span>
+<span class="c1">#-----------------------------------------------------------------------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Routines and classes for supporting and expressing IP address ranges using a</span>
+<span class="sd">glob style syntax.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">netaddr.core</span> <span class="kn">import</span> <span class="n">AddrFormatError</span><span class="p">,</span> <span class="n">AddrConversionError</span>
+<span class="kn">from</span> <span class="nn">netaddr.ip</span> <span class="kn">import</span> <span class="n">IPRange</span><span class="p">,</span> <span class="n">IPAddress</span><span class="p">,</span> <span class="n">IPNetwork</span><span class="p">,</span> <span class="n">iprange_to_cidrs</span>
+<span class="kn">from</span> <span class="nn">netaddr.compat</span> <span class="kn">import</span> <span class="n">_is_str</span>
+
+
+<div class="viewcode-block" id="valid_glob"><a class="viewcode-back" href="../../../api.html#netaddr.valid_glob">[docs]</a><span class="k">def</span> <span class="nf">valid_glob</span><span class="p">(</span><span class="n">ipglob</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param ipglob: An IP address range in a glob-style format.</span>
+
+<span class="sd">    :return: ``True`` if IP range glob is valid, ``False`` otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#TODO: Add support for abbreviated ipglobs.</span>
+    <span class="c1">#TODO: e.g. 192.0.*.* == 192.0.*</span>
+    <span class="c1">#TODO:      *.*.*.*     == *</span>
+    <span class="c1">#TODO: Add strict flag to enable verbose ipglob checking.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_str</span><span class="p">(</span><span class="n">ipglob</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">seen_hyphen</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">seen_asterisk</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">octets</span> <span class="o">=</span> <span class="n">ipglob</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">octets</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">for</span> <span class="n">octet</span> <span class="ow">in</span> <span class="n">octets</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">octet</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">seen_hyphen</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="n">seen_hyphen</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">seen_asterisk</span><span class="p">:</span>
+                <span class="c1">#   Asterisks cannot precede hyphenated octets.</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">octet1</span><span class="p">,</span> <span class="n">octet2</span><span class="p">)</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">octet</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)]</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">octet1</span> <span class="o">&gt;=</span> <span class="n">octet2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">octet1</span> <span class="o">&lt;=</span> <span class="mi">254</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">octet2</span> <span class="o">&lt;=</span> <span class="mi">255</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">octet</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span>
+            <span class="n">seen_asterisk</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">seen_hyphen</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">seen_asterisk</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="nb">int</span><span class="p">(</span><span class="n">octet</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">255</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="glob_to_iptuple"><a class="viewcode-back" href="../../../api.html#netaddr.glob_to_iptuple">[docs]</a><span class="k">def</span> <span class="nf">glob_to_iptuple</span><span class="p">(</span><span class="n">ipglob</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that accepts a glob-style IP range and returns the component</span>
+<span class="sd">    lower and upper bound IP address.</span>
+
+<span class="sd">    :param ipglob: an IP address range in a glob-style format.</span>
+
+<span class="sd">    :return: a tuple contain lower and upper bound IP objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">valid_glob</span><span class="p">(</span><span class="n">ipglob</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">AddrFormatError</span><span class="p">(</span><span class="s1">&#39;not a recognised IP glob range: </span><span class="si">%r</span><span class="s1">!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ipglob</span><span class="p">,))</span>
+
+    <span class="n">start_tokens</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">end_tokens</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">octet</span> <span class="ow">in</span> <span class="n">ipglob</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">octet</span><span class="p">:</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="n">octet</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+            <span class="n">start_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">end_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">octet</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span>
+            <span class="n">start_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+            <span class="n">end_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;255&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">start_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">octet</span><span class="p">)</span>
+            <span class="n">end_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">octet</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">IPAddress</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">start_tokens</span><span class="p">)),</span> <span class="n">IPAddress</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">end_tokens</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="glob_to_iprange"><a class="viewcode-back" href="../../../api.html#netaddr.glob_to_iprange">[docs]</a><span class="k">def</span> <span class="nf">glob_to_iprange</span><span class="p">(</span><span class="n">ipglob</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that accepts a glob-style IP range and returns the equivalent</span>
+<span class="sd">    IP range.</span>
+
+<span class="sd">    :param ipglob: an IP address range in a glob-style format.</span>
+
+<span class="sd">    :return: an IPRange object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">valid_glob</span><span class="p">(</span><span class="n">ipglob</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">AddrFormatError</span><span class="p">(</span><span class="s1">&#39;not a recognised IP glob range: </span><span class="si">%r</span><span class="s1">!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ipglob</span><span class="p">,))</span>
+
+    <span class="n">start_tokens</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">end_tokens</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">octet</span> <span class="ow">in</span> <span class="n">ipglob</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">octet</span><span class="p">:</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="n">octet</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+            <span class="n">start_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">end_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">octet</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span>
+            <span class="n">start_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+            <span class="n">end_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;255&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">start_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">octet</span><span class="p">)</span>
+            <span class="n">end_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">octet</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">IPRange</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">start_tokens</span><span class="p">),</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">end_tokens</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="iprange_to_globs"><a class="viewcode-back" href="../../../api.html#netaddr.iprange_to_globs">[docs]</a><span class="k">def</span> <span class="nf">iprange_to_globs</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that accepts an arbitrary start and end IP address or subnet</span>
+<span class="sd">    and returns one or more glob-style IP ranges.</span>
+
+<span class="sd">    :param start: the start IP address or subnet.</span>
+
+<span class="sd">    :param end: the end IP address or subnet.</span>
+
+<span class="sd">    :return: a list containing one or more IP globs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">IPAddress</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">IPAddress</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">start</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">end</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AddrConversionError</span><span class="p">(</span><span class="s1">&#39;IP glob ranges only support IPv4!&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_iprange_to_glob</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">):</span>
+        <span class="c1">#   Internal function to process individual IP globs.</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)]</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">ub</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)]</span>
+
+        <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">seen_hyphen</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">seen_asterisk</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">t1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">t2</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="c1">#   A normal octet.</span>
+                <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">t1</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">t1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">t2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">255</span><span class="p">):</span>
+                <span class="c1">#   An asterisk octet.</span>
+                <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+                <span class="n">seen_asterisk</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1">#   Create a hyphenated octet - only one allowed per IP glob.</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">seen_asterisk</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">seen_hyphen</span><span class="p">:</span>
+                        <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">t1</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">t2</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                        <span class="n">seen_hyphen</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">AddrConversionError</span><span class="p">(</span>
+                            <span class="s1">&#39;only 1 hyphenated octet per IP glob allowed!&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">AddrConversionError</span><span class="p">(</span>
+                        <span class="s2">&quot;asterisks are not allowed before hyphenated octets!&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+
+    <span class="n">globs</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1">#   IP range can be represented by a single glob.</span>
+        <span class="n">ipglob</span> <span class="o">=</span> <span class="n">_iprange_to_glob</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">valid_glob</span><span class="p">(</span><span class="n">ipglob</span><span class="p">):</span>
+            <span class="c1">#TODO: this is a workaround, it is produces non-optimal but valid</span>
+            <span class="c1">#TODO: glob conversions. Fix inner function so that is always</span>
+            <span class="c1">#TODO: produces a valid glob.</span>
+            <span class="k">raise</span> <span class="n">AddrConversionError</span><span class="p">(</span><span class="s1">&#39;invalid ip glob created&#39;</span><span class="p">)</span>
+        <span class="n">globs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ipglob</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">AddrConversionError</span><span class="p">:</span>
+        <span class="c1">#   Break IP range up into CIDRs before conversion to globs.</span>
+        <span class="c1">#</span>
+        <span class="c1">#TODO: this is still not completely optimised but is good enough</span>
+        <span class="c1">#TODO: for the moment.</span>
+        <span class="c1">#</span>
+        <span class="k">for</span> <span class="n">cidr</span> <span class="ow">in</span> <span class="n">iprange_to_cidrs</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+            <span class="n">ipglob</span> <span class="o">=</span> <span class="n">_iprange_to_glob</span><span class="p">(</span><span class="n">cidr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cidr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">globs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ipglob</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">globs</span></div>
+
+
+<div class="viewcode-block" id="glob_to_cidrs"><a class="viewcode-back" href="../../../api.html#netaddr.glob_to_cidrs">[docs]</a><span class="k">def</span> <span class="nf">glob_to_cidrs</span><span class="p">(</span><span class="n">ipglob</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that accepts a glob-style IP range and returns a list of one</span>
+<span class="sd">    or more IP CIDRs that exactly matches it.</span>
+
+<span class="sd">    :param ipglob: an IP address range in a glob-style format.</span>
+
+<span class="sd">    :return: a list of one or more IP objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">iprange_to_cidrs</span><span class="p">(</span><span class="o">*</span><span class="n">glob_to_iptuple</span><span class="p">(</span><span class="n">ipglob</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="cidr_to_glob"><a class="viewcode-back" href="../../../api.html#netaddr.cidr_to_glob">[docs]</a><span class="k">def</span> <span class="nf">cidr_to_glob</span><span class="p">(</span><span class="n">cidr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A function that accepts an IP subnet in a glob-style format and returns</span>
+<span class="sd">    a list of CIDR subnets that exactly matches the specified glob.</span>
+
+<span class="sd">    :param cidr: an IP object CIDR subnet.</span>
+
+<span class="sd">    :return: a list of one or more IP addresses and subnets.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ip</span> <span class="o">=</span> <span class="n">IPNetwork</span><span class="p">(</span><span class="n">cidr</span><span class="p">)</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">iprange_to_globs</span><span class="p">(</span><span class="n">ip</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ip</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">globs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1">#   There should only ever be a one to one mapping between a CIDR and</span>
+        <span class="c1">#   an IP glob range.</span>
+        <span class="k">raise</span> <span class="n">AddrConversionError</span><span class="p">(</span><span class="s1">&#39;bad CIDR to IP glob conversion!&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">globs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="IPGlob"><a class="viewcode-back" href="../../../api.html#netaddr.IPGlob">[docs]</a><span class="k">class</span> <span class="nc">IPGlob</span><span class="p">(</span><span class="n">IPRange</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents an IP address range using a glob-style syntax ``x.x.x-y.*``</span>
+
+<span class="sd">    Individual octets can be represented using the following shortcuts :</span>
+
+<span class="sd">        1. ``*`` - the asterisk octet (represents values ``0`` through ``255``)</span>
+<span class="sd">        2. ``x-y`` - the hyphenated octet (represents values ``x`` through ``y``)</span>
+
+<span class="sd">    A few basic rules also apply :</span>
+
+<span class="sd">        1. ``x`` must always be less than ``y``, therefore :</span>
+
+<span class="sd">        - ``x`` can only be ``0`` through ``254``</span>
+<span class="sd">        - ``y`` can only be ``1`` through ``255``</span>
+
+<span class="sd">        2. only one hyphenated octet per IP glob is allowed</span>
+<span class="sd">        3. only asterisks are permitted after a hyphenated octet</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">    +------------------+------------------------------+</span>
+<span class="sd">    | IP glob          | Description                  |</span>
+<span class="sd">    +==================+==============================+</span>
+<span class="sd">    | ``192.0.2.1``    | a single address             |</span>
+<span class="sd">    +------------------+------------------------------+</span>
+<span class="sd">    | ``192.0.2.0-31`` | 32 addresses                 |</span>
+<span class="sd">    +------------------+------------------------------+</span>
+<span class="sd">    | ``192.0.2.*``    | 256 addresses                |</span>
+<span class="sd">    +------------------+------------------------------+</span>
+<span class="sd">    | ``192.0.2-3.*``  | 512 addresses                |</span>
+<span class="sd">    +------------------+------------------------------+</span>
+<span class="sd">    | ``192.0-1.*.*``  | 131,072 addresses            |</span>
+<span class="sd">    +------------------+------------------------------+</span>
+<span class="sd">    | ``*.*.*.*``      | the whole IPv4 address space |</span>
+<span class="sd">    +------------------+------------------------------+</span>
+
+<span class="sd">    .. note :: \</span>
+<span class="sd">    IP glob ranges are not directly equivalent to CIDR blocks. \</span>
+<span class="sd">    They can represent address ranges that do not fall on strict bit mask \</span>
+<span class="sd">    boundaries. They are suitable for use in configuration files, being \</span>
+<span class="sd">    more obvious and readable than their CIDR counterparts, especially for \</span>
+<span class="sd">    admins and end users with little or no networking knowledge or \</span>
+<span class="sd">    experience. All CIDR addresses can always be represented as IP globs \</span>
+<span class="sd">    but the reverse is not always true.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_glob&#39;</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="IPGlob.__init__"><a class="viewcode-back" href="../../../api.html#netaddr.IPGlob.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ipglob</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="o">=</span> <span class="n">glob_to_iptuple</span><span class="p">(</span><span class="n">ipglob</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">IPGlob</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">glob</span> <span class="o">=</span> <span class="n">iprange_to_globs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="IPGlob.__getstate__"><a class="viewcode-back" href="../../../api.html#netaddr.IPGlob.__getstate__">[docs]</a>    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: Pickled state of an `IPGlob` object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">IPGlob</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__getstate__</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="IPGlob.__setstate__"><a class="viewcode-back" href="../../../api.html#netaddr.IPGlob.__setstate__">[docs]</a>    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:param state: data used to unpickle a pickled `IPGlob` object.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">IPGlob</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setstate__</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">glob</span> <span class="o">=</span> <span class="n">iprange_to_globs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_glob</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_glob</span>
+
+    <span class="k">def</span> <span class="nf">_set_glob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ipglob</span><span class="p">):</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="p">)</span> <span class="o">=</span> <span class="n">glob_to_iptuple</span><span class="p">(</span><span class="n">ipglob</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_glob</span> <span class="o">=</span> <span class="n">iprange_to_globs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">glob</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_glob</span><span class="p">,</span> <span class="n">_set_glob</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;an arbitrary IP address range in glob format.&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="IPGlob.__str__"><a class="viewcode-back" href="../../../api.html#netaddr.IPGlob.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: IP glob in common representational format.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">glob</span></div>
+
+<div class="viewcode-block" id="IPGlob.__repr__"><a class="viewcode-back" href="../../../api.html#netaddr.IPGlob.__repr__">[docs]</a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: Python statement to create an equivalent object&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">(&#39;</span><span class="si">%s</span><span class="s2">&#39;)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">glob</span><span class="p">)</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">netaddr 0.8.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../ip.html" >netaddr.ip</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">netaddr.ip.glob</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; <a href="../../../copyright.html">Copyright</a> Copyright (c) 2008 by David P. D. Moss. All rights reserved..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

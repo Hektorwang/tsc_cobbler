@@ -1,0 +1,10 @@
+logrotate state -- version 2
+"/var/log/hawkey.log" 2024-4-26-9:0:0
+"/var/log/httpd/*log" 2024-4-29-14:0:0
+"/var/log/httpd/error_log" 2024-4-26-9:0:0
+"/var/log/wtmp" 2024-4-26-9:0:0
+"/var/log/btmp" 2024-4-26-9:0:0
+"/var/log/cobbler/cobbler.log" 2024-4-26-9:0:0
+"/var/log/cobbler/install.log" 2024-4-26-9:0:0
+"/var/log/cobbler/tasks/*.log" 2024-4-26-9:0:0
+"/var/log/httpd/access_log" 2024-4-26-9:0:0

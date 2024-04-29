@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<libosinfo version="0.0.1">
+  <!-- Licensed under the GNU General Public License version 2 or later.
+     See http://www.gnu.org/licenses/ for a copy of the license text -->
+  <os id="http://rockylinux.org/rocky/8.4">
+    <short-id>rocky8.4</short-id>
+    <name>Rocky Linux 8.4</name>
+    <name xml:lang="zh_Hans">Rocky Linux 8.4</name>
+    <name xml:lang="ka">Rocky Linux 8.4</name>
+    <name xml:lang="ko">&#xB85D;&#xD0A4; &#xB9AC;&#xB205;&#xC2A4; 8.4</name>
+    <name xml:lang="fi">Rocky Linux 8.4</name>
+    <name xml:lang="uk">Rocky Linux 8.4</name>
+    <name xml:lang="tr">Rocky Linux 8.4</name>
+    <name xml:lang="pl">Rocky Linux 8.4</name>
+    <name xml:lang="it">Rocky Linux 8.4</name>
+    <name xml:lang="id">Rocky Linux 8.4</name>
+    <name xml:lang="de">Rocky Linux 8.4</name>
+    <version>8.4</version>
+    <vendor>Rocky Enterprise Software Foundation</vendor>
+    <vendor xml:lang="zh_Hans">Rocky Enterprise Software Foundation</vendor>
+    <vendor xml:lang="ka">Rocky Enterprise Software Foundation</vendor>
+    <vendor xml:lang="ko">&#xB85D;&#xD0A4; &#xAE30;&#xC5C5;&#xC6A9; &#xC18C;&#xD504;&#xD2B8;&#xC6E8;&#xC5B4; &#xC7AC;&#xB2E8;</vendor>
+    <vendor xml:lang="uk">Rocky Enterprise Software Foundation</vendor>
+    <vendor xml:lang="tr">Rocky Enterprise Software Foundation</vendor>
+    <vendor xml:lang="pl">Rocky Enterprise Software Foundation</vendor>
+    <vendor xml:lang="it">Rocky Enterprise Software Foundation</vendor>
+    <vendor xml:lang="id">Rocky Enterprise Software Foundation</vendor>
+    <vendor xml:lang="de">Rocky Enterprise Software Foundation</vendor>
+    <family>linux</family>
+    <distro>rocky</distro>
+    <derives-from id="http://rockylinux.org/rocky/8"/>
+    <eol-date>2022-08-02</eol-date>
+    <resources arch="all" inherit="true"/>
+  </os>
+</libosinfo>

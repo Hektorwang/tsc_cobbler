@@ -1,0 +1,336 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>netaddr.strategy.ipv6 &#8212; netaddr 0.8.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="copyright" title="Copyright" href="../../../copyright.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">netaddr 0.8.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">netaddr.strategy.ipv6</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for netaddr.strategy.ipv6</h1><div class="highlight"><pre>
+<span></span><span class="c1">#-----------------------------------------------------------------------------</span>
+<span class="c1">#   Copyright (c) 2008 by David P. D. Moss. All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1">#   Released under the BSD license. See the LICENSE file for details.</span>
+<span class="c1">#-----------------------------------------------------------------------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">IPv6 address logic.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">struct</span> <span class="k">as</span> <span class="nn">_struct</span>
+
+<span class="n">OPT_IMPORTS</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1">#   Check whether we need to use fallback code or not.</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">socket</span> <span class="k">as</span> <span class="nn">_socket</span>
+    <span class="c1">#   These might all generate exceptions on different platforms.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_socket</span><span class="o">.</span><span class="n">has_ipv6</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;IPv6 disabled&#39;</span><span class="p">)</span>
+    <span class="n">_socket</span><span class="o">.</span><span class="n">inet_pton</span>
+    <span class="n">_socket</span><span class="o">.</span><span class="n">AF_INET6</span>
+    <span class="kn">from</span> <span class="nn">_socket</span> <span class="kn">import</span> <span class="p">(</span><span class="n">inet_pton</span> <span class="k">as</span> <span class="n">_inet_pton</span><span class="p">,</span> <span class="n">inet_ntop</span> <span class="k">as</span> <span class="n">_inet_ntop</span><span class="p">,</span>
+                         <span class="n">AF_INET6</span><span class="p">)</span>
+    <span class="n">OPT_IMPORTS</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">netaddr.fbsocket</span> <span class="kn">import</span> <span class="p">(</span><span class="n">inet_pton</span> <span class="k">as</span> <span class="n">_inet_pton</span><span class="p">,</span> <span class="n">inet_ntop</span> <span class="k">as</span> <span class="n">_inet_ntop</span><span class="p">,</span>
+                                 <span class="n">AF_INET6</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">netaddr.core</span> <span class="kn">import</span> <span class="n">AddrFormatError</span>
+<span class="kn">from</span> <span class="nn">netaddr.strategy</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">valid_words</span> <span class="k">as</span> <span class="n">_valid_words</span><span class="p">,</span> <span class="n">int_to_words</span> <span class="k">as</span> <span class="n">_int_to_words</span><span class="p">,</span>
+    <span class="n">words_to_int</span> <span class="k">as</span> <span class="n">_words_to_int</span><span class="p">,</span> <span class="n">valid_bits</span> <span class="k">as</span> <span class="n">_valid_bits</span><span class="p">,</span>
+    <span class="n">bits_to_int</span> <span class="k">as</span> <span class="n">_bits_to_int</span><span class="p">,</span> <span class="n">int_to_bits</span> <span class="k">as</span> <span class="n">_int_to_bits</span><span class="p">,</span>
+    <span class="n">valid_bin</span> <span class="k">as</span> <span class="n">_valid_bin</span><span class="p">,</span> <span class="n">int_to_bin</span> <span class="k">as</span> <span class="n">_int_to_bin</span><span class="p">,</span>
+    <span class="n">bin_to_int</span> <span class="k">as</span> <span class="n">_bin_to_int</span><span class="p">)</span>
+
+<span class="c1">#: The width (in bits) of this address type.</span>
+<span class="n">width</span> <span class="o">=</span> <span class="mi">128</span>
+
+<span class="c1">#: The individual word size (in bits) of this address type.</span>
+<span class="n">word_size</span> <span class="o">=</span> <span class="mi">16</span>
+
+<span class="c1">#: The separator character used between each word.</span>
+<span class="n">word_sep</span> <span class="o">=</span> <span class="s1">&#39;:&#39;</span>
+
+<span class="c1">#: The AF_* constant value of this address type.</span>
+<span class="n">family</span> <span class="o">=</span> <span class="n">AF_INET6</span>
+
+<span class="c1">#: A friendly string name address type.</span>
+<span class="n">family_name</span> <span class="o">=</span> <span class="s1">&#39;IPv6&#39;</span>
+
+<span class="c1">#: The version of this address type.</span>
+<span class="n">version</span> <span class="o">=</span> <span class="mi">6</span>
+
+<span class="c1">#: The number base to be used when interpreting word values as integers.</span>
+<span class="n">word_base</span> <span class="o">=</span> <span class="mi">16</span>
+
+<span class="c1">#: The maximum integer value that can be represented by this address type.</span>
+<span class="n">max_int</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">width</span> <span class="o">-</span> <span class="mi">1</span>
+
+<span class="c1">#: The number of words in this address type.</span>
+<span class="n">num_words</span> <span class="o">=</span> <span class="n">width</span> <span class="o">//</span> <span class="n">word_size</span>
+
+<span class="c1">#: The maximum integer value for an individual word in this address type.</span>
+<span class="n">max_word</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">word_size</span> <span class="o">-</span> <span class="mi">1</span>
+
+<span class="c1">#: A dictionary mapping IPv6 CIDR prefixes to the equivalent netmasks.</span>
+<span class="n">prefix_to_netmask</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">max_int</span> <span class="o">^</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">width</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">+</span><span class="mi">1</span><span class="p">)])</span>
+
+<span class="c1">#: A dictionary mapping IPv6 netmasks to their equivalent CIDR prefixes.</span>
+<span class="n">netmask_to_prefix</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="p">[(</span><span class="n">max_int</span> <span class="o">^</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">width</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">+</span><span class="mi">1</span><span class="p">)])</span>
+
+<span class="c1">#: A dictionary mapping IPv6 CIDR prefixes to the equivalent hostmasks.</span>
+<span class="n">prefix_to_hostmask</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">width</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">+</span><span class="mi">1</span><span class="p">)])</span>
+
+<span class="c1">#: A dictionary mapping IPv6 hostmasks to their equivalent CIDR prefixes.</span>
+<span class="n">hostmask_to_prefix</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="p">[((</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">width</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">+</span><span class="mi">1</span><span class="p">)])</span>
+
+<span class="c1">#-----------------------------------------------------------------------------</span>
+<span class="c1">#   Dialect classes.</span>
+<span class="c1">#-----------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="ipv6_compact"><a class="viewcode-back" href="../../../api.html#netaddr.ipv6_compact">[docs]</a><span class="k">class</span> <span class="nc">ipv6_compact</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An IPv6 dialect class - compact form.&quot;&quot;&quot;</span>
+    <span class="c1">#: The format string used to converting words into string values.</span>
+    <span class="n">word_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%x</span><span class="s1">&#39;</span>
+
+    <span class="c1">#: Boolean flag indicating if IPv6 compaction algorithm should be used.</span>
+    <span class="n">compact</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ipv6_full"><a class="viewcode-back" href="../../../api.html#netaddr.ipv6_full">[docs]</a><span class="k">class</span> <span class="nc">ipv6_full</span><span class="p">(</span><span class="n">ipv6_compact</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An IPv6 dialect class - &#39;all zeroes&#39; form.&quot;&quot;&quot;</span>
+
+    <span class="c1">#: Boolean flag indicating if IPv6 compaction algorithm should be used.</span>
+    <span class="n">compact</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="ipv6_verbose"><a class="viewcode-back" href="../../../api.html#netaddr.ipv6_verbose">[docs]</a><span class="k">class</span> <span class="nc">ipv6_verbose</span><span class="p">(</span><span class="n">ipv6_compact</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An IPv6 dialect class - extra wide &#39;all zeroes&#39; form.&quot;&quot;&quot;</span>
+
+    <span class="c1">#: The format string used to converting words into string values.</span>
+    <span class="n">word_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.4x</span><span class="s1">&#39;</span>
+
+    <span class="c1">#: Boolean flag indicating if IPv6 compaction algorithm should be used.</span>
+    <span class="n">compact</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<span class="k">def</span> <span class="nf">valid_str</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param addr: An IPv6 address in presentation (string) format.</span>
+
+<span class="sd">    :param flags: decides which rules are applied to the interpretation of the</span>
+<span class="sd">        addr value. Future use - currently has no effect.</span>
+
+<span class="sd">    :return: ``True`` if IPv6 address is valid, ``False`` otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">addr</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AddrFormatError</span><span class="p">(</span><span class="s1">&#39;Empty strings are not supported!&#39;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">_inet_pton</span><span class="p">(</span><span class="n">AF_INET6</span><span class="p">,</span> <span class="n">addr</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">def</span> <span class="nf">str_to_int</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param addr: An IPv6 address in string form.</span>
+
+<span class="sd">    :param flags: decides which rules are applied to the interpretation of the</span>
+<span class="sd">        addr value. Future use - currently has no effect.</span>
+
+<span class="sd">    :return: The equivalent unsigned integer for a given IPv6 address.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">packed_int</span> <span class="o">=</span> <span class="n">_inet_pton</span><span class="p">(</span><span class="n">AF_INET6</span><span class="p">,</span> <span class="n">addr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">packed_to_int</span><span class="p">(</span><span class="n">packed_int</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AddrFormatError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> is not a valid IPv6 address string!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">addr</span><span class="p">,))</span>
+
+
+<span class="k">def</span> <span class="nf">int_to_str</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param int_val: An unsigned integer.</span>
+
+<span class="sd">    :param dialect: (optional) a Python class defining formatting options.</span>
+
+<span class="sd">    :return: The IPv6 presentation (string) format address equivalent to the</span>
+<span class="sd">        unsigned integer provided.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dialect</span> <span class="o">=</span> <span class="n">ipv6_compact</span>
+
+    <span class="n">addr</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">packed_int</span> <span class="o">=</span> <span class="n">int_to_packed</span><span class="p">(</span><span class="n">int_val</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dialect</span><span class="o">.</span><span class="n">compact</span><span class="p">:</span>
+            <span class="c1">#   Default return value.</span>
+            <span class="n">addr</span> <span class="o">=</span> <span class="n">_inet_ntop</span><span class="p">(</span><span class="n">AF_INET6</span><span class="p">,</span> <span class="n">packed_int</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#   Custom return value.</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&gt;8H&#39;</span><span class="p">,</span> <span class="n">packed_int</span><span class="p">))</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">dialect</span><span class="o">.</span><span class="n">word_fmt</span> <span class="o">%</span> <span class="n">word</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">]</span>
+            <span class="n">addr</span> <span class="o">=</span> <span class="n">word_sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> is not a valid 128-bit unsigned integer!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">int_val</span><span class="p">,))</span>
+
+    <span class="k">return</span> <span class="n">addr</span>
+
+
+<span class="k">def</span> <span class="nf">int_to_arpa</span><span class="p">(</span><span class="n">int_val</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param int_val: An unsigned integer.</span>
+
+<span class="sd">    :return: The reverse DNS lookup for an IPv6 address in network byte</span>
+<span class="sd">        order integer form.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">addr</span> <span class="o">=</span> <span class="n">int_to_str</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">ipv6_verbose</span><span class="p">)</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">addr</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+    <span class="n">tokens</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="c1">#   We won&#39;t support ip6.int here - see RFC 3152 for details.</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;ip6&#39;</span><span class="p">,</span> <span class="s1">&#39;arpa&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">int_to_packed</span><span class="p">(</span><span class="n">int_val</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param int_val: the integer to be packed.</span>
+
+<span class="sd">    :return: a packed string that is equivalent to value represented by an</span>
+<span class="sd">    unsigned integer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">int_to_words</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;&gt;4I&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">words</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">packed_to_int</span><span class="p">(</span><span class="n">packed_int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param packed_int: a packed string containing an unsigned integer.</span>
+<span class="sd">        It is assumed that string is packed in network byte order.</span>
+
+<span class="sd">    :return: An unsigned integer equivalent to value of network address</span>
+<span class="sd">        represented by packed binary string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&gt;4I&#39;</span><span class="p">,</span> <span class="n">packed_int</span><span class="p">))</span>
+
+    <span class="n">int_val</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">words</span><span class="p">)):</span>
+        <span class="n">word</span> <span class="o">=</span> <span class="n">num</span>
+        <span class="n">word</span> <span class="o">=</span> <span class="n">word</span> <span class="o">&lt;&lt;</span> <span class="mi">32</span> <span class="o">*</span> <span class="n">i</span>
+        <span class="n">int_val</span> <span class="o">=</span> <span class="n">int_val</span> <span class="o">|</span> <span class="n">word</span>
+
+    <span class="k">return</span> <span class="n">int_val</span>
+
+
+<span class="k">def</span> <span class="nf">valid_words</span><span class="p">(</span><span class="n">words</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_valid_words</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">word_size</span><span class="p">,</span> <span class="n">num_words</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">int_to_words</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">num_words</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">word_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">num_words</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">num_words</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="s1">&#39;num_words&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">word_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">word_size</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="s1">&#39;word_size&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">_int_to_words</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">word_size</span><span class="p">,</span> <span class="n">num_words</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">words_to_int</span><span class="p">(</span><span class="n">words</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_words_to_int</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">word_size</span><span class="p">,</span> <span class="n">num_words</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">valid_bits</span><span class="p">(</span><span class="n">bits</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_valid_bits</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">word_sep</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">bits_to_int</span><span class="p">(</span><span class="n">bits</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_bits_to_int</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">word_sep</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">int_to_bits</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">word_sep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">word_sep</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">word_sep</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="s1">&#39;word_sep&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">_int_to_bits</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">word_size</span><span class="p">,</span> <span class="n">num_words</span><span class="p">,</span> <span class="n">word_sep</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">valid_bin</span><span class="p">(</span><span class="n">bin_val</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_valid_bin</span><span class="p">(</span><span class="n">bin_val</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">int_to_bin</span><span class="p">(</span><span class="n">int_val</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_int_to_bin</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">bin_to_int</span><span class="p">(</span><span class="n">bin_val</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_bin_to_int</span><span class="p">(</span><span class="n">bin_val</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">netaddr 0.8.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">netaddr.strategy.ipv6</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; <a href="../../../copyright.html">Copyright</a> Copyright (c) 2008 by David P. D. Moss. All rights reserved..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+auto
+/usr/bin/cdrecord
+cdrecord-cdrecordman
+/usr/share/man/man1/cdrecord.1.gz
+cdrecord-wodim
+/usr/bin/wodim
+cdrecord-wodimman
+/usr/share/man/man1/wodim.1.gz
+
+/usr/bin/xorrecord
+50
+/usr/share/man/man1/xorrecord.1.gz
+/usr/bin/xorrecord
+/usr/share/man/man1/xorrecord.1.gz

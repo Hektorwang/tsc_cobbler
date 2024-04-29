@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>netaddr.ip.nmap &#8212; netaddr 0.8.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="copyright" title="Copyright" href="../../../copyright.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">netaddr 0.8.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../ip.html" accesskey="U">netaddr.ip</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">netaddr.ip.nmap</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for netaddr.ip.nmap</h1><div class="highlight"><pre>
+<span></span><span class="c1">#-----------------------------------------------------------------------------</span>
+<span class="c1">#   Copyright (c) 2008 by David P. D. Moss. All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1">#   Released under the BSD license. See the LICENSE file for details.</span>
+<span class="c1">#-----------------------------------------------------------------------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Routines for dealing with nmap-style IPv4 address ranges.</span>
+
+<span class="sd">Based on nmap&#39;s Target Specification :-</span>
+
+<span class="sd">    http://nmap.org/book/man-target-specification.html</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">netaddr.core</span> <span class="kn">import</span> <span class="n">AddrFormatError</span>
+<span class="kn">from</span> <span class="nn">netaddr.ip</span> <span class="kn">import</span> <span class="n">IPAddress</span><span class="p">,</span> <span class="n">IPNetwork</span>
+<span class="kn">from</span> <span class="nn">netaddr.compat</span> <span class="kn">import</span> <span class="n">_iter_range</span><span class="p">,</span> <span class="n">_is_str</span><span class="p">,</span> <span class="n">_iter_next</span>
+
+
+<span class="k">def</span> <span class="nf">_nmap_octet_target_values</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+    <span class="c1">#   Generates sequence of values for an individual octet as defined in the</span>
+    <span class="c1">#   nmap Target Specification.</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">element</span><span class="p">:</span>
+            <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">left</span><span class="p">:</span>
+                <span class="n">left</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">right</span><span class="p">:</span>
+                <span class="n">right</span> <span class="o">=</span> <span class="mi">255</span>
+            <span class="n">low</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+            <span class="n">high</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">low</span> <span class="o">&lt;=</span> <span class="mi">255</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">high</span> <span class="o">&lt;=</span> <span class="mi">255</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;octet value overflow for spec </span><span class="si">%s</span><span class="s1">!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">spec</span><span class="p">,))</span>
+            <span class="k">if</span> <span class="n">low</span> <span class="o">&gt;</span> <span class="n">high</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;left side of hyphen must be &lt;= right </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">element</span><span class="p">,))</span>
+            <span class="k">for</span> <span class="n">octet</span> <span class="ow">in</span> <span class="n">_iter_range</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">octet</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">octet</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">octet</span> <span class="o">&lt;=</span> <span class="mi">255</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;octet value overflow for spec </span><span class="si">%s</span><span class="s1">!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">spec</span><span class="p">,))</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">octet</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_generate_nmap_octet_ranges</span><span class="p">(</span><span class="n">nmap_target_spec</span><span class="p">):</span>
+    <span class="c1">#   Generate 4 lists containing all octets defined by a given nmap Target</span>
+    <span class="c1">#   specification.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_str</span><span class="p">(</span><span class="n">nmap_target_spec</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;string expected, not </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">nmap_target_spec</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">nmap_target_spec</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;nmap target specification cannot be blank!&#39;</span><span class="p">)</span>
+
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">nmap_target_spec</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AddrFormatError</span><span class="p">(</span><span class="s1">&#39;invalid nmap range: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nmap_target_spec</span><span class="p">,))</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">_nmap_octet_target_values</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">_nmap_octet_target_values</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">_nmap_octet_target_values</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+            <span class="n">_nmap_octet_target_values</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_nmap_target_spec</span><span class="p">(</span><span class="n">target_spec</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s1">&#39;/&#39;</span> <span class="ow">in</span> <span class="n">target_spec</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="n">target_spec</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="nb">int</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">33</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">AddrFormatError</span><span class="p">(</span><span class="s1">&#39;CIDR prefix expected, not </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,))</span>
+        <span class="n">net</span> <span class="o">=</span> <span class="n">IPNetwork</span><span class="p">(</span><span class="n">target_spec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">net</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AddrFormatError</span><span class="p">(</span><span class="s1">&#39;CIDR only support for IPv4!&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="n">net</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">ip</span>
+    <span class="k">elif</span> <span class="s1">&#39;:&#39;</span> <span class="ow">in</span> <span class="n">target_spec</span><span class="p">:</span>
+        <span class="c1">#   nmap only currently supports IPv6 addresses without prefixes.</span>
+        <span class="k">yield</span> <span class="n">IPAddress</span><span class="p">(</span><span class="n">target_spec</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">octet_ranges</span> <span class="o">=</span> <span class="n">_generate_nmap_octet_ranges</span><span class="p">(</span><span class="n">target_spec</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">octet_ranges</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">octet_ranges</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">octet_ranges</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">octet_ranges</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span>
+                        <span class="k">yield</span> <span class="n">IPAddress</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="valid_nmap_range"><a class="viewcode-back" href="../../../api.html#netaddr.valid_nmap_range">[docs]</a><span class="k">def</span> <span class="nf">valid_nmap_range</span><span class="p">(</span><span class="n">target_spec</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param target_spec: an nmap-style IP range target specification.</span>
+
+<span class="sd">    :return: ``True`` if IP range target spec is valid, ``False`` otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">_iter_next</span><span class="p">(</span><span class="n">_parse_nmap_target_spec</span><span class="p">(</span><span class="n">target_spec</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">AddrFormatError</span><span class="p">):</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="iter_nmap_range"><a class="viewcode-back" href="../../../api.html#netaddr.iter_nmap_range">[docs]</a><span class="k">def</span> <span class="nf">iter_nmap_range</span><span class="p">(</span><span class="o">*</span><span class="n">nmap_target_spec</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An generator that yields IPAddress objects from defined by nmap target</span>
+<span class="sd">    specifications.</span>
+
+<span class="sd">    See https://nmap.org/book/man-target-specification.html for details.</span>
+
+<span class="sd">    :param *nmap_target_spec: one or more nmap IP range target specification.</span>
+
+<span class="sd">    :return: an iterator producing IPAddress objects for each IP in the target spec(s).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">target_spec</span> <span class="ow">in</span> <span class="n">nmap_target_spec</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">addr</span> <span class="ow">in</span> <span class="n">_parse_nmap_target_spec</span><span class="p">(</span><span class="n">target_spec</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">addr</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">netaddr 0.8.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../ip.html" >netaddr.ip</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">netaddr.ip.nmap</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; <a href="../../../copyright.html">Copyright</a> Copyright (c) 2008 by David P. D. Moss. All rights reserved..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

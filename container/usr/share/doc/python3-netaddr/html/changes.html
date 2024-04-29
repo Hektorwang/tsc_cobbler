@@ -1,0 +1,1744 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>What’s new in netaddr 0.8.0 &#8212; netaddr 0.8.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="next" title="Standards and References" href="references.html" />
+    <link rel="prev" title="API Reference" href="api.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="references.html" title="Standards and References"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API Reference"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">netaddr 0.8.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">What’s new in netaddr 0.8.0</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="what-s-new-in-netaddr-0-8-0">
+<h1>What’s new in netaddr 0.8.0<a class="headerlink" href="#what-s-new-in-netaddr-0-8-0" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="release-0-8-0">
+<h2>Release: 0.8.0<a class="headerlink" href="#release-0-8-0" title="Permalink to this headline">¶</a></h2>
+<p>Date: 3 Jul 2020</p>
+<div class="section" id="changes-since-0-7-20">
+<h3>Changes since 0.7.20<a class="headerlink" href="#changes-since-0-7-20" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed weak reference support in classes with <code class="docutils literal notranslate"><span class="pre">__slots__</span></code></p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">__bytes__</span></code> to <code class="docutils literal notranslate"><span class="pre">IPAddress</span></code> for intuitive usage, thanks to Michael Belousov.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">format()</span></code> function to EUI, thanks to Omer Anson.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">IPNetwork.netmask</span></code> property setter, thanks to Naveen Nathan.</p></li>
+<li><p>Added support for IABs in the <code class="docutils literal notranslate"><span class="pre">40:D8:55</span></code> OUI, thanks to Brian Maissy.</p></li>
+<li><p>Drastically optimized <code class="docutils literal notranslate"><span class="pre">spanning_cidr()</span></code>, thanks to Brian Maissy.</p></li>
+<li><p>Fixed <code class="docutils literal notranslate"><span class="pre">&quot;x.x.x.x/x&quot;</span> <span class="pre">in</span> <span class="pre">IPNetwork</span></code> tests, thanks to xpac1985.</p></li>
+<li><p>Added support for passing iterables of <code class="docutils literal notranslate"><span class="pre">IPRange</span></code> to <code class="docutils literal notranslate"><span class="pre">IPSet</span></code> and <code class="docutils literal notranslate"><span class="pre">cidr_merge()</span></code>, based
+on a patch by Henry Stern.</p></li>
+</ul>
+</div>
+<div class="section" id="specific-bug-fixes-addressed-in-this-release">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#specific-bug-fixes-addressed-in-this-release" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>FIXED Issue 205: <a class="reference external" href="https://github.com/netaddr/netaddr/issues/205">https://github.com/netaddr/netaddr/issues/205</a></dt><dd><ul class="simple">
+<li><p>N log N complexity instead of linear</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 171: <a class="reference external" href="https://github.com/netaddr/netaddr/issues/171">https://github.com/netaddr/netaddr/issues/171</a></dt><dd><ul class="simple">
+<li><p>Efficiently creating a large IPSet from a list of IPRanges?</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 161: <a class="reference external" href="https://github.com/netaddr/netaddr/issues/161">https://github.com/netaddr/netaddr/issues/161</a></dt><dd><ul class="simple">
+<li><p>Weak reference support</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="miscellanea">
+<h3>Miscellanea<a class="headerlink" href="#miscellanea" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>The next release (0.9.0) will contain a backwards incompatible change in IPNetwork’s behaviour.
+It’s connected to handling of RFC 6164 IPv6 addresses (/127 and /128): IPNetwork.broadcast will
+return None for those and first addresses in the networks will no longer be excluded when
+iterating IPNetwork and IPNetwork.iter_hosts(). See <a class="reference external" href="https://github.com/netaddr/netaddr/pull/168">https://github.com/netaddr/netaddr/pull/168</a>
+(or temporarily reverted commit 2984c0a40a70 in this repository) to see the actual patch.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="release-0-7-20">
+<h2>Release: 0.7.20<a class="headerlink" href="#release-0-7-20" title="Permalink to this headline">¶</a></h2>
+<p>Date: 19 Jun 2020</p>
+<div class="section" id="changes-since-0-7-19">
+<h3>Changes since 0.7.19<a class="headerlink" href="#changes-since-0-7-19" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed returning from an iterator on Python 3.7+, by Sergey Kozlov.</p></li>
+<li><p>Fixed Python 3.8 SyntaxWarning on using <cite>is not</cite> with a string literal, by Stefan Nordhausen.</p></li>
+<li><p>Fixed DeprecationWarnings by using raw strings for escape characters used in regexes, by Sean McGinnis.</p></li>
+<li><p>Improved IPGlob documentation, by obkmeta.</p></li>
+<li><p>Fixed exception creation in corner cases by explicitly passin error message params as tuples, by
+Matthias Urlichs.</p></li>
+<li><p>Stopped manually replacing shebang of an included script.</p></li>
+<li><p>Stopped using __file__ in all code that’s expected to run in environments that don’t support it
+(like PyOxidizer-produced binaries).</p></li>
+<li><p>Updated all databases included in the package.</p></li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>FIXED Issue 182: <a class="reference external" href="https://github.com/netaddr/netaddr/issues/182">https://github.com/netaddr/netaddr/issues/182</a></dt><dd><ul class="simple">
+<li><p>test_ip_splitter_remove_prefix_larger_than_input_range fails with python 3.7</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 206: <a class="reference external" href="https://github.com/netaddr/netaddr/issues/206">https://github.com/netaddr/netaddr/issues/206</a></dt><dd><ul class="simple">
+<li><p>“”is not” with a literal.” SyntaxWarning</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 198: <a class="reference external" href="https://github.com/netaddr/netaddr/issues/198">https://github.com/netaddr/netaddr/issues/198</a></dt><dd><ul class="simple">
+<li><p>oui databases are outdated</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 188: <a class="reference external" href="https://github.com/netaddr/netaddr/issues/188">https://github.com/netaddr/netaddr/issues/188</a></dt><dd><ul class="simple">
+<li><p>Avoid use of __file__</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="id2">
+<h3>Miscellanea<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Python 2 versions older than 2.7 and Python 3 versions older than 3.5 should be considered
+unsupported. No incompatible code has been introduced to the best of our knowledge but
+there’s no CI infrastructure in place to verify this and if there are any issues with
+those versions they won’t be fixed.</p></li>
+<li><p>Consequently, Python 2.7 and 3.5 support should be considered deprecated as 2.7 has
+reached its end-of-life already and 3.5 will hit it soon.</p></li>
+<li><p>A CI setup has been introduced which allows us to test on a variety of Python versions
+on all Mac, Linux and Windows.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="release-0-7-19">
+<h2>Release: 0.7.19<a class="headerlink" href="#release-0-7-19" title="Permalink to this headline">¶</a></h2>
+<p>Date: 11 Jan 2017</p>
+<div class="section" id="changes-since-0-7-18">
+<h3>Changes since 0.7.18<a class="headerlink" href="#changes-since-0-7-18" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>added a new SubnetSplitter class for those looking to divide up subnets.
+Thanks alanwill and RyPeck and those on (Stack Overflow discussion).</p></li>
+<li><p>removed bundled pytest dependency code for “python setup.py test”.</p></li>
+<li><p>setup.py now uses setuptools only (no more distutils) and setup_egg.py removed.</p></li>
+<li><p>cleaned up INSTALL docs so they accurately reflect current Python packaging.</p></li>
+<li><p>fixed broken parsing, generating and reading of IEEE index files when switching
+between Python 2.x and 3.x.</p></li>
+</ul>
+</div>
+<div class="section" id="id3">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>FIXED Issue 133: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/133">https://github.com/drkjam/netaddr/issues/133</a></dt><dd><ul class="simple">
+<li><p>Splitting a single network into multiple prefixed networks</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 129: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/129">https://github.com/drkjam/netaddr/issues/129</a></dt><dd><ul class="simple">
+<li><p>fix IPAddress().netmask_bits to return 0 for 0.0.0.0 and [::] addresses</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 117: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/117">https://github.com/drkjam/netaddr/issues/117</a></dt><dd><ul class="simple">
+<li><p>(python setup.py test) failing with python3 &gt;= 3.5</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 137: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/137">https://github.com/drkjam/netaddr/issues/137</a></dt><dd><ul class="simple">
+<li><p>API reference is broken on ReadTheDocs</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 143: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/143">https://github.com/drkjam/netaddr/issues/143</a></dt><dd><ul class="simple">
+<li><p>Please refresh the bundled IANA and IEEE databases</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="id4">
+<h3>Miscellanea<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Goodbye to NYSE Euronext (good times), hello Intercontinental Exchange …</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="release-0-7-18">
+<h2>Release: 0.7.18<a class="headerlink" href="#release-0-7-18" title="Permalink to this headline">¶</a></h2>
+<p>Date: 4 Sep 2015</p>
+<div class="section" id="changes-since-0-7-17">
+<h3>Changes since 0.7.17<a class="headerlink" href="#changes-since-0-7-17" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>cidr_merge() algorithm is now O(n) and much faster.
+Thanks to Anand Buddhdev (aabdnn) and Stefan Nordhausen (snordhausen).</p></li>
+<li><p>nmap target specification now fully supported including IPv4 CIDR
+prefixes and IPv6 addresses.</p></li>
+</ul>
+</div>
+<div class="section" id="id5">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>FIXED Issue 100: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/100">https://github.com/drkjam/netaddr/issues/100</a></dt><dd><ul class="simple">
+<li><p>nmap.py - CIDR targets</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 112: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/112">https://github.com/drkjam/netaddr/issues/112</a></dt><dd><ul class="simple">
+<li><p>Observation: netaddr slower under pypy</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="release-0-7-17">
+<h2>Release: 0.7.17<a class="headerlink" href="#release-0-7-17" title="Permalink to this headline">¶</a></h2>
+<p>Date: 31 Aug 2015</p>
+<div class="section" id="changes-since-0-7-16">
+<h3>Changes since 0.7.16<a class="headerlink" href="#changes-since-0-7-16" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed a regression with valid_mac due to shadow import in the
+netaddr module.</p></li>
+</ul>
+</div>
+<div class="section" id="id6">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>FIXED Issue 114: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/114">https://github.com/drkjam/netaddr/issues/114</a></dt><dd><ul class="simple">
+<li><p>netaddr.valid_mac(‘00-B0-D0-86-BB-F7’)==False for 0.7.16 but True for 0.7.15</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="release-0-7-16">
+<h2>Release: 0.7.16<a class="headerlink" href="#release-0-7-16" title="Permalink to this headline">¶</a></h2>
+<p>Date: 30 Aug 2015</p>
+<div class="section" id="changes-since-0-7-15">
+<h3>Changes since 0.7.15<a class="headerlink" href="#changes-since-0-7-15" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><dl class="simple">
+<dt>IPv4 networks with /31 and /32 netmasks are now treated according to</dt><dd><p>RFC 3021. Thanks to kalombos and braaen.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="id7">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>FIXED Issue 109: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/109">https://github.com/drkjam/netaddr/issues/109</a></dt><dd><ul class="simple">
+<li><p>Identify registry of global IPv6 unicast allocations</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 108: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/108">https://github.com/drkjam/netaddr/issues/108</a></dt><dd><ul class="simple">
+<li><p>One part of docs unclear?</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 106: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/106">https://github.com/drkjam/netaddr/issues/106</a></dt><dd><ul class="simple">
+<li><p>Eui64 Updated (pull request for Issue 105)</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 105: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/105">https://github.com/drkjam/netaddr/issues/105</a></dt><dd><ul class="simple">
+<li><p>Support dialects for EUI-64 addresses</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 102: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/102">https://github.com/drkjam/netaddr/issues/102</a></dt><dd><ul class="simple">
+<li><p>0.7.15 tarball is missing tests.</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 96: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/96">https://github.com/drkjam/netaddr/issues/96</a></dt><dd><ul class="simple">
+<li><p>Wrong hosts and broadcasts for /31 and /32 networks.</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="release-0-7-15">
+<h2>Release: 0.7.15<a class="headerlink" href="#release-0-7-15" title="Permalink to this headline">¶</a></h2>
+<p>Date: 29 Jun 2015</p>
+<div class="section" id="changes-since-0-7-14">
+<h3>Changes since 0.7.14<a class="headerlink" href="#changes-since-0-7-14" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fix slowness in IPSet.__contains__. Thanks to novas0x2a for noticing.</p></li>
+<li><p>Normalize IPNetworks when they are added to an IPSet</p></li>
+<li><p>Converted test suite to py.test</p></li>
+</ul>
+</div>
+<div class="section" id="id8">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>FIXED Issue 98: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/98">https://github.com/drkjam/netaddr/issues/98</a></dt><dd><ul class="simple">
+<li><p>Convert test suite to py.test</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 94: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/94">https://github.com/drkjam/netaddr/issues/94</a></dt><dd><ul class="simple">
+<li><p>IPSet.__contains__ is about 40 times slower than the equivalent IPRange</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 95: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/95">https://github.com/drkjam/netaddr/issues/95</a></dt><dd><ul class="simple">
+<li><p>Inconsistent Address Handling in IPSet</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="release-0-7-14">
+<h2>Release: 0.7.14<a class="headerlink" href="#release-0-7-14" title="Permalink to this headline">¶</a></h2>
+<p>Date: 31st Mar 2015</p>
+<div class="section" id="changes-since-0-7-13">
+<h3>Changes since 0.7.13<a class="headerlink" href="#changes-since-0-7-13" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fix weird build breakage in 0.7.13 (wrong Python path, incorrect OUI DB).</p></li>
+<li><dl class="simple">
+<dt>EUI, OUI, and IAB objects can now be compared with strings. You can do</dt><dd><p>my_mac = EUI(“11:22:33:44:55:66”)
+my_mac == “11:22:33:44:55:66”
+and Python will return True on the “==” operator.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Implement the “!=” operator for OUI and IAB under Python2. It was already</dt><dd><p>working under Python3.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>64 bit EUIs could only be created from strings with “-” as a separator.</dt><dd><p>Now, “:” and no seperator are supported, which already worked for 48 bit EUIs.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="id9">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>FIXED Issue 80: <a class="reference external" href="https://github.com/drkjam/netaddr/pull/80">https://github.com/drkjam/netaddr/pull/80</a></dt><dd><ul class="simple">
+<li><p>Compare L2 addresses with their representations</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 81: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/81">https://github.com/drkjam/netaddr/issues/81</a></dt><dd><ul class="simple">
+<li><p>OUI database tests fail in 0.7.13</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 84: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/84">https://github.com/drkjam/netaddr/issues/84</a></dt><dd><ul class="simple">
+<li><p>Incorrect python executable path in netaddr-0.7.13-py2.py3-none-any.whl</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 87: <a class="reference external" href="https://github.com/drkjam/netaddr/pull/87">https://github.com/drkjam/netaddr/pull/87</a></dt><dd><ul class="simple">
+<li><p>Handle eui64 addresses with colon as a delimiter and without delimeter.</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="release-0-7-13">
+<h2>Release: 0.7.13<a class="headerlink" href="#release-0-7-13" title="Permalink to this headline">¶</a></h2>
+<p>Date: 31st Dec 2014</p>
+<div class="section" id="changes-since-0-7-12">
+<h3>Changes since 0.7.12<a class="headerlink" href="#changes-since-0-7-12" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>IPAddress objects can now be added to/subtracted from each other</p></li>
+</ul>
+</div>
+<div class="section" id="id10">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>FIXED Issue 73: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/73">https://github.com/drkjam/netaddr/issues/73</a></dt><dd><ul class="simple">
+<li><p>Adding IP Addresses</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 74: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/74">https://github.com/drkjam/netaddr/issues/74</a></dt><dd><ul class="simple">
+<li><p>compute static global ipv6 addr from the net prefix and mac address</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 75: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/75">https://github.com/drkjam/netaddr/issues/75</a></dt><dd><ul class="simple">
+<li><p>add classifiers for python 3.3 and 3.4 support</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="release-0-7-12">
+<h2>Release: 0.7.12<a class="headerlink" href="#release-0-7-12" title="Permalink to this headline">¶</a></h2>
+<p>Date: 6th Jul 2014</p>
+<div class="section" id="changes-since-0-7-11">
+<h3>Changes since 0.7.11<a class="headerlink" href="#changes-since-0-7-11" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Added method IPSet.iter_ipranges().</p></li>
+<li><p>bool(IPSet()) works now for large IPSets, e.g. IPSet([‘2405:8100::/32’]).</p></li>
+<li><p>IPNetwork.iter_hosts now skips the subnet-router anycast address for IPv6.</p></li>
+<li><p>Removed function fbsocket.inet_aton because it is unused and unnecessary</p></li>
+</ul>
+</div>
+<div class="section" id="id11">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>FIXED Issue 69: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/69">https://github.com/drkjam/netaddr/issues/69</a></dt><dd><ul class="simple">
+<li><p>Add __nonzero__ method to IPSet</p></li>
+</ul>
+</dd>
+<dt>FIXED Pull Request 68: <a class="reference external" href="https://github.com/drkjam/netaddr/pull/68">https://github.com/drkjam/netaddr/pull/68</a></dt><dd><ul class="simple">
+<li><p>Fixed a bug related to allowing ::0 during iter_hosts for v6</p></li>
+</ul>
+</dd>
+<dt>FIXED Issue 67: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/67">https://github.com/drkjam/netaddr/issues/67</a></dt><dd><ul class="simple">
+<li><p>Remove function fbsocket.inet_aton</p></li>
+</ul>
+</dd>
+<dt>FIXED Pull Request 66: <a class="reference external" href="https://github.com/drkjam/netaddr/pull/66">https://github.com/drkjam/netaddr/pull/66</a></dt><dd><ul class="simple">
+<li><p>Added Function to create list of IPRange for non-contiguous IPSet</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="release-0-7-11">
+<h2>Release: 0.7.11<a class="headerlink" href="#release-0-7-11" title="Permalink to this headline">¶</a></h2>
+<p>Date: 19th Mar 2014</p>
+<div class="section" id="changes-since-0-7-10">
+<h3>Changes since 0.7.10<a class="headerlink" href="#changes-since-0-7-10" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Performance of IPSet increased dramatically, implemented by</dt><dd><p>Stefan Nordhausen and Martijn van Oosterhout. As a side effect,
+IPSet(IPNetwork(“10.0.0.0/8”)) is now as fast as you’d expect.</p>
+</dd>
+</dl>
+</li>
+<li><p>Various performance improvements all over the place.</p></li>
+<li><p>netaddr is now hosted on PyPI and can be installed via pip.</p></li>
+<li><p>Doing  “10.0.0.42” in IPNetwork(“10.0.0.0/24”)  works now.</p></li>
+<li><p>IPSet has two new methods: iscontiguous() and iprange(), thanks to Louis des Landes.</p></li>
+<li><p>Re-added the IPAddress.netmask_bits() method that was accidently removed.</p></li>
+<li><dl class="simple">
+<dt>Networks 128.0.0.0/16, 191.255.0.0/16, and 223.255.255.0/24 are not marked as</dt><dd><p>reserved IPv4 addresses any more. Thanks to marnickv for pointing that out.</p>
+</dd>
+</dl>
+</li>
+<li><p>Various bug fixes contributed by Wilfred Hughes, 2*yo and Adam Goodman.</p></li>
+</ul>
+</div>
+<div class="section" id="id12">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<p>FIXED Issue 58: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/58">https://github.com/drkjam/netaddr/issues/58</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>foo.bar doesn’t throw AddrFormatError</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 57: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/57">https://github.com/drkjam/netaddr/issues/57</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>netaddr packages not hosted on PyPI</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 56: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/56">https://github.com/drkjam/netaddr/issues/56</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Fix comparison with large IPSet()</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 55: <a class="reference external" href="https://github.com/drkjam/netaddr/pull/55">https://github.com/drkjam/netaddr/pull/55</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Fix smallest_matching_cidr and all_matching_cidrs</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 53: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/53">https://github.com/drkjam/netaddr/issues/53</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Exclude 128.0.0.0/16 and possibly others from reserved range set?</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 51: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/51">https://github.com/drkjam/netaddr/issues/51</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Encoding errors in netaddr/eui/oui.txt</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 46: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/46">https://github.com/drkjam/netaddr/issues/46</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>len(IPSet()) fails on python3</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 43: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/43">https://github.com/drkjam/netaddr/issues/43</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Method to check if IPSet is contiguous</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 38: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/38">https://github.com/drkjam/netaddr/issues/38</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>netmask_bits is missing from the IPAddress</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 37: <a class="reference external" href="https://github.com/drkjam/netaddr/issues/37">https://github.com/drkjam/netaddr/issues/37</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Test failures with Python 3.3</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="release-0-7-10">
+<h2>Release: 0.7.10<a class="headerlink" href="#release-0-7-10" title="Permalink to this headline">¶</a></h2>
+<p>Date: 6th Sep 2012</p>
+<div class="section" id="changes-since-0-7-9">
+<h3>Changes since 0.7.9<a class="headerlink" href="#changes-since-0-7-9" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>A bunch of Python 3.x bug fixes. Thanks Arfrever.</p></li>
+<li><p>Extended nmap support to cover full target specification.</p></li>
+</ul>
+</div>
+<div class="section" id="id13">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<p>FIXED Issue 36 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/36">https://github.com/drkjam/netaddr/issues/36</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>ResourceWarnings with Python &gt;=3.2</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 35 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/35">https://github.com/drkjam/netaddr/issues/35</a></p>
+<ul class="simple">
+<li><p>netaddr-0.7.9: Test failure with Python 3</p></li>
+</ul>
+<p>FIXED Issue 34 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/34">https://github.com/drkjam/netaddr/issues/34</a></p>
+<ul class="simple">
+<li><p>netaddr.ip.iana.SaxRecordParser.endElement() incompatible with Python 3.1</p></li>
+</ul>
+<p>FIXED Issue 33 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/33">https://github.com/drkjam/netaddr/issues/33</a></p>
+<ul class="simple">
+<li><p>netaddr script not installed with Python 3</p></li>
+</ul>
+<p>FIXED Issue 23 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/23">https://github.com/drkjam/netaddr/issues/23</a></p>
+<ul class="simple">
+<li><p>valid_nmap_range() does not validate nmap format case.</p></li>
+</ul>
+<p>FIXED Issue 22 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/22">https://github.com/drkjam/netaddr/issues/22</a></p>
+<ul class="simple">
+<li><p>all_matching_cidrs: documentation incorrect</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="release-0-7-9">
+<h2>Release: 0.7.9<a class="headerlink" href="#release-0-7-9" title="Permalink to this headline">¶</a></h2>
+<p>Date: 28th Aug 2012</p>
+<div class="section" id="changes-since-0-7-8">
+<h3>Changes since 0.7.8<a class="headerlink" href="#changes-since-0-7-8" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Re-release to fix build removing Sphinx dependency.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="release-0-7-8">
+<h2>Release: 0.7.8<a class="headerlink" href="#release-0-7-8" title="Permalink to this headline">¶</a></h2>
+<p>Date: 28th Aug 2012</p>
+<div class="section" id="changes-since-0-7-7">
+<h3>Changes since 0.7.7<a class="headerlink" href="#changes-since-0-7-7" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>New SAX parser for IANA data source files (contributed by Andrew Stromnov)</p></li>
+<li><p>Fixed pickling failures with EUI, OUI and IAB classes.</p></li>
+</ul>
+</div>
+<div class="section" id="id14">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<p>FIXED Issue 31 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/31">https://github.com/drkjam/netaddr/issues/31</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Exclude ‘39.0.0.0/8’ network from reserved set. Thanks Andrew Stromnov</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 28 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/28">https://github.com/drkjam/netaddr/issues/28</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Fix algorithm in ipv6_link_local to fully conform to rfc4291. Thanks Philipp Wollermann</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 25 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/25">https://github.com/drkjam/netaddr/issues/25</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>install_requires is too aggressive? Thanks Adam Lindsay and commenters.</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 21 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/21">https://github.com/drkjam/netaddr/issues/21</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>deepcopy for EUI fails. Thanks Ryan Nowakowski.</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="release-0-7-7">
+<h2>Release: 0.7.7<a class="headerlink" href="#release-0-7-7" title="Permalink to this headline">¶</a></h2>
+<p>Date: 30th May 2012</p>
+<div class="section" id="changes-since-0-7-6">
+<h3>Changes since 0.7.6<a class="headerlink" href="#changes-since-0-7-6" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Comprehensive documentation update! It’s only taken 4 years
+to get around to using Sphinx and I can confirm it is
+<strong>TOTALLY AWESOME!</strong></p></li>
+<li><p>Various bug fixes</p></li>
+<li><p>Refreshed IEEE OUI and IAB data</p></li>
+</ul>
+</div>
+<div class="section" id="id15">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<p>FIXED Issue 24 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/24">https://github.com/drkjam/netaddr/issues/24</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Fixed TypeError when comparing BaseIP instance with non-BaseIP objects. Thanks pvaret</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 17 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/17">https://github.com/drkjam/netaddr/issues/17</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>For large ipv6 networks the .subnet() method fails. Thanks daveyss</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 20 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/20">https://github.com/drkjam/netaddr/issues/20</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Test failure with Python 3. Thanks Arfrever</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="release-0-7-6">
+<h2>Release: 0.7.6<a class="headerlink" href="#release-0-7-6" title="Permalink to this headline">¶</a></h2>
+<p>Date: 13th Sep 2011</p>
+<div class="section" id="changes-since-0-7-5">
+<h3>Changes since 0.7.5<a class="headerlink" href="#changes-since-0-7-5" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>A bug fix point release</p></li>
+<li><p>Refreshed 3rd party data caches</p></li>
+<li><p>Tested against Python 3.2.x and PyPy 1.6.x</p></li>
+<li><p>Fixed unit tests under for Mac OSX</p></li>
+</ul>
+</div>
+<div class="section" id="id16">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
+<p>FIXED Issue 15 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/15">https://github.com/drkjam/netaddr/issues/15</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Incorrect and invalid glob produced when last octet is not *</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 13 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/13">https://github.com/drkjam/netaddr/issues/13</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Added support for IPython 0.11 API changes. Thanks juliantaylor</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 11 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/11">https://github.com/drkjam/netaddr/issues/11</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Calling valid_glob on cidr raises ValueError. Thanks radicand</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 7 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/7">https://github.com/drkjam/netaddr/issues/7</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Unpickling Bug in IPSet. Thanks LuizOz and labeneator</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 2 - <a class="reference external" href="https://github.com/drkjam/netaddr/issues/2">https://github.com/drkjam/netaddr/issues/2</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>UnboundLocalError raised in IPNetwork constructor. Thanks keesbos</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id17">
+<h3>Miscellanea<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Has a famous soft drink company started making it own NICs?</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="release-0-7-5">
+<h2>Release: 0.7.5<a class="headerlink" href="#release-0-7-5" title="Permalink to this headline">¶</a></h2>
+<p>Date: 5th Oct 2010</p>
+<div class="section" id="changes-since-0-7-4">
+<h3>Changes since 0.7.4<a class="headerlink" href="#changes-since-0-7-4" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Python 3.x is now fully supported. The paint is still drying on this so
+please help with testing and raise bug tickets when you find any issues!
+New Issue Tracker - <a class="reference external" href="https://github.com/drkjam/netaddr/issues">https://github.com/drkjam/netaddr/issues</a></p></li>
+<li><p>Moved code hosting to github. History ported thanks to svn2git.
+- (<a class="reference external" href="https://github.com/nirvdrum/svn2git">https://github.com/nirvdrum/svn2git</a>)</p></li>
+<li><p>All netaddr objects now use approx. 65% less memory due to the use of
+__slots__ in classes throughout the codebase. Thanks to Stefan Nordhausen
+and his Python guru for this suggestion!</p></li>
+<li><p>Applied many optimisations and speedups throughout the codebase.</p></li>
+<li><p>Fixed the behaviour of the IPNetwork constructor so it now behaves in
+a much more sensible and expected way (i.e. no longer uses inet_aton
+semantics which is just plain odd for network addresses).</p></li>
+<li><p>One minor change to behaviour in this version is that the .value property
+on IPAddress and IPNetwork objects no longer support assignment using a
+string IP address. Only integer value assignments are now valid. The impact
+of this change should be minimal for the majority of users.</p></li>
+</ul>
+</div>
+<div class="section" id="id18">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
+<p>FIXED Issue 49 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=49">http://code.google.com/p/netaddr/issues/detail?id=49</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Incorrect IP range recognition on IPs with leading zeros</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 50 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=50">http://code.google.com/p/netaddr/issues/detail?id=50</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>CIDR block parsing</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 52 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=52">http://code.google.com/p/netaddr/issues/detail?id=52</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>ipv6 cidr matches incorrectly match ipv4 [sic]</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 53 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=53">http://code.google.com/p/netaddr/issues/detail?id=53</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Error in online documentation</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 54 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=54">http://code.google.com/p/netaddr/issues/detail?id=54</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>IP recognition failure</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 55 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=55">http://code.google.com/p/netaddr/issues/detail?id=55</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Support for Python 3.x</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 56 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=56">http://code.google.com/p/netaddr/issues/detail?id=56</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>checking IPAddress in IPNetwork</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 57 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=57">http://code.google.com/p/netaddr/issues/detail?id=57</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>netaddr objects can’t pickle</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 58 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=58">http://code.google.com/p/netaddr/issues/detail?id=58</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>IPSet operations should accept the same arguments as IPAddress</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 59 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=59">http://code.google.com/p/netaddr/issues/detail?id=59</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>netaddr fails to load when imported by a PowerDNS coprocess</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id19">
+<h3>Miscellanea<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Welcome back to standards.ieee.org which seems to have been down for weeks!</p></li>
+<li><p>Goodbye Sun Microsystems + Merrill Lynch, hello Oracle + Bank of America …</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="release-0-7-4">
+<h2>Release: 0.7.4<a class="headerlink" href="#release-0-7-4" title="Permalink to this headline">¶</a></h2>
+<p>Date: 2nd Dec 2009</p>
+<div class="section" id="changes-since-0-7-3">
+<h3>Changes since 0.7.3<a class="headerlink" href="#changes-since-0-7-3" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Applied speed patches by S. Nordhausen</p></li>
+<li><p>Fixed an inconsistency between EUI and IPAddress interfaces. Made
+EUI.packed and EUI.bin properties (previously methods) and added a
+words() property.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="release-0-7-3">
+<h2>Release: 0.7.3<a class="headerlink" href="#release-0-7-3" title="Permalink to this headline">¶</a></h2>
+<p>Date: 14th Sep 2009</p>
+<div class="section" id="changes-since-0-7-2">
+<h3>Changes since 0.7.2<a class="headerlink" href="#changes-since-0-7-2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Added __add__, __radd__, __sub__, __rsub__ operators to the IPAddress class.</p></li>
+<li><p>Added support for validation and iteration of simple nmap style IPv4 ranges
+(raised in Issue 46).</p></li>
+<li><p>Removed some unused constants from fallback socket module.</p></li>
+</ul>
+</div>
+<div class="section" id="id20">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
+<p>FIXED Issue 44 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=44">http://code.google.com/p/netaddr/issues/detail?id=44</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>int/long type error</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 46 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=46">http://code.google.com/p/netaddr/issues/detail?id=46</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Question about IPv4 ranges</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 47 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=47">http://code.google.com/p/netaddr/issues/detail?id=47</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>IPNetwork cannot be evaluated as a boolean when it has a large size</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="release-0-7-2">
+<h2>Release: 0.7.2<a class="headerlink" href="#release-0-7-2" title="Permalink to this headline">¶</a></h2>
+<p>Date: 20th Aug 2009</p>
+<div class="section" id="changes-since-0-7-1">
+<h3>Changes since 0.7.1<a class="headerlink" href="#changes-since-0-7-1" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>FIXED a boundary problem with the iter_iprange() generator function</dt><dd><p>and all associated calls to it throughout the codebase, including
+unit test coverage and adjustments.</p>
+</dd>
+</dl>
+<ul class="simple">
+<li><p>Replaced regular expressions in cidr_merge() with pre-compiled equivalents
+for a small speed boost.</p></li>
+<li><p>Adjustments to README raised by John Eckersberg.</p></li>
+</ul>
+</div>
+<div class="section" id="id21">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
+<p>FIXED Issue 43 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=43">http://code.google.com/p/netaddr/issues/detail?id=43</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>IPNetwork(‘0.0.0.0/0’) not usable in for loop</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="release-0-7-1">
+<h2>Release: 0.7.1<a class="headerlink" href="#release-0-7-1" title="Permalink to this headline">¶</a></h2>
+<p>Date: 14th Aug 2009</p>
+<div class="section" id="changes-since-0-7">
+<h3>Changes since 0.7<a class="headerlink" href="#changes-since-0-7" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p>Renamed the netaddr shell script from ‘nash’ to plain ‘netaddr’. This
+is to avoid a potentially nasty clash with an important Linux tool
+with the same name.</p>
+<p>Thanks to John Eckersberg for spotting this one early!</p>
+</li>
+<li><p>Updated IANA and IEEE data files with latest versions.</p></li>
+</ul>
+</div>
+<div class="section" id="id22">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h3>
+<p>FIXED Issue 42 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=42">http://code.google.com/p/netaddr/issues/detail?id=42</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Bug in cidr_merge() function when passed the CIDRs 0.0.0.0/0 and/or ::/0</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="release-0-7">
+<h2>Release: 0.7<a class="headerlink" href="#release-0-7" title="Permalink to this headline">¶</a></h2>
+<p>Date: 11th Aug 2009</p>
+<div class="section" id="changes-since-0-6-x">
+<h3>Changes since 0.6.x<a class="headerlink" href="#changes-since-0-6-x" title="Permalink to this headline">¶</a></h3>
+<p>Please Note - This release represents a major overhaul of netaddr. It breaks
+backward compatibility with previous releases. See the API documentation for
+full details of what is available.</p>
+<p>Some highlights of what has changed :-</p>
+<ul class="simple">
+<li><p>Internal module hierarchy has been completely overhauled and redesigned. This
+fixes up a lot of inconsistencies and problems with interdependent imports.
+All public classes, objects, functions and constants are still published via
+the main netaddr module namespace as in previous releases.</p></li>
+<li><p>No more AT_* and ST_* ‘constants’.</p></li>
+<li><p>The Addr base class is gone. This removes the link between EUI and IP
+functionality so the library is can now easily be split into distinct units
+without many interdependencies between layer 2 and layer 3 functionality.</p></li>
+<li><p>The use of custom descriptor classes has been completely discontinued.</p></li>
+<li><p>Strategy classes and singleton objects have been replaced with a group of
+strategy modules in their own netaddr.strategy namespace. Each IP or EUI
+address object now holds a reference to a module rather than a singleton
+object.</p></li>
+<li><p>Many operations that were previously static class methods are now presented as
+functions in the relevant modules. See the API documentation for details.</p></li>
+<li><p>The IP and CIDR classes have been replaced with two new classes called
+IPAddress and IPNetwork respectively. This name change is important as the IP
+part of netaddr has been completed redesigned. The notion of an individual IP
+address and an IP network or subnet has been made more obvious. IPAddress
+objects are now true scalars and do not evaluate in a list or tuple context.
+They also do not support any notion of a netmask or CIDR prefix; this is the
+primary function of an IPNetwork object.</p></li>
+<li><p>Abritrary IP ranges and are still supported but a lot of their functionality
+has also been exposed via handy functions.</p></li>
+<li><p>IP globbing routines (previous known as Wildcards) have been moved into
+their own submodule.</p></li>
+<li><p>Added a new IPSet class which fully emulates mutable Python sets. This
+replaces a lot of half-baked experimental classes found in 0.5.x and 0.6.x
+such as IPRangeSet and CIDRGroup. See documentation for details.</p></li>
+<li><p>All methods and properties that previously used or supported the ‘fmt’
+formatting property no longer do so. In all cases, objects are now returned to
+correctly support pass through calls without side effects. It is up to the
+user to extract data in the right format from the objects IPAddress objects
+returned as required.</p></li>
+<li><p>Unit tests have been completed re-written to support docstring style tests
+bundled into test suites. These are handy as they double up as documentation
+being combined with wiki syntax. Implemented code coverage checking using
+coverage 3.x.</p></li>
+<li><p>nash - a nascent shell like tool for the netaddr library (requires IPython).</p></li>
+<li><p>Support for RFC 1924 added ;-)</p></li>
+</ul>
+</div>
+<div class="section" id="id23">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h3>
+<p>FIXED Issue 13 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=13">http://code.google.com/p/netaddr/issues/detail?id=13</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Searching for a match in a list of CIDR objects</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 26 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=26">http://code.google.com/p/netaddr/issues/detail?id=26</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Refactor out use of isinstance()</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 28 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=28">http://code.google.com/p/netaddr/issues/detail?id=28</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Add support for network block operations</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 34 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=34">http://code.google.com/p/netaddr/issues/detail?id=34</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Addition issue?</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="release-0-6-4">
+<h2>Release: 0.6.4<a class="headerlink" href="#release-0-6-4" title="Permalink to this headline">¶</a></h2>
+<p>Date: 11th Aug 2009</p>
+<div class="section" id="id24">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
+<p>FIXED Issue 40 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=40">http://code.google.com/p/netaddr/issues/detail?id=40</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Building RPM wth “python setup.py bdist_rpm” fails, multiple errors</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="release-0-6-3">
+<h2>Release: 0.6.3<a class="headerlink" href="#release-0-6-3" title="Permalink to this headline">¶</a></h2>
+<p>Date: 23rd Jun 2009</p>
+<div class="section" id="changes-since-0-6-2">
+<h3>Changes since 0.6.2<a class="headerlink" href="#changes-since-0-6-2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed line endings in a number of new files created under Windows.</p></li>
+<li><p>Tweaked the ordering of values in tuple passed into the hash() function in
+the __hash__ method of the IP and IPRange classes to make it the same as
+the values used for comparisons implemented in the __eq__ method (Python
+best practice).</p></li>
+<li><p>Added a number of unit tests to improve code coverage.</p></li>
+</ul>
+</div>
+<div class="section" id="id25">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h3>
+<p>FIXED Issue 33 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=33">http://code.google.com/p/netaddr/issues/detail?id=33</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>CIDR subtraction is broken for out-of-range CIDR objects</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 35 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=35">http://code.google.com/p/netaddr/issues/detail?id=35</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>install error (on Python interpreters where socket.has_ipv6 is False)</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 36 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=36">http://code.google.com/p/netaddr/issues/detail?id=36</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>netaddr.CIDR fails to parse default route CIDR</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 37 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=37">http://code.google.com/p/netaddr/issues/detail?id=37</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Bug in bitwise AND operator for IP addresses</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 38 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=38">http://code.google.com/p/netaddr/issues/detail?id=38</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Feature request: Addr.__nonzero__</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 39 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=39">http://code.google.com/p/netaddr/issues/detail?id=39</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>CIDR.abbrev_to_verbose() not applying implicit classful netmask
+rules consistently</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="release-0-6-2">
+<h2>Release: 0.6.2<a class="headerlink" href="#release-0-6-2" title="Permalink to this headline">¶</a></h2>
+<p>Date: 13th Apr 2009</p>
+<div class="section" id="changes-since-0-6-1">
+<h3>Changes since 0.6.1<a class="headerlink" href="#changes-since-0-6-1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Refreshed IEEE and IANA data files with latest revisions from their
+respective URLs.</p>
+<ul>
+<li><p>IANA IPv4 Address Space Registry (last updated 2009-03-11)</p></li>
+<li><p>Internet Multicast Addresses (last updated 2009-03-17)</p></li>
+<li><p>IEEE OUI and IAB files (last updated 2009-04-13)</p></li>
+</ul>
+</li>
+<li><p>Added get_latest_files() functions to both the netaddr.eui and
+netaddr.ip modules to assist in automating release builds.</p></li>
+</ul>
+</div>
+<div class="section" id="id26">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h3>
+<p>FIXED Issue 32 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=32">http://code.google.com/p/netaddr/issues/detail?id=32</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Addr.__ne__ returns wrong answer</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="release-0-6-1">
+<h2>Release: 0.6.1<a class="headerlink" href="#release-0-6-1" title="Permalink to this headline">¶</a></h2>
+<p>Date: 6th Apr 2009</p>
+<div class="section" id="changes-since-0-6">
+<h3>Changes since 0.6<a class="headerlink" href="#changes-since-0-6" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Added COPYRIGHT file with details and attribution for all 3rd party files
+bundled with netaddr.</p></li>
+<li><p>Minimum Python version required is now 2.4.x changed from 2.3.x.</p>
+<ul>
+<li><p>Python 2.3 compatibility code in many sections of code have been removed.</p></li>
+<li><p>the &#64;property and &#64;staticmethod decorators are now used throughout the
+code along with the reversed() and sorted() builtin iterators.</p></li>
+<li><p>A specific version check has also been added that will raise RuntimeError
+exceptions if you run netaddr on a Python interpreter version &lt; 2.4.x.</p></li>
+</ul>
+</li>
+<li><p>Integer addresses passed to the IP() and EUI() constructors no longer
+require a mandatory second address type (AT_*) argument in most cases. This
+is now only really required to disambiguate between IPv4/IPv6 addresses with
+the same numerical value. The same behaviour applies to EUI-48/EUI-64
+identifiers. A small speed boost is achieved if the 2nd address type
+argument is explicitly provided.</p></li>
+<li><p>IPv6 addresses returned by EUI.ipv6_link_local() now always have a subnet
+prefix of /64.</p></li>
+<li><p>Default sort order of aggregate classes (IPRange, CIDR and Wildcard) has
+been changed (again). They now sort initially by first address and then
+by network block size from largest to smallest which feels more natural.</p></li>
+<li><p>Fixed a bug in the CIDR.abbrev_to_verbose() static method where IPv4
+addresses with 4 octets (i.e. non-partial addresses) were being assigned
+subnet prefixes using abbreviated rules. All complete IPv4 addresses should
+always get a /32 prefix where it is not explicitly provided.</p></li>
+<li><p>Abbreviated address expansion in the CIDR constructor is now optional and
+can be controlled by a new ‘expand_abbrev’ boolean argument.</p></li>
+<li><p>Added the new CIDR.summarize() static method which transforms lists of IP
+addresses and CIDRs into their most compact forms. Great for trimming down
+large ad hoc address lists!</p></li>
+<li><p>Added the previous() and next() methods to the CIDR classes which return
+the CIDR subnets either side of a given CIDR that are of the same size.
+For the CIDR 192.0.2.0/24, previous will return 192.0.1.0/24 and next
+will return 192.0.3.0/24. Also accepts and optional step size (default
+is 1).</p></li>
+<li><p>Added the supernet() method to the CIDR class which returns a generator of
+all the subnets that contain the current CIDR found by decrementing the
+prefixlen value for each step until it reaches zero.</p></li>
+<li><p>Changed the way the fallback code works when the socket module is missing
+important constants and functions.</p></li>
+<li><p>Removed the uppercase options from the Strategy constructors and internals
+as this behaviour can be easily replicated using the word_fmt option
+instead and requires less code (word_fmt=’%X’).</p></li>
+</ul>
+</div>
+<div class="section" id="id27">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h3>
+<p>FIXED Issue 23 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=23">http://code.google.com/p/netaddr/issues/detail?id=23</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Improve IPv6 IPv4 mapped/compatible address formatting</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 24 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=24">http://code.google.com/p/netaddr/issues/detail?id=24</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>bug in CIDR.subnet() when using the fmt argument</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 29 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=29">http://code.google.com/p/netaddr/issues/detail?id=29</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>CIDR.subnet method’s count argument isn’t working as documented</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 30 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=30">http://code.google.com/p/netaddr/issues/detail?id=30</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>not compatible with Python 2.3</p></li>
+</ul>
+</div></blockquote>
+<p>FIXED Issue 31 - <a class="reference external" href="http://code.google.com/p/netaddr/issues/detail?id=31">http://code.google.com/p/netaddr/issues/detail?id=31</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>byte order in documentation confusing or wrong</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="release-0-6">
+<h2>Release: 0.6<a class="headerlink" href="#release-0-6" title="Permalink to this headline">¶</a></h2>
+<p>Date: 20th Jan 2009</p>
+<div class="section" id="changes-since-0-5-x">
+<h3>Changes since 0.5.x<a class="headerlink" href="#changes-since-0-5-x" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p>Namespace changes</p>
+<p>3 new sub namespaces have been added :-</p>
+<ul class="simple">
+<li><p>netaddr.eui</p></li>
+</ul>
+<p>Currently contains IEEE OUI and IAB classes and lookup code.</p>
+<ul class="simple">
+<li><p>netaddr.ip</p></li>
+</ul>
+<p>Currently contains IANA IPv4, IPv6 and IPv4 multicast lookup code.</p>
+<ul class="simple">
+<li><p>netaddr.core</p></li>
+</ul>
+<p>Currently contains only a couple of classes that are shared between code in
+netaddr.eui and netaddr.ip.</p>
+<p>Please Note: This change is part of a two stage internal restructuring of
+netaddr. In future releases, layer-2 MAC/EUI functionality will be separated
+from and layer-3 IP, CIDR and Wildcard functionality. All shared code will
+be moved to netaddr.core. When the migration is complete (expected in 0.7)
+the netaddr.address and netaddr.strategy namespaces will be removed. Please
+endeavour to access everything you need via the top-level netaddr namespace
+from this release onwards. See netaddr.__all__ for details of constants,
+objects, classes and functions intended for the public interface.</p>
+</li>
+<li><p>Addition of IEEE and IANA informational lookups</p>
+<ul class="simple">
+<li><p>the IP() and EUI() classes now have an additional info() method through
+which contextual information about your addresses can be accessed. This
+data is published by IANA and the IEEE respectively and sourced directly
+from text files bundled with netaddr that are available for download
+publically online. Details are available in the docstring of the relevant
+parsing classes. Subsequent netaddr releases will endeavour to keep
+up-to-date with any updates to these files.</p></li>
+<li><p>the EUI() class has been updated with the addition of the OUI() and IAB()
+classes. They provide object based access to returned via the EUI.info()
+method. Please see API docs included with netaddr for details.</p></li>
+<li><p>added new NotRegisteredError exception that is raised when an EUI doesn’t
+match any currently registration entries in the IEEE registry files.</p></li>
+</ul>
+</li>
+<li><p>Addr() class removed from the public interface</p>
+<ul class="simple">
+<li><p>This class is only ever meant to be used internally and its usage may soon
+be deprecated in favour converting it into an abstract base class in
+future releases.</p></li>
+</ul>
+</li>
+<li><p>Deletion of AddrRange() class</p>
+<ul class="simple">
+<li><p>replaced with the more specific IPRange() class. AddrRange() wasn’t
+very useful in practice. Too much time has been spent explaining its
+theoretical merits over its actual practicality for every day use.</p></li>
+</ul>
+</li>
+<li><p>Addition of new IPRange() class</p>
+<ul class="simple">
+<li><p>the new base class for CIDR() and Wildcard().</p></li>
+<li><p>a ‘killer feature’ of this new class are the new methods iprange(),
+cidrs() and wildcard() which allow you to use and switch between all
+3 formats easily. IPRange(‘x’, ‘y’).cidrs() is particularly useful
+returning all the intervening CIDRs between 2 arbitrary IP addresses.</p></li>
+<li><p>IPRange() is a great place to expose several new methods available to
+sub classes. They are issupernet(), issubnet(), adjacent() and overlaps().</p></li>
+<li><p>previous method called data_flavour() has been renamed (again) to a more
+suitable format().</p></li>
+</ul>
+</li>
+<li><p>IP() class updates</p>
+<ul class="simple">
+<li><p>is_netmask() and is_hostmask() methods have been optimised and are now
+both approximately 4 times faster than previously!</p></li>
+<li><p>added wildcard() and iprange() methods that return pre-initialised
+objects of those classes based on the current netmask / subnet prefix.</p></li>
+<li><p>copy constructor methods ipv4() and ipv6() now preserve the value of the
+prefixlen property now also support IPv6 options for returning IPv4-mapped
+or IPv4-compatible IPv6 addresses.</p></li>
+<li><p>added new methods is_loopback(), is_private(), is_link_local(),
+is_ipv4_mapped() and is_ipv4_compat() which are all self explanatory.</p></li>
+<li><p>added a bin() method which provides an IP address in the same format
+as the standard Python bin() builtin type (‘0bxxx’) now available in
+Python 2.6.x and higher.</p></li>
+<li><p>added a packed() method which provides an IP address in packed binary
+string format, suitable for passing directly to Python socket calls.</p></li>
+</ul>
+</li>
+<li><p>nrange() generator function updates</p>
+<ul class="simple">
+<li><p>by default this now returns IP() objects instead of Addr() objects.</p></li>
+</ul>
+</li>
+<li><p>CIDR() class updates</p>
+<ul class="simple">
+<li><p>the ‘strict_bitmask’ option in the CIDR class constructor has been had a
+name change and is now just ‘strict’ (less typing).</p></li>
+<li><p>support for Cisco ACL-style (hostmask) prefixes. Also available to the
+IP() class. They are converted to their netmask equivalents before being
+applied to the base address.</p></li>
+<li><p>added a new subnet() generator method that returns iterators to subnet
+CIDRs found within the current CIDR object’s boundaries e.g. a /24 CIDR
+can provide address with subnet prefixes between a /25 and /32.</p></li>
+<li><p>added a new span() method which takes a list of IP, IPRange, CIDR and/or
+Wildcards returning a single CIDR that ‘spans’ the lowest and highest
+boundary addresses. An important property of this class is that only a
+single CIDR is returned and that it (potentially) overlaps the start and
+end addresses. The most important aspect of this method is that it
+identifies the left-most set of bits that are common to all supplied
+addresses. It is the plumbing that makes a lot of other features function
+correctly.</p></li>
+<li><p>although IPv6 doesn’t support the concept of a broadcast address, after
+some pondering I’ve decide to add network() and broadcast() methods to the
+CIDR class. It is an interface quirk that users expect so it has been
+added for ease of use.</p></li>
+<li><p>the methods network(), broadcast(), hostmask() and netmask() have been
+wrapped in property() builtin calls to make them appear as read-only
+properties.</p></li>
+</ul>
+</li>
+<li><p>Many more MAC and IPv4 string address representation are now supported</p>
+<ul class="simple">
+<li><p>Improvements to both EUI and IP classes. They now accept many more valid
+address formats than previously. Thanks for all the bugs tickets raised.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">__repr__()</span></code> method behaviour change</p>
+<ul class="simple">
+<li><p>Using <code class="docutils literal notranslate"><span class="pre">repr()</span></code> now assume that you have performed a <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">netaddr</span> <span class="pre">import</span> <span class="pre">*</span></code>
+before you execute them. They no longer specify the originating namespace
+of objects which is a bit unnecessary and a lot to read on-screen.They
+will also be moving around within the namespace shortly anyway so its
+best not to think of them as being anywhere other than directly below
+netaddr itself.</p></li>
+</ul>
+</li>
+<li><p>‘klass’ property renamed to ‘fmt’ (format)</p>
+<ul class="simple">
+<li><p>now referred to as the ‘format callable’ property. An unfortunately but
+necessary change. ‘klass’ was a bad initial name choice as it most often
+doesn’t even reference a class object also supporting references to Python
+types, builtin functions and user defined callables.</p></li>
+</ul>
+</li>
+<li><p>Complete re-work and consolidation of unit tests.</p>
+<ul class="simple">
+<li><p>now over 100 tests covering all aspects of the API and library
+functionality.</p></li>
+<li><p>Moved all tests into a single file. Lots of additional tests have been
+added along with interface checks to ensure netaddr’s always presents
+a predictable set of properties and methods across releases.</p></li>
+</ul>
+</li>
+<li><p>Nascent support for Python eggs and setuptools.</p>
+<ul class="simple">
+<li><p>Help is need to test this as it is not something I use personally.</p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="id28">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Finally fixed the IPv6 string address compression algorithm so that it
+is now compliant with the socket modules inet_ntop() and inet_pton() calls.
+(not available on all platforms).</p></li>
+</ul>
+</div>
+<div class="section" id="experimental-features">
+<h3>Experimental Features<a class="headerlink" href="#experimental-features" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>added bitwise operators to the IP class</p>
+<ul>
+<li><p>does what it says on the tin. Does not effect that value of the IP object
+itself but rather, returns a new IP after the operation has been applied.</p></li>
+</ul>
+</li>
+<li><p>IPRangeSet() class added (EXPERIMENTAL).</p>
+<ul>
+<li><p>the intention with this class is to allows you to create collections of
+unique IP(), IPRange(), CIDR() and Wildcard() objects. It provides
+iteration over IPs in the collection as well as several membership based
+operations such as any_match() all_matches(), min_match() and max_match().</p></li>
+<li><p>lots more work to do here. Please raise bugs and feature requests against
+this as you find them. Improvements to this are coming in 0.7.</p></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="release-0-5-2">
+<h2>Release: 0.5.2<a class="headerlink" href="#release-0-5-2" title="Permalink to this headline">¶</a></h2>
+<p>Date: 29th Sep 2008</p>
+<div class="section" id="id29">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fixed Issue 15 in bug tracker. Bad validation and conversion of IPv4
+mapped IPv6 address values in IPv6Strategy class. Covered with unit
+test cases.</p></li>
+<li><p>Updated PrefixLenDescriptor() class so that modifications to the property
+CIDR.prefixlen also update CIDR.first and CIDR.last keeping them in sync.
+Covered by unit test cases.</p></li>
+<li><p>IP.hostname() method returns None when DNS lookup fails.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="release-0-5-1">
+<h2>Release: 0.5.1<a class="headerlink" href="#release-0-5-1" title="Permalink to this headline">¶</a></h2>
+<p>Date: 23rd Sep 2008</p>
+<div class="section" id="id30">
+<h3>Specific bug fixes addressed in this release<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>CIDR constructor was throwing a TypeError for valid unicode string addresses
+which worked in previous releases. Fixed and covered with a unit test case.</p></li>
+<li><p>The methods CIDR.netmask() and CIDR.hostmask() contained code errors that
+were causing them to fail. Problem fixed and covered with unit test case.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="release-0-5">
+<h2>Release: 0.5<a class="headerlink" href="#release-0-5" title="Permalink to this headline">¶</a></h2>
+<p>Date: 19th Sep 2008</p>
+<div class="section" id="changes-since-0-4-x">
+<h3>Changes since 0.4.x<a class="headerlink" href="#changes-since-0-4-x" title="Permalink to this headline">¶</a></h3>
+<p><strong>General</strong></p>
+<ul>
+<li><p>Access to all important object attributes in all netaddr classes now takes
+place via custom Python descriptor protocol classes. This has greatly
+simplified internal class logic and made external attributes changes much
+safer and less error prone. It has also made aggregate classes such as CIDR
+and Wildcard effectively read-write rather than read-only which they have
+been up until this release.</p></li>
+<li><p>Ammended the way sort order is calculated for Addr and AddrRange (sub)class
+instances so that the address type is taken into account as well as as the
+numerical value of the address or address range. The ascending sort order
+is IPv4, IPv6, EUI-48 and EUI-64. Sequences of AddrRange (sub)class
+instances now sort correctly!</p></li>
+<li><p>Comparisons between instances of Addr and AddrRange (sub)classes now return
+False, rather than raising an AttributeError.</p></li>
+<li><p>Added checks and workaround code for Python runtime environments that suffer
+from the infamous socket module inet_aton(‘255.255.255.255’) bug. This was
+discovered recently in Python 2.4.x on PowerPC under MacOS X. The fix also
+applies in cases where the socket module is not available (e.g. on Google
+App Engine).</p></li>
+<li><p>All general Exception raising in the strategy module has now been replaced
+with more specific exceptions, mainly ValueError (these were unintentionally
+missed out of the 0.4 release).</p></li>
+<li><p>Implemented __hash__() operations for the Addr and AddrStrategy classes. This
+allows you to use IP, CIDR and Wildcard objects as keys in dictionaries and
+as elements in sets. Please note - this is currently an experimental feature
+which may change in future releases.</p></li>
+<li><p>Added __ne__() operation to Addr and AddrRange classes.</p></li>
+<li><p>Obeying the ‘Law of Demeter’, the address type of Addr and AddrRange
+(sub)class instances can be accessed using the property directly :-</p>
+<blockquote>
+<div><p>obj.addr_type  # 0.5 onwards</p>
+</div></blockquote>
+<p>rather than having to go via the strategy object :-</p>
+<blockquote>
+<div><p>obj.strategy.addr_type  # 0.4 and earlier</p>
+</div></blockquote>
+</li>
+<li><p>Renamed the AT_DESCR lookup dictionary to AT_NAMES. Removed invalid and
+duplicated imports from all modules.</p></li>
+</ul>
+<p><strong>Addr class changes</strong></p>
+<ul class="simple">
+<li><p>Removed the setvalue() method from the Addr class and replaced all uses of
+__setattr__() replaced by custom descriptors throughout.</p></li>
+</ul>
+<p><strong>IP class changes</strong></p>
+<ul class="simple">
+<li><p>Removed the ambiguity with masklen and prefixlen attributes in the IP class.
+prefixlen now denotes the number of bits that define the netmask for an IP
+address. The new method netmask_bits() returns the number of non-zero bits
+in an IP object if the is_netmask() method returns True. A prefixlen value
+other than /32 for an address where is_netmask() returns True is invalid
+and will raise a ValueError exception.</p></li>
+<li><p>Removed the family() method from the IP class. It duplicates information
+now provided by the prefixlen property.</p></li>
+<li><p>IP class has several new methods. is_multicast() and is_unicast() quickly
+tell you what category of IP address you have and while ipv4() and ipv6()
+act as IPv4 &lt;-&gt; IPv6 conversions or copy constructors depending on context.</p></li>
+<li><p>Reverse DNS lookup entries now contain a trailing, top-level period (.)
+character appended to them.</p></li>
+<li><p>Added the hostname() method to IP instances which performs a reverse DNS</p></li>
+<li><p>The IP class __str__() method now omits the subnet prefix is now implicit
+for IPv4 addresses that are /32 and IPv6 addresses that are /128. Subnet
+prefix is maintained in return value for all other values.</p></li>
+</ul>
+<p><strong>AddrRange class changes</strong></p>
+<ul>
+<li><p>The AddrRange class no longer stores instances of Addr (sub)classes for the
+first and last address in the range. The instance variables self.start_addr
+and self.stop_addr have been renamed to self.first and self.last and the
+methods obj.first() and obj.last() have been removed.</p>
+<p>Instead, self.first and self.last contain integer values and a reference
+to a strategy object is stored. Doing this is a lot more useful and cleaner
+for implementing internal logic.</p>
+<p>To get Addr (sub)class objects (or strings, hex etc when manipulating the
+the klass property) use the index values obj[0] and obj[-1] as a substitute
+for obj.first() and obj.last() respectively.</p>
+</li>
+<li><p>AddrRange (sub)class instances now define the increment, __iadd__(), and
+decrement, __isub__(), operators. This allows you to ‘slide’ CIDRs and
+Wildcards upwards and downwards based on their block sizes.</p></li>
+<li><p>The _retval() method has now been renamed data_flavour() - yes, the UK
+spelling ;-) You shouldn’t really care much about this as it mostly for
+internal use. I gave it a decent name as I didn’t see any real need to hide
+the functionality if users wanted it.</p></li>
+</ul>
+<p><strong>CIDR class changes</strong></p>
+<ul class="simple">
+<li><p>The strictness of the CIDR class constructor in relation to non-zero bits
+once the prefix bitmask has been applied can be disabled use the optional
+argument strict_bitmask=False. It is True (strictness enabled) by default.</p></li>
+<li><p>Fixed a bug in abbreviated CIDR conversion. Subnet prefix for multicast
+address 224.0.0.0 is now /4 instead of /8.</p></li>
+<li><p>The CIDR class now supports subtraction between two CIDR objects, returning
+a list of the remainder. Please note that the bigger of the two CIDR objects
+must be on the left hand side of the the expression, otherwise an empty list
+is return. Sorry, you are not allowed to create negative CIDRs ;-)</p></li>
+<li><p>The function abbrev_to_cidr() has been renamed to and turned into the static
+method CIDR.abbrev_to_verbose(). No major changes to the logic have been
+made.</p></li>
+</ul>
+<p><strong>Wildcard class changes</strong></p>
+<ul class="simple">
+<li><p>The Wildcard class now defines a static method Wildcard.is_valid() that
+allows you to perform validity tests on wildcard strings without fully
+instantiation a Wildcard object.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="release-0-4">
+<h2>Release: 0.4<a class="headerlink" href="#release-0-4" title="Permalink to this headline">¶</a></h2>
+<p>Date: 7th Aug 2008</p>
+<div class="section" id="changes-since-0-3-x">
+<h3>Changes since 0.3.x<a class="headerlink" href="#changes-since-0-3-x" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p>All general Exception raising has been replaced with more specific
+exceptions such as TypeError and ValueError and with the addition of two
+custom exception classes, AddrFormatError and AddrConversionError.</p></li>
+<li><p>The IP class now accepts a subnet prefix. It is <em>NOT</em> strict about non-zero
+bits to the right of implied subnet mask, unlike the CIDR class (see below).</p></li>
+<li><p>The CIDR class is now completely strict about non-zero bits to the right of
+the implied subnet netmask and raises a ValueError if they exist, with a
+handy hint as to the correct CIDR to be used based on the supplied subnet
+prefix.</p></li>
+<li><p>The CIDR class now also supports abbreviated CIDR ranges and uses older
+classful network address rules to decided on a subnet prefix if one is not
+explicitly provided. Supported forms now include 10, 10/8 and 192.168/16.
+Currently only supports these options for IPv4 CIDR address ranges.</p></li>
+<li><p>__repr__() methods have been defined for all classes in the netaddr module
+producing executable Python statements that can be used to re-create the
+state of any object.</p></li>
+<li><p>CIDR and Wildcard classes now have methods that support conversions between
+these two aggregate types :-</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>CIDR -&gt; Wildcard</p></li>
+<li><p>Wildcard -&gt; CIDR</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="housekeeping-changes">
+<h3>Housekeeping Changes<a class="headerlink" href="#housekeeping-changes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Massive docstring review and tidy up with the inclusino of epydoc specific
+syntax to spruce up auto-generated API documentation.</p></li>
+<li><p>Thorough review of code using pylint.</p></li>
+<li><p>Netaddr module now has the special __version__ variable defined which is
+also referenced by setup.py.</p></li>
+<li><p>Some minor changes to setup.py and MANIFEST.in.</p></li>
+<li><p>Constants and custom Exception classes have been moved to __init__.py from
+strategy.py</p></li>
+<li><p>An import * friendly __all__ has been defined for the netaddr namespace
+which should remove the need to delve too much into the address and strategy
+submodules.</p></li>
+<li><p>Fixed a number of line-ending issues in several files.</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">What’s new in netaddr 0.8.0</a><ul>
+<li><a class="reference internal" href="#release-0-8-0">Release: 0.8.0</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-20">Changes since 0.7.20</a></li>
+<li><a class="reference internal" href="#specific-bug-fixes-addressed-in-this-release">Specific bug fixes addressed in this release</a></li>
+<li><a class="reference internal" href="#miscellanea">Miscellanea</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-20">Release: 0.7.20</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-19">Changes since 0.7.19</a></li>
+<li><a class="reference internal" href="#id1">Specific bug fixes addressed in this release</a></li>
+<li><a class="reference internal" href="#id2">Miscellanea</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-19">Release: 0.7.19</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-18">Changes since 0.7.18</a></li>
+<li><a class="reference internal" href="#id3">Specific bug fixes addressed in this release</a></li>
+<li><a class="reference internal" href="#id4">Miscellanea</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-18">Release: 0.7.18</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-17">Changes since 0.7.17</a></li>
+<li><a class="reference internal" href="#id5">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-17">Release: 0.7.17</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-16">Changes since 0.7.16</a></li>
+<li><a class="reference internal" href="#id6">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-16">Release: 0.7.16</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-15">Changes since 0.7.15</a></li>
+<li><a class="reference internal" href="#id7">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-15">Release: 0.7.15</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-14">Changes since 0.7.14</a></li>
+<li><a class="reference internal" href="#id8">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-14">Release: 0.7.14</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-13">Changes since 0.7.13</a></li>
+<li><a class="reference internal" href="#id9">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-13">Release: 0.7.13</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-12">Changes since 0.7.12</a></li>
+<li><a class="reference internal" href="#id10">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-12">Release: 0.7.12</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-11">Changes since 0.7.11</a></li>
+<li><a class="reference internal" href="#id11">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-11">Release: 0.7.11</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-10">Changes since 0.7.10</a></li>
+<li><a class="reference internal" href="#id12">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-10">Release: 0.7.10</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-9">Changes since 0.7.9</a></li>
+<li><a class="reference internal" href="#id13">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-9">Release: 0.7.9</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-8">Changes since 0.7.8</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-8">Release: 0.7.8</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-7">Changes since 0.7.7</a></li>
+<li><a class="reference internal" href="#id14">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-7">Release: 0.7.7</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-6">Changes since 0.7.6</a></li>
+<li><a class="reference internal" href="#id15">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-6">Release: 0.7.6</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-5">Changes since 0.7.5</a></li>
+<li><a class="reference internal" href="#id16">Specific bug fixes addressed in this release</a></li>
+<li><a class="reference internal" href="#id17">Miscellanea</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-5">Release: 0.7.5</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-4">Changes since 0.7.4</a></li>
+<li><a class="reference internal" href="#id18">Specific bug fixes addressed in this release</a></li>
+<li><a class="reference internal" href="#id19">Miscellanea</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-4">Release: 0.7.4</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-3">Changes since 0.7.3</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-3">Release: 0.7.3</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-2">Changes since 0.7.2</a></li>
+<li><a class="reference internal" href="#id20">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-2">Release: 0.7.2</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7-1">Changes since 0.7.1</a></li>
+<li><a class="reference internal" href="#id21">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7-1">Release: 0.7.1</a><ul>
+<li><a class="reference internal" href="#changes-since-0-7">Changes since 0.7</a></li>
+<li><a class="reference internal" href="#id22">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-7">Release: 0.7</a><ul>
+<li><a class="reference internal" href="#changes-since-0-6-x">Changes since 0.6.x</a></li>
+<li><a class="reference internal" href="#id23">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-6-4">Release: 0.6.4</a><ul>
+<li><a class="reference internal" href="#id24">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-6-3">Release: 0.6.3</a><ul>
+<li><a class="reference internal" href="#changes-since-0-6-2">Changes since 0.6.2</a></li>
+<li><a class="reference internal" href="#id25">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-6-2">Release: 0.6.2</a><ul>
+<li><a class="reference internal" href="#changes-since-0-6-1">Changes since 0.6.1</a></li>
+<li><a class="reference internal" href="#id26">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-6-1">Release: 0.6.1</a><ul>
+<li><a class="reference internal" href="#changes-since-0-6">Changes since 0.6</a></li>
+<li><a class="reference internal" href="#id27">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-6">Release: 0.6</a><ul>
+<li><a class="reference internal" href="#changes-since-0-5-x">Changes since 0.5.x</a></li>
+<li><a class="reference internal" href="#id28">Specific bug fixes addressed in this release</a></li>
+<li><a class="reference internal" href="#experimental-features">Experimental Features</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-5-2">Release: 0.5.2</a><ul>
+<li><a class="reference internal" href="#id29">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-5-1">Release: 0.5.1</a><ul>
+<li><a class="reference internal" href="#id30">Specific bug fixes addressed in this release</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-5">Release: 0.5</a><ul>
+<li><a class="reference internal" href="#changes-since-0-4-x">Changes since 0.4.x</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#release-0-4">Release: 0.4</a><ul>
+<li><a class="reference internal" href="#changes-since-0-3-x">Changes since 0.3.x</a></li>
+<li><a class="reference internal" href="#housekeeping-changes">Housekeeping Changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="previous chapter">API Reference</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="references.html"
+                        title="next chapter">Standards and References</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/changes.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="references.html" title="Standards and References"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API Reference"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">netaddr 0.8.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">What’s new in netaddr 0.8.0</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; <a href="copyright.html">Copyright</a> Copyright (c) 2008 by David P. D. Moss. All rights reserved..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

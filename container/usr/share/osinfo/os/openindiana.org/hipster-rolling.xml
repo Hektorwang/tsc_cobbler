@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<libosinfo version="0.0.1">
+  <!-- Licensed under the GNU General Public License version 2 or later.
+     See http://www.gnu.org/licenses/ for a copy of the license text -->
+  <os id="http://openindiana.org/hipster/rolling">
+    <short-id>openindiana</short-id>
+    <name>OpenIndiana Hipster</name>
+    <name xml:lang="zh_Hans">OpenIndiana Hipster</name>
+    <name xml:lang="ka">OpenIndiana Hipster</name>
+    <name xml:lang="ko">&#xC624;&#xD508;&#xC778;&#xB514;&#xC544;&#xB098; &#xD799;&#xC2A4;&#xD130;</name>
+    <name xml:lang="uk">OpenIndiana Hipster</name>
+    <name xml:lang="tr">OpenIndiana Hipster</name>
+    <name xml:lang="pl">OpenIndiana Hipster</name>
+    <name xml:lang="it">OpenIndiana Hipster</name>
+    <name xml:lang="id">OpenIndiana Hipster</name>
+    <name xml:lang="de">OpenIndiana Hipster</name>
+    <vendor>illumos</vendor>
+    <vendor xml:lang="zh_Hans">illumos</vendor>
+    <vendor xml:lang="ka">illumos</vendor>
+    <vendor xml:lang="ko">&#xC77C;&#xB8E8;&#xBAA8;&#xC2A4;</vendor>
+    <vendor xml:lang="uk">illumos</vendor>
+    <vendor xml:lang="tr">illumos</vendor>
+    <vendor xml:lang="pl">illumos</vendor>
+    <vendor xml:lang="it">illumos</vendor>
+    <vendor xml:lang="id">illumos</vendor>
+    <vendor xml:lang="de">illumos</vendor>
+    <family>illumos</family>
+    <distro>openindiana</distro>
+    <release-status>rolling</release-status>
+    <firmware arch="x86_64" type="efi"/>
+    <devices>
+      <device id="http://pcisig.com/pci/1033/0194"/>
+      <!-- nec-xhci -->
+      <device id="http://pcisig.com/pci/1af4/1000"/>
+      <!-- virtio-net -->
+      <device id="http://pcisig.com/pci/1af4/1001"/>
+      <!-- virtio-block -->
+      <device id="http://pcisig.com/pci/1b36/0004"/>
+      <!-- qemu-xhci -->
+      <device id="http://pcisig.com/pci/1b36/0100"/>
+      <!-- qxl -->
+      <device id="http://pcisig.com/pci/8086/10d3"/>
+      <!-- e1000e -->
+      <device id="http://pcisig.com/pci/8086/2415"/>
+      <!-- ac97 -->
+      <device id="http://pcisig.com/pci/8086/2668"/>
+      <!-- ich6 -->
+      <device id="http://pcisig.com/pci/8086/293e"/>
+      <!-- ich9-hda -->
+      <device id="http://qemu.org/chipset/x86/q35"/>
+      <!-- qemu-x86-q35 -->
+      <device id="http://usb.org/usb/80ee/0021"/>
+      <!-- tablet -->
+    </devices>
+    <resources arch="all">
+      <minimum>
+        <ram>536870912</ram>
+      </minimum>
+    </resources>
+  </os>
+</libosinfo>

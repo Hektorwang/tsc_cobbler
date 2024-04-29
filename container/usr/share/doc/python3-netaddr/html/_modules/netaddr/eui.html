@@ -1,0 +1,826 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>netaddr.eui &#8212; netaddr 0.8.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="copyright" title="Copyright" href="../../copyright.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">netaddr 0.8.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">netaddr.eui</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for netaddr.eui</h1><div class="highlight"><pre>
+<span></span><span class="c1">#-----------------------------------------------------------------------------</span>
+<span class="c1">#   Copyright (c) 2008 by David P. D. Moss. All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1">#   Released under the BSD license. See the LICENSE file for details.</span>
+<span class="c1">#-----------------------------------------------------------------------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Classes and functions for dealing with MAC addresses, EUI-48, EUI-64, OUI, IAB</span>
+<span class="sd">identifiers.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">netaddr.core</span> <span class="kn">import</span> <span class="n">NotRegisteredError</span><span class="p">,</span> <span class="n">AddrFormatError</span><span class="p">,</span> <span class="n">DictDotLookup</span>
+<span class="kn">from</span> <span class="nn">netaddr.strategy</span> <span class="kn">import</span> <span class="n">eui48</span> <span class="k">as</span> <span class="n">_eui48</span><span class="p">,</span> <span class="n">eui64</span> <span class="k">as</span> <span class="n">_eui64</span>
+<span class="kn">from</span> <span class="nn">netaddr.strategy.eui48</span> <span class="kn">import</span> <span class="n">mac_eui48</span>
+<span class="kn">from</span> <span class="nn">netaddr.strategy.eui64</span> <span class="kn">import</span> <span class="n">eui64_base</span>
+<span class="kn">from</span> <span class="nn">netaddr.ip</span> <span class="kn">import</span> <span class="n">IPAddress</span>
+<span class="kn">from</span> <span class="nn">netaddr.compat</span> <span class="kn">import</span> <span class="n">_importlib_resources</span><span class="p">,</span> <span class="n">_is_int</span><span class="p">,</span> <span class="n">_is_str</span>
+
+
+<span class="k">class</span> <span class="nc">BaseIdentifier</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for all IEEE identifiers.&quot;&quot;&quot;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_value&#39;</span><span class="p">,</span> <span class="s1">&#39;__weakref__&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__int__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: integer value of this identifier&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="k">def</span> <span class="nf">__long__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: integer value of this identifier&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="k">def</span> <span class="nf">__oct__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: octal string representation of this identifier.&quot;&quot;&quot;</span>
+        <span class="c1">#   Python 2.x only.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;0&#39;</span>
+        <span class="k">return</span> <span class="s1">&#39;0</span><span class="si">%o</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="k">def</span> <span class="nf">__hex__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: hexadecimal string representation of this identifier.&quot;&quot;&quot;</span>
+        <span class="c1">#   Python 2.x only.</span>
+        <span class="k">return</span> <span class="s1">&#39;0x</span><span class="si">%x</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="k">def</span> <span class="fm">__index__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: return the integer value of this identifier when passed to</span>
+<span class="sd">            hex(), oct() or bin().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#   Python 3.x only.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+
+<div class="viewcode-block" id="OUI"><a class="viewcode-back" href="../../api.html#netaddr.OUI">[docs]</a><span class="k">class</span> <span class="nc">OUI</span><span class="p">(</span><span class="n">BaseIdentifier</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An individual IEEE OUI (Organisationally Unique Identifier).</span>
+
+<span class="sd">    For online details see - http://standards.ieee.org/regauth/oui/</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="OUI.__init__"><a class="viewcode-back" href="../../api.html#netaddr.OUI.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oui</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor</span>
+
+<span class="sd">        :param oui: an OUI string ``XX-XX-XX`` or an unsigned integer. \</span>
+<span class="sd">            Also accepts and parses full MAC/EUI-48 address strings (but not \</span>
+<span class="sd">            MAC/EUI-48 integers)!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OUI</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="c1">#   Lazy loading of IEEE data structures.</span>
+        <span class="kn">from</span> <span class="nn">netaddr.eui</span> <span class="kn">import</span> <span class="n">ieee</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">oui</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1">#TODO: Improve string parsing here.</span>
+            <span class="c1">#TODO: Accept full MAC/EUI-48 addressses as well as XX-XX-XX</span>
+            <span class="c1">#TODO: and just take /16 (see IAB for details)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">oui</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="mi">16</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">_is_int</span><span class="p">(</span><span class="n">oui</span><span class="p">):</span>
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">oui</span> <span class="o">&lt;=</span> <span class="mh">0xffffff</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">oui</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;OUI int outside expected range: </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">oui</span><span class="p">,))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;unexpected OUI format: </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">oui</span><span class="p">,))</span>
+
+        <span class="c1">#   Discover offsets.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="ow">in</span> <span class="n">ieee</span><span class="o">.</span><span class="n">OUI_INDEX</span><span class="p">:</span>
+            <span class="n">fh</span> <span class="o">=</span> <span class="n">_importlib_resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span><span class="n">__package__</span><span class="p">,</span> <span class="s1">&#39;oui.txt&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ieee</span><span class="o">.</span><span class="n">OUI_INDEX</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">]:</span>
+                <span class="n">fh</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;UTF-8&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parse_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NotRegisteredError</span><span class="p">(</span><span class="s1">&#39;OUI </span><span class="si">%r</span><span class="s1"> not registered!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">oui</span><span class="p">,))</span></div>
+
+<div class="viewcode-block" id="OUI.__eq__"><a class="viewcode-back" href="../../api.html#netaddr.OUI.__eq__">[docs]</a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">OUI</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_value</span></div>
+
+<div class="viewcode-block" id="OUI.__ne__"><a class="viewcode-back" href="../../api.html#netaddr.OUI.__ne__">[docs]</a>    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">OUI</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">_value</span></div>
+
+<div class="viewcode-block" id="OUI.__getstate__"><a class="viewcode-back" href="../../api.html#netaddr.OUI.__getstate__">[docs]</a>    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:returns: Pickled state of an `OUI` object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">records</span></div>
+
+<div class="viewcode-block" id="OUI.__setstate__"><a class="viewcode-back" href="../../api.html#netaddr.OUI.__setstate__">[docs]</a>    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:param state: data used to unpickle a pickled `OUI` object.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">records</span> <span class="o">=</span> <span class="n">state</span></div>
+
+    <span class="k">def</span> <span class="nf">_parse_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a dict record from raw OUI record data&quot;&quot;&quot;</span>
+        <span class="n">record</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;idx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;oui&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;org&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;address&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;offset&#39;</span><span class="p">:</span> <span class="n">offset</span><span class="p">,</span>
+            <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="s1">&#39;(hex)&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">record</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+                <span class="n">record</span><span class="p">[</span><span class="s1">&#39;org&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">record</span><span class="p">[</span><span class="s1">&#39;oui&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s1">&#39;(base 16)&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">record</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reg_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of registered organisations with this OUI&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OUI.registration"><a class="viewcode-back" href="../../api.html#netaddr.OUI.registration">[docs]</a>    <span class="k">def</span> <span class="nf">registration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The IEEE registration details for this OUI.</span>
+
+<span class="sd">        :param index: the index of record (may contain multiple registrations)</span>
+<span class="sd">            (Default: 0 - first registration)</span>
+
+<span class="sd">        :return: Objectified Python data structure containing registration</span>
+<span class="sd">            details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">DictDotLookup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">records</span><span class="p">[</span><span class="n">index</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="OUI.__str__"><a class="viewcode-back" href="../../api.html#netaddr.OUI.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: string representation of this OUI&quot;&quot;&quot;</span>
+        <span class="n">int_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%02X</span><span class="s2">-</span><span class="si">%02X</span><span class="s2">-</span><span class="si">%02X</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">int_val</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">int_val</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">,</span>
+                <span class="n">int_val</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OUI.__repr__"><a class="viewcode-back" href="../../api.html#netaddr.OUI.__repr__">[docs]</a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: executable Python string to recreate equivalent object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;OUI(&#39;</span><span class="si">%s</span><span class="s2">&#39;)&quot;</span> <span class="o">%</span> <span class="bp">self</span></div></div>
+
+
+<div class="viewcode-block" id="IAB"><a class="viewcode-back" href="../../api.html#netaddr.IAB">[docs]</a><span class="k">class</span> <span class="nc">IAB</span><span class="p">(</span><span class="n">BaseIdentifier</span><span class="p">):</span>
+    <span class="n">IAB_EUI_VALUES</span> <span class="o">=</span> <span class="p">(</span><span class="mh">0x0050c2</span><span class="p">,</span> <span class="mh">0x40d855</span><span class="p">)</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An individual IEEE IAB (Individual Address Block) identifier.</span>
+
+<span class="sd">    For online details see - http://standards.ieee.org/regauth/oui/</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;record&#39;</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="IAB.split_iab_mac"><a class="viewcode-back" href="../../api.html#netaddr.IAB.split_iab_mac">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">split_iab_mac</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">eui_int</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param eui_int: a MAC IAB as an unsigned integer.</span>
+
+<span class="sd">        :param strict: If True, raises a ValueError if the last 12 bits of</span>
+<span class="sd">            IAB MAC/EUI-48 address are non-zero, ignores them otherwise.</span>
+<span class="sd">            (Default: False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">eui_int</span> <span class="o">&gt;&gt;</span> <span class="mi">12</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">IAB_EUI_VALUES</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">eui_int</span><span class="p">,</span> <span class="mi">0</span>
+
+        <span class="n">user_mask</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">12</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">iab_mask</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="mi">48</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">^</span> <span class="n">user_mask</span>
+        <span class="n">iab_bits</span> <span class="o">=</span> <span class="n">eui_int</span> <span class="o">&gt;&gt;</span> <span class="mi">12</span>
+        <span class="n">user_bits</span> <span class="o">=</span> <span class="p">(</span><span class="n">eui_int</span> <span class="o">|</span> <span class="n">iab_mask</span><span class="p">)</span> <span class="o">-</span> <span class="n">iab_mask</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">iab_bits</span> <span class="o">&gt;&gt;</span> <span class="mi">12</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">IAB_EUI_VALUES</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">strict</span> <span class="ow">and</span> <span class="n">user_bits</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> is not a strict IAB!&#39;</span> <span class="o">%</span> <span class="nb">hex</span><span class="p">(</span><span class="n">user_bits</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> is not an IAB address!&#39;</span> <span class="o">%</span> <span class="nb">hex</span><span class="p">(</span><span class="n">eui_int</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">iab_bits</span><span class="p">,</span> <span class="n">user_bits</span></div>
+
+<div class="viewcode-block" id="IAB.__init__"><a class="viewcode-back" href="../../api.html#netaddr.IAB.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iab</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor</span>
+
+<span class="sd">        :param iab: an IAB string ``00-50-C2-XX-X0-00`` or an unsigned \</span>
+<span class="sd">            integer. This address looks like an EUI-48 but it should not \</span>
+<span class="sd">            have any non-zero bits in the last 3 bytes.</span>
+
+<span class="sd">        :param strict: If True, raises a ValueError if the last 12 bits \</span>
+<span class="sd">            of IAB MAC/EUI-48 address are non-zero, ignores them otherwise. \</span>
+<span class="sd">            (Default: False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">IAB</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="c1">#   Lazy loading of IEEE data structures.</span>
+        <span class="kn">from</span> <span class="nn">netaddr.eui</span> <span class="kn">import</span> <span class="n">ieee</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">record</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;idx&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;iab&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;org&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;address&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;offset&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">iab</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1">#TODO: Improve string parsing here.</span>
+            <span class="c1">#TODO: &#39;00-50-C2&#39; is actually invalid.</span>
+            <span class="c1">#TODO: Should be &#39;00-50-C2-00-00-00&#39; (i.e. a full MAC/EUI-48)</span>
+            <span class="n">int_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">iab</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="mi">16</span><span class="p">)</span>
+            <span class="n">iab_int</span><span class="p">,</span> <span class="n">user_int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_iab_mac</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">iab_int</span>
+        <span class="k">elif</span> <span class="n">_is_int</span><span class="p">(</span><span class="n">iab</span><span class="p">):</span>
+            <span class="n">iab_int</span><span class="p">,</span> <span class="n">user_int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_iab_mac</span><span class="p">(</span><span class="n">iab</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">iab_int</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;unexpected IAB format: </span><span class="si">%r</span><span class="s1">!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">iab</span><span class="p">,))</span>
+
+        <span class="c1">#   Discover offsets.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="ow">in</span> <span class="n">ieee</span><span class="o">.</span><span class="n">IAB_INDEX</span><span class="p">:</span>
+            <span class="n">fh</span> <span class="o">=</span> <span class="n">_importlib_resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span><span class="n">__package__</span><span class="p">,</span> <span class="s1">&#39;iab.txt&#39;</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> <span class="o">=</span> <span class="n">ieee</span><span class="o">.</span><span class="n">IAB_INDEX</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">offset</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">size</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;UTF-8&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parse_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NotRegisteredError</span><span class="p">(</span><span class="s1">&#39;IAB </span><span class="si">%r</span><span class="s1"> not unregistered!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">iab</span><span class="p">,))</span></div>
+
+<div class="viewcode-block" id="IAB.__eq__"><a class="viewcode-back" href="../../api.html#netaddr.IAB.__eq__">[docs]</a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">IAB</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_value</span></div>
+
+<div class="viewcode-block" id="IAB.__ne__"><a class="viewcode-back" href="../../api.html#netaddr.IAB.__ne__">[docs]</a>    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">IAB</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">_value</span></div>
+
+<div class="viewcode-block" id="IAB.__getstate__"><a class="viewcode-back" href="../../api.html#netaddr.IAB.__getstate__">[docs]</a>    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:returns: Pickled state of an `IAB` object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">record</span></div>
+
+<div class="viewcode-block" id="IAB.__setstate__"><a class="viewcode-back" href="../../api.html#netaddr.IAB.__setstate__">[docs]</a>    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:param state: data used to unpickle a pickled `IAB` object.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">record</span> <span class="o">=</span> <span class="n">state</span></div>
+
+    <span class="k">def</span> <span class="nf">_parse_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a dict record from raw IAB record data&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="s1">&#39;(hex)&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;org&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;iab&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s1">&#39;(base 16)&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+<div class="viewcode-block" id="IAB.registration"><a class="viewcode-back" href="../../api.html#netaddr.IAB.registration">[docs]</a>    <span class="k">def</span> <span class="nf">registration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The IEEE registration details for this IAB&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">DictDotLookup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IAB.__str__"><a class="viewcode-back" href="../../api.html#netaddr.IAB.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: string representation of this IAB&quot;&quot;&quot;</span>
+        <span class="n">int_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span>
+
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%02X</span><span class="s2">-</span><span class="si">%02X</span><span class="s2">-</span><span class="si">%02X</span><span class="s2">-</span><span class="si">%02X</span><span class="s2">-</span><span class="si">%02X</span><span class="s2">-00&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">int_val</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">int_val</span> <span class="o">&gt;&gt;</span> <span class="mi">24</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">int_val</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">int_val</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">,</span>
+                <span class="n">int_val</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IAB.__repr__"><a class="viewcode-back" href="../../api.html#netaddr.IAB.__repr__">[docs]</a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: executable Python string to recreate equivalent object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;IAB(&#39;</span><span class="si">%s</span><span class="s2">&#39;)&quot;</span> <span class="o">%</span> <span class="bp">self</span></div></div>
+
+
+<div class="viewcode-block" id="EUI"><a class="viewcode-back" href="../../api.html#netaddr.EUI">[docs]</a><span class="k">class</span> <span class="nc">EUI</span><span class="p">(</span><span class="n">BaseIdentifier</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An IEEE EUI (Extended Unique Identifier).</span>
+
+<span class="sd">    Both EUI-48 (used for layer 2 MAC addresses) and EUI-64 are supported.</span>
+
+<span class="sd">    Input parsing for EUI-48 addresses is flexible, supporting many MAC</span>
+<span class="sd">    variants.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_module&#39;</span><span class="p">,</span> <span class="s1">&#39;_dialect&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EUI.__init__"><a class="viewcode-back" href="../../api.html#netaddr.EUI.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor.</span>
+
+<span class="sd">        :param addr: an EUI-48 (MAC) or EUI-64 address in string format or \</span>
+<span class="sd">            an unsigned integer. May also be another EUI object (copy \</span>
+<span class="sd">            construction).</span>
+
+<span class="sd">        :param version: (optional) the explicit EUI address version, either \</span>
+<span class="sd">            48 or 64. Mainly used to distinguish EUI-48 and EUI-64 identifiers \</span>
+<span class="sd">            specified as integers which may be numerically equivalent.</span>
+
+<span class="sd">        :param dialect: (optional) the mac_* dialect to be used to configure \</span>
+<span class="sd">            the formatting of EUI-48 (MAC) addresses.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EUI</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">EUI</span><span class="p">):</span>
+            <span class="c1">#   Copy constructor.</span>
+            <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">!=</span> <span class="n">addr</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">version</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cannot switch EUI versions using &#39;</span>
+                    <span class="s1">&#39;copy constructor!&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="o">=</span> <span class="n">addr</span><span class="o">.</span><span class="n">_module</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">addr</span><span class="o">.</span><span class="n">_value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dialect</span> <span class="o">=</span> <span class="n">addr</span><span class="o">.</span><span class="n">dialect</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="mi">48</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="o">=</span> <span class="n">_eui48</span>
+            <span class="k">elif</span> <span class="n">version</span> <span class="o">==</span> <span class="mi">64</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="o">=</span> <span class="n">_eui64</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unsupported EUI version </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">version</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+        <span class="c1">#   Choose a default version when addr is an integer and version is</span>
+        <span class="c1">#   not specified.</span>
+            <span class="k">if</span> <span class="n">_is_int</span><span class="p">(</span><span class="n">addr</span><span class="p">):</span>
+                <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">addr</span> <span class="o">&lt;=</span> <span class="mh">0xffffffffffff</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="o">=</span> <span class="n">_eui48</span>
+                <span class="k">elif</span> <span class="mh">0xffffffffffff</span> <span class="o">&lt;</span> <span class="n">addr</span> <span class="o">&lt;=</span> <span class="mh">0xffffffffffffffff</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="o">=</span> <span class="n">_eui64</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">addr</span>
+
+        <span class="c1">#   Choose a dialect for MAC formatting.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dialect</span> <span class="o">=</span> <span class="n">dialect</span></div>
+
+<div class="viewcode-block" id="EUI.__getstate__"><a class="viewcode-back" href="../../api.html#netaddr.EUI.__getstate__">[docs]</a>    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:returns: Pickled state of an `EUI` object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dialect</span></div>
+
+<div class="viewcode-block" id="EUI.__setstate__"><a class="viewcode-back" href="../../api.html#netaddr.EUI.__setstate__">[docs]</a>    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param state: data used to unpickle a pickled `EUI` object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">value</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">dialect</span> <span class="o">=</span> <span class="n">state</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="mi">48</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="o">=</span> <span class="n">_eui48</span>
+        <span class="k">elif</span> <span class="n">version</span> <span class="o">==</span> <span class="mi">64</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="o">=</span> <span class="n">_eui64</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unpickling failed for object state: </span><span class="si">%s</span><span class="s1">&#39;</span> \
+                <span class="o">%</span> <span class="p">(</span><span class="n">state</span><span class="p">,))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dialect</span> <span class="o">=</span> <span class="n">dialect</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="k">def</span> <span class="nf">_set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1">#   EUI version is implicit, detect it from value.</span>
+            <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="p">(</span><span class="n">_eui48</span><span class="p">,</span> <span class="n">_eui64</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">str_to_int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="o">=</span> <span class="n">module</span>
+                    <span class="k">break</span>
+                <span class="k">except</span> <span class="n">AddrFormatError</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">module</span><span class="o">.</span><span class="n">max_int</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="o">=</span> <span class="n">module</span>
+                            <span class="k">break</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">AddrFormatError</span><span class="p">(</span><span class="s1">&#39;failed to detect EUI version: </span><span class="si">%r</span><span class="s1">&#39;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#   EUI version is explicit.</span>
+            <span class="k">if</span> <span class="n">_is_str</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">str_to_int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">AddrFormatError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">AddrFormatError</span><span class="p">(</span><span class="s1">&#39;address </span><span class="si">%r</span><span class="s1"> is not an EUIv</span><span class="si">%d</span><span class="s1">&#39;</span>
+                        <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">max_int</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">AddrFormatError</span><span class="p">(</span><span class="s1">&#39;bad address format: </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,))</span>
+
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_value</span><span class="p">,</span> <span class="n">_set_value</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;a positive integer representing the value of this EUI indentifier.&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_dialect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dialect</span>
+
+    <span class="k">def</span> <span class="nf">_validate_dialect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="ow">is</span> <span class="n">_eui64</span><span class="p">:</span>
+               <span class="k">return</span> <span class="n">eui64_base</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">mac_eui48</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;word_size&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;word_fmt&#39;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;custom dialects should subclass mac_eui48!&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_dialect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dialect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_dialect</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="n">dialect</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_dialect</span><span class="p">,</span> <span class="n">_set_dialect</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;a Python class providing support for the interpretation of &quot;</span>
+        <span class="s2">&quot;various MAC</span><span class="se">\n</span><span class="s2"> address formats.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">oui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The OUI (Organisationally Unique Identifier) for this EUI.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="o">==</span> <span class="n">_eui48</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">OUI</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;&gt;</span> <span class="mi">24</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="o">==</span> <span class="n">_eui64</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">OUI</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;&gt;</span> <span class="mi">40</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ei</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The EI (Extension Identifier) for this EUI&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="o">==</span> <span class="n">_eui48</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%02X</span><span class="s1">-</span><span class="si">%02X</span><span class="s1">-</span><span class="si">%02X</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span> <span class="o">==</span> <span class="n">_eui64</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%02X</span><span class="s1">-</span><span class="si">%02X</span><span class="s1">-</span><span class="si">%02X</span><span class="s1">-</span><span class="si">%02X</span><span class="s1">-</span><span class="si">%02X</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">8</span><span class="p">])</span>
+
+<div class="viewcode-block" id="EUI.is_iab"><a class="viewcode-back" href="../../api.html#netaddr.EUI.is_iab">[docs]</a>    <span class="k">def</span> <span class="nf">is_iab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: True if this EUI is an IAB address, False otherwise&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">&gt;&gt;</span> <span class="mi">24</span><span class="p">)</span> <span class="ow">in</span> <span class="n">IAB</span><span class="o">.</span><span class="n">IAB_EUI_VALUES</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">iab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If is_iab() is True, the IAB (Individual Address Block) is returned,</span>
+<span class="sd">        ``None`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_iab</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">IAB</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">&gt;&gt;</span> <span class="mi">12</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The EUI version represented by this EUI object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">version</span>
+
+<div class="viewcode-block" id="EUI.__getitem__"><a class="viewcode-back" href="../../api.html#netaddr.EUI.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: The integer value of the word referenced by index (both \</span>
+<span class="sd">            positive and negative). Raises ``IndexError`` if index is out \</span>
+<span class="sd">            of bounds. Also supports Python list slices for accessing \</span>
+<span class="sd">            word groups.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_is_int</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
+            <span class="c1">#   Indexing, including negative indexing goodness.</span>
+            <span class="n">num_words</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dialect</span><span class="o">.</span><span class="n">num_words</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="n">num_words</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">idx</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">num_words</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s1">&#39;index out range for address type!&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">int_to_words</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dialect</span><span class="p">)[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">int_to_words</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dialect</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">words</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">*</span><span class="n">idx</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)))]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;unsupported type </span><span class="si">%r</span><span class="s1">!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">idx</span><span class="p">,))</span></div>
+
+<div class="viewcode-block" id="EUI.__setitem__"><a class="viewcode-back" href="../../api.html#netaddr.EUI.__setitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the value of the word referenced by index in this address&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+            <span class="c1">#   TODO - settable slices.</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;settable slices are not supported!&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_int</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;index not an integer!&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">idx</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dialect</span><span class="o">.</span><span class="n">num_words</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s1">&#39;index </span><span class="si">%d</span><span class="s1"> outside address type boundary!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">idx</span><span class="p">,))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_int</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;value not an integer!&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dialect</span><span class="o">.</span><span class="n">max_word</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s1">&#39;value </span><span class="si">%d</span><span class="s1"> outside word size maximum of </span><span class="si">%d</span><span class="s1"> bits!&#39;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dialect</span><span class="o">.</span><span class="n">word_size</span><span class="p">))</span>
+
+        <span class="n">words</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">int_to_words</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dialect</span><span class="p">))</span>
+        <span class="n">words</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">words_to_int</span><span class="p">(</span><span class="n">words</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUI.__hash__"><a class="viewcode-back" href="../../api.html#netaddr.EUI.__hash__">[docs]</a>    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: hash of this EUI object suitable for dict keys, sets etc&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="EUI.__eq__"><a class="viewcode-back" href="../../api.html#netaddr.EUI.__eq__">[docs]</a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: ``True`` if this EUI object is numerically the same as other, \</span>
+<span class="sd">            ``False`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">EUI</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUI.__ne__"><a class="viewcode-back" href="../../api.html#netaddr.EUI.__ne__">[docs]</a>    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: ``True`` if this EUI object is numerically the same as other, \</span>
+<span class="sd">            ``False`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">EUI</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUI.__lt__"><a class="viewcode-back" href="../../api.html#netaddr.EUI.__lt__">[docs]</a>    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: ``True`` if this EUI object is numerically lower in value than \</span>
+<span class="sd">            other, ``False`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">EUI</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUI.__le__"><a class="viewcode-back" href="../../api.html#netaddr.EUI.__le__">[docs]</a>    <span class="k">def</span> <span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: ``True`` if this EUI object is numerically lower or equal in \</span>
+<span class="sd">            value to other, ``False`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">EUI</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUI.__gt__"><a class="viewcode-back" href="../../api.html#netaddr.EUI.__gt__">[docs]</a>    <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: ``True`` if this EUI object is numerically greater in value \</span>
+<span class="sd">            than other, ``False`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">EUI</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUI.__ge__"><a class="viewcode-back" href="../../api.html#netaddr.EUI.__ge__">[docs]</a>    <span class="k">def</span> <span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: ``True`` if this EUI object is numerically greater or equal \</span>
+<span class="sd">            in value to other, ``False`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">EUI</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">NotImplemented</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUI.bits"><a class="viewcode-back" href="../../api.html#netaddr.EUI.bits">[docs]</a>    <span class="k">def</span> <span class="nf">bits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word_sep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param word_sep: (optional) the separator to insert between words. \</span>
+<span class="sd">            Default: None - use default separator for address type.</span>
+
+<span class="sd">        :return: human-readable binary digit string of this address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">int_to_bits</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">,</span> <span class="n">word_sep</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">packed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The value of this EUI address as a packed binary string.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">int_to_packed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">words</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A list of unsigned integer octets found in this EUI address.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">int_to_words</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The value of this EUI adddress in standard Python binary</span>
+<span class="sd">        representational form (0bxxx). A back port of the format provided by</span>
+<span class="sd">        the builtin bin() function found in Python 2.6.x and higher.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">int_to_bin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EUI.eui64"><a class="viewcode-back" href="../../api.html#netaddr.EUI.eui64">[docs]</a>    <span class="k">def</span> <span class="nf">eui64</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        - If this object represents an EUI-48 it is converted to EUI-64 \</span>
+<span class="sd">            as per the standard.</span>
+<span class="sd">        - If this object is already an EUI-64, a new, numerically \</span>
+<span class="sd">            equivalent object is returned instead.</span>
+
+<span class="sd">        :return: The value of this EUI object as a new 64-bit EUI object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="mi">48</span><span class="p">:</span>
+            <span class="c1"># Convert 11:22:33:44:55:66 into 11:22:33:FF:FE:44:55:66.</span>
+            <span class="n">first_three</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">&gt;&gt;</span> <span class="mi">24</span>
+            <span class="n">last_three</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">&amp;</span> <span class="mh">0xffffff</span>
+            <span class="n">new_value</span> <span class="o">=</span> <span class="p">(</span><span class="n">first_three</span> <span class="o">&lt;&lt;</span> <span class="mi">40</span><span class="p">)</span> <span class="o">|</span> <span class="mh">0xfffe000000</span> <span class="o">|</span> <span class="n">last_three</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># is already a EUI64</span>
+            <span class="n">new_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">new_value</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUI.modified_eui64"><a class="viewcode-back" href="../../api.html#netaddr.EUI.modified_eui64">[docs]</a>    <span class="k">def</span> <span class="nf">modified_eui64</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        - create a new EUI object with a modified EUI-64 as described in RFC 4291 section 2.5.1</span>
+
+<span class="sd">        :return: a new and modified 64-bit EUI object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Modified EUI-64 format interface identifiers are formed by inverting</span>
+        <span class="c1"># the &quot;u&quot; bit (universal/local bit in IEEE EUI-64 terminology) when</span>
+        <span class="c1"># forming the interface identifier from IEEE EUI-64 identifiers.  In</span>
+        <span class="c1"># the resulting Modified EUI-64 format, the &quot;u&quot; bit is set to one (1)</span>
+        <span class="c1"># to indicate universal scope, and it is set to zero (0) to indicate</span>
+        <span class="c1"># local scope.</span>
+        <span class="n">eui64</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eui64</span><span class="p">()</span>
+        <span class="n">eui64</span><span class="o">.</span><span class="n">_value</span> <span class="o">^=</span> <span class="mh">0x00000000000000000200000000000000</span>
+        <span class="k">return</span> <span class="n">eui64</span></div>
+
+<div class="viewcode-block" id="EUI.ipv6"><a class="viewcode-back" href="../../api.html#netaddr.EUI.ipv6">[docs]</a>    <span class="k">def</span> <span class="nf">ipv6</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. note:: This poses security risks in certain scenarios. \</span>
+<span class="sd">            Please read RFC 4941 for details. Reference: RFCs 4291 and 4941.</span>
+
+<span class="sd">        :param prefix: ipv6 prefix</span>
+
+<span class="sd">        :return: new IPv6 `IPAddress` object based on this `EUI` \</span>
+<span class="sd">            using the technique described in RFC 4291.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">int_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modified_eui64</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">IPAddress</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUI.ipv6_link_local"><a class="viewcode-back" href="../../api.html#netaddr.EUI.ipv6_link_local">[docs]</a>    <span class="k">def</span> <span class="nf">ipv6_link_local</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. note:: This poses security risks in certain scenarios. \</span>
+<span class="sd">            Please read RFC 4941 for details. Reference: RFCs 4291 and 4941.</span>
+
+<span class="sd">        :return: new link local IPv6 `IPAddress` object based on this `EUI` \</span>
+<span class="sd">            using the technique described in RFC 4291.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ipv6</span><span class="p">(</span><span class="mh">0xfe800000000000000000000000000000</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A record dict containing IEEE registration details for this EUI</span>
+<span class="sd">        (MAC-48) if available, None otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;OUI&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">oui</span><span class="o">.</span><span class="n">registration</span><span class="p">()}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_iab</span><span class="p">():</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;IAB&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iab</span><span class="o">.</span><span class="n">registration</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">DictDotLookup</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EUI.format"><a class="viewcode-back" href="../../api.html#netaddr.EUI.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Format the EUI into the representational format according to the given</span>
+<span class="sd">        dialect</span>
+
+<span class="sd">        :param dialect: the mac_* dialect defining the formatting of EUI-48 \</span>
+<span class="sd">            (MAC) addresses.</span>
+
+<span class="sd">        :return: EUI in representational format according to the given dialect</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">validated_dialect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_dialect</span><span class="p">(</span><span class="n">dialect</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">int_to_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">,</span> <span class="n">validated_dialect</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUI.__str__"><a class="viewcode-back" href="../../api.html#netaddr.EUI.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: EUI in representational format&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module</span><span class="o">.</span><span class="n">int_to_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dialect</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUI.__repr__"><a class="viewcode-back" href="../../api.html#netaddr.EUI.__repr__">[docs]</a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;:return: executable Python string to recreate equivalent object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;EUI(&#39;</span><span class="si">%s</span><span class="s2">&#39;)&quot;</span> <span class="o">%</span> <span class="bp">self</span></div></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">netaddr 0.8.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">netaddr.eui</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; <a href="../../copyright.html">Copyright</a> Copyright (c) 2008 by David P. D. Moss. All rights reserved..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

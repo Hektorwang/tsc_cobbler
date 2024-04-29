@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<libosinfo version="0.0.1">
+  <!-- Licensed under the GNU General Public License version 2 or later.
+     See http://www.gnu.org/licenses/ for a copy of the license text -->
+  <os id="http://nixos.org/nixos/23.05">
+    <short-id>nixos-23.05</short-id>
+    <name>NixOS 23.05</name>
+    <name xml:lang="zh_Hans">NixOS 23.05</name>
+    <name xml:lang="ka">NixOS 23.05</name>
+    <name xml:lang="ko">&#xB2C9;&#xC2A4;OS 23.05</name>
+    <name xml:lang="uk">NixOS 23.05</name>
+    <name xml:lang="tr">NixOS 23.05</name>
+    <name xml:lang="pl">NixOS 23.05</name>
+    <name xml:lang="it">NixOS 23.05</name>
+    <name xml:lang="id">NixOS 23.05</name>
+    <version>23.05</version>
+    <vendor>NixOS</vendor>
+    <vendor xml:lang="zh_Hans">NixOS</vendor>
+    <vendor xml:lang="ka">NixOS</vendor>
+    <vendor xml:lang="ko">&#xB2C9;&#xC2A4;OS</vendor>
+    <vendor xml:lang="uk">NixOS</vendor>
+    <vendor xml:lang="tr">NixOS</vendor>
+    <vendor xml:lang="pt_BR">NixOS</vendor>
+    <vendor xml:lang="pl">NixOS</vendor>
+    <vendor xml:lang="it">NixOS</vendor>
+    <vendor xml:lang="id">NixOS</vendor>
+    <vendor xml:lang="fr">NixOS</vendor>
+    <vendor xml:lang="de">NixOS</vendor>
+    <family>linux</family>
+    <distro>nixos</distro>
+    <codename>Stoat</codename>
+    <upgrades id="http://nixos.org/nixos/22.11"/>
+    <derives-from id="http://nixos.org/nixos/22.11"/>
+    <release-date>2023-05-31</release-date>
+    <resources arch="all">
+      <minimum>
+        <ram>1610612736</ram>
+        <storage>10737418240</storage>
+      </minimum>
+      <recommended>
+        <ram>3221225472</ram>
+        <storage>21474836480</storage>
+      </recommended>
+    </resources>
+    <variant id="minimal">
+      <name>NixOS 23.05 (minimal installation CD)</name>
+      <name xml:lang="zh_Hans">NixOS 23.05 (minimal installation CD)</name>
+      <name xml:lang="ka">NixOS 23.05 (minimal installation CD)</name>
+      <name xml:lang="ko">&#xB2C9;&#xC2A4;OS 23.05 (&#xCD5C;&#xC18C; &#xC124;&#xCE58; CD)</name>
+      <name xml:lang="uk">NixOS 23.05 (&#x43C;&#x456;&#x43D;&#x456;&#x43C;&#x430;&#x43B;&#x44C;&#x43D;&#x438;&#x439; &#x41A;&#x414; &#x434;&#x43B;&#x44F; &#x432;&#x441;&#x442;&#x430;&#x43D;&#x43E;&#x432;&#x43B;&#x435;&#x43D;&#x43D;&#x44F;)</name>
+      <name xml:lang="tr">NixOS 23.05 (asgari kurulum CD'si)</name>
+      <name xml:lang="pl">NixOS 23.05 (p&#x142;yta CD instalacji minimalnej)</name>
+      <name xml:lang="it">NixOS 23.05 (CD di installazione minimale)</name>
+      <name xml:lang="id">NixOS 23.05 (CD instalasi minimal)</name>
+    </variant>
+    <variant id="gnome">
+      <name>NixOS 23.05 (GNOME installation CD)</name>
+      <name xml:lang="zh_Hans">NixOS 23.05 (GNOME installation CD)</name>
+      <name xml:lang="ka">NixOS 23.05 (GNOME installation CD)</name>
+      <name xml:lang="ko">&#xB2C9;&#xC2A4;OS 23.05 (&#xADF8;&#xB188; &#xC124;&#xCE58; CD)</name>
+      <name xml:lang="uk">NixOS 23.05 (&#x41A;&#x414; &#x434;&#x43B;&#x44F; &#x432;&#x441;&#x442;&#x430;&#x43D;&#x43E;&#x432;&#x43B;&#x435;&#x43D;&#x43D;&#x44F; &#x437; GNOME)</name>
+      <name xml:lang="tr">NixOS 23.05 (GNOME kurulum CD'si)</name>
+      <name xml:lang="pl">NixOS 23.05 (p&#x142;yta CD instalacji z&#xA0;GNOME)</name>
+      <name xml:lang="it">NixOS 23.05 (CD di installazione di GNOME)</name>
+      <name xml:lang="id">NixOS 23.05 (CD instalasi GNOME)</name>
+    </variant>
+    <variant id="plasma5">
+      <name>NixOS 23.05 (Plasma 5 installation CD)</name>
+      <name xml:lang="zh_Hans">NixOS 23.05 (Plasma 5 installation CD)</name>
+      <name xml:lang="ka">NixOS 23.05 (Plasma 5 installation CD)</name>
+      <name xml:lang="ko">&#xB2C9;&#xC2A4;OS 23.05 (&#xD50C;&#xB77C;&#xC988;&#xB9C8; 5 &#xC124;&#xCE58; CD)</name>
+      <name xml:lang="uk">NixOS 23.05 (&#x41A;&#x414; &#x434;&#x43B;&#x44F; &#x432;&#x441;&#x442;&#x430;&#x43D;&#x43E;&#x432;&#x43B;&#x435;&#x43D;&#x43D;&#x44F; &#x437; &#x41F;&#x43B;&#x430;&#x437;&#x43C;&#x43E;&#x44E; 5)</name>
+      <name xml:lang="tr">NixOS 23.05 (Plasma 5 kurulum CD'si)</name>
+      <name xml:lang="pl">NixOS 23.05 (p&#x142;yta CD instalacji Plasma 5)</name>
+      <name xml:lang="it">NixOS 23.05 (CD di installazione di Plasma 5)</name>
+      <name xml:lang="id">NixOS 23.05 (CD instalasi Plasma 5)</name>
+    </variant>
+    <media arch="i686" live="true">
+      <variant id="minimal"/>
+      <url>https://channels.nixos.org/nixos-23.05/latest-nixos-minimal-i686-linux.iso</url>
+      <iso>
+        <volume-id>nixos-minimal-23.05-i686</volume-id>
+      </iso>
+      <kernel>boot/bzImage</kernel>
+      <initrd>boot/initrd</initrd>
+    </media>
+    <media arch="x86_64" live="true">
+      <variant id="minimal"/>
+      <url>https://channels.nixos.org/nixos-23.05/latest-nixos-minimal-x86_64-linux.iso</url>
+      <iso>
+        <volume-id>nixos-minimal-23.05-x86_64</volume-id>
+      </iso>
+      <kernel>boot/bzImage</kernel>
+      <initrd>boot/initrd</initrd>
+    </media>
+    <media arch="x86_64" live="true">
+      <variant id="gnome"/>
+      <url>https://channels.nixos.org/nixos-23.05/latest-nixos-gnome-x86_64-linux.iso</url>
+      <iso>
+        <volume-id>nixos-gnome-23.05-x86_64</volume-id>
+      </iso>
+      <kernel>boot/bzImage</kernel>
+      <initrd>boot/initrd</initrd>
+    </media>
+    <media arch="x86_64" live="true">
+      <variant id="plasma5"/>
+      <url>https://channels.nixos.org/nixos-23.05/latest-nixos-plasma5-x86_64-linux.iso</url>
+      <iso>
+        <volume-id>nixos-plasma5-23.05-x86_64</volume-id>
+      </iso>
+      <kernel>boot/bzImage</kernel>
+      <initrd>boot/initrd</initrd>
+    </media>
+    <media arch="aarch64" live="true">
+      <variant id="minimal"/>
+      <url>https://channels.nixos.org/nixos-23.05/latest-nixos-minimal-aarch64-linux.iso</url>
+      <iso>
+        <volume-id>nixos-minimal-23.05-aarch64</volume-id>
+      </iso>
+      <kernel>boot/bzImage</kernel>
+      <initrd>boot/initrd</initrd>
+    </media>
+    <media arch="aarch64" live="true">
+      <variant id="gnome"/>
+      <url>https://channels.nixos.org/nixos-23.05/latest-nixos-gnome-aarch64-linux.iso</url>
+      <iso>
+        <volume-id>nixos-gnome-23.05-aarch64</volume-id>
+      </iso>
+      <kernel>boot/bzImage</kernel>
+      <initrd>boot/initrd</initrd>
+    </media>
+    <media arch="aarch64" live="true">
+      <variant id="plasma5"/>
+      <url>https://channels.nixos.org/nixos-23.05/latest-nixos-plasma5-aarch64-linux.iso</url>
+      <iso>
+        <volume-id>nixos-plasma5-23.05-aarch64</volume-id>
+      </iso>
+      <kernel>boot/bzImage</kernel>
+      <initrd>boot/initrd</initrd>
+    </media>
+  </os>
+</libosinfo>

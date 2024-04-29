@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>simplejson &#8212; simplejson 3.17.6 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="simplejson">
+<h1>simplejson<a class="headerlink" href="#simplejson" title="Permalink to this headline">¶</a></h1>
+<p>simplejson is a simple, fast, complete, correct and extensible
+JSON &lt;<a class="reference external" href="http://json.org">http://json.org</a>&gt; encoder and decoder for Python 3.3+
+with legacy support for Python 2.5+.  It is pure Python code
+with no dependencies, but includes an optional C extension
+for a serious speed boost.</p>
+<p>The latest documentation for simplejson can be read online here:
+<a class="reference external" href="https://simplejson.readthedocs.io/">https://simplejson.readthedocs.io/</a></p>
+<p>simplejson is the externally maintained development version of the
+json library included with Python (since 2.6). This version is tested
+with the latest Python 3.8 and maintains backwards compatibility
+with Python 3.3+ and the legacy Python 2.5 - Python 2.7 releases.</p>
+<p>The encoder can be specialized to provide serialization in any kind of
+situation, without any special support by the objects to be serialized
+(somewhat like pickle). This is best done with the <code class="docutils literal notranslate"><span class="pre">default</span></code> kwarg
+to dumps.</p>
+<p>The decoder can handle incoming JSON strings of any specified encoding
+(UTF-8 by default). It can also be specialized to post-process JSON
+objects with the <code class="docutils literal notranslate"><span class="pre">object_hook</span></code> or <code class="docutils literal notranslate"><span class="pre">object_pairs_hook</span></code> kwargs. This
+is particularly useful for implementing protocols such as JSON-RPC
+that have a richer type system than JSON itself.</p>
+<p>For those of you that have legacy systems to maintain, there is a
+very old fork of simplejson in the <a class="reference external" href="https://github.com/simplejson/simplejson/tree/python2.2">python2.2</a> branch that supports
+Python 2.2. This is based on a very old version of simplejson,
+is not maintained, and should only be used as a last resort.</p>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">simplejson</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Bob Ippolito.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

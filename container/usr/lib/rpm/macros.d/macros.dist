@@ -1,0 +1,13 @@
+# dist macros.
+
+%__bootstrap ~bootstrap
+%centos_ver 9
+%centos 9
+%rhel 9
+%dist %{!?distprefix0:%{?distprefix}}%{expand:%{lua:for i=0,9999 do print("%{?distprefix" .. i .."}") end}}.el9%{?distsuffix}%{?with_bootstrap:~bootstrap}
+%el9 1
+%dist_vendor         CentOS
+%dist_name           CentOS Stream
+%dist_home_url       https://centos.org/
+%dist_bug_report_url https://bugzilla.redhat.com/
+%dist_debuginfod_url https://debuginfod.centos.org/

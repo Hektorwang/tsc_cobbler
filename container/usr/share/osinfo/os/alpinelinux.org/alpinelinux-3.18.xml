@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<libosinfo version="0.0.1">
+  <!-- Licensed under the GNU General Public License version 2 or later.
+     See http://www.gnu.org/licenses/ for a copy of the license text -->
+  <os id="http://alpinelinux.org/alpinelinux/3.18">
+    <short-id>alpinelinux3.18</short-id>
+    <name>Alpine Linux 3.18</name>
+    <name xml:lang="zh_Hans">Alpine Linux 3.18</name>
+    <name xml:lang="ka">Alpine Linux 3.18</name>
+    <name xml:lang="ko">알파인 리눅스 3.18</name>
+    <name xml:lang="uk">Alpine Linux 3.18</name>
+    <name xml:lang="tr">Alpine Linux 3.18</name>
+    <name xml:lang="pl">Alpine Linux 3.18</name>
+    <name xml:lang="it">Alpine Linux 3.18</name>
+    <name xml:lang="id">Alpine Linux 3.18</name>
+    <version>3.18</version>
+    <vendor>Alpine Linux Project</vendor>
+    <vendor xml:lang="zh_Hans">Alpine Linux Project</vendor>
+    <vendor xml:lang="cs">Alpine Linux Project</vendor>
+    <vendor xml:lang="ka">Alpine Linux Project</vendor>
+    <vendor xml:lang="ko">알파인 리눅스 프로젝트</vendor>
+    <vendor xml:lang="fi">Alpine Linux Project</vendor>
+    <vendor xml:lang="uk">Проєкт Alpine Linux</vendor>
+    <vendor xml:lang="tr">Alpine Linux Projesi</vendor>
+    <vendor xml:lang="pt">Projeto Alpine Linux</vendor>
+    <vendor xml:lang="pt_BR">Projeto Alpine Linux</vendor>
+    <vendor xml:lang="pl">Alpine Linux Project</vendor>
+    <vendor xml:lang="it">Progetto Alpine Linux</vendor>
+    <vendor xml:lang="id">Alpine Linux Project</vendor>
+    <vendor xml:lang="fr">Projet Alpine Linux</vendor>
+    <vendor xml:lang="de">Alpine Linux Project</vendor>
+    <vendor xml:lang="ca">Projecte Alpine Linux</vendor>
+    <family>linux</family>
+    <distro>alpinelinux</distro>
+    <upgrades id="http://alpinelinux.org/alpinelinux/3.17"/>
+    <derives-from id="http://alpinelinux.org/alpinelinux/3.17"/>
+    <release-date>2023-05-09</release-date>
+    <eol-date>2025-05-09</eol-date>
+    <resources arch="all">
+      <minimum>
+        <cpu>1000000000</cpu>
+        <n-cpus>1</n-cpus>
+        <ram>134217728</ram>
+        <storage>1073741824</storage>
+      </minimum>
+      <recommended>
+        <cpu>1000000000</cpu>
+        <n-cpus>1</n-cpus>
+        <ram>805306368</ram>
+        <storage>4294967296</storage>
+      </recommended>
+    </resources>
+    <variant id="standard">
+      <name>Alpinelinux 3.18 Standard</name>
+      <name xml:lang="zh_Hans">Alpinelinux 3.18 Standard</name>
+      <name xml:lang="ka">Alpinelinux 3.18 Standard</name>
+      <name xml:lang="ko">알파인리눅스 3.18 표준</name>
+      <name xml:lang="uk">Alpinelinux 3.18 Standard</name>
+      <name xml:lang="tr">Alpinelinux 3.18 Standard</name>
+      <name xml:lang="pl">Alpinelinux 3.18 Standard</name>
+      <name xml:lang="it">Alpinelinux 3.18 Standard</name>
+      <name xml:lang="id">Alpinelinux 3.18 Standard</name>
+    </variant>
+    <variant id="extended">
+      <name>Alpinelinux 3.18 Extended</name>
+      <name xml:lang="zh_Hans">Alpinelinux 3.18 Extended</name>
+      <name xml:lang="ka">Alpinelinux 3.18 Extended</name>
+      <name xml:lang="ko">알파인리눅스 3.18 확장</name>
+      <name xml:lang="uk">Alpinelinux 3.18 Extended</name>
+      <name xml:lang="tr">Alpinelinux 3.18 Extended</name>
+      <name xml:lang="pl">Alpinelinux 3.18 Extended</name>
+      <name xml:lang="it">Alpinelinux 3.18 Extended</name>
+      <name xml:lang="id">Alpinelinux 3.18 Extended</name>
+    </variant>
+    <variant id="virtual">
+      <name>Alpinelinux 3.18 Virtual</name>
+      <name xml:lang="zh_Hans">Alpinelinux 3.18 Virtual</name>
+      <name xml:lang="ka">Alpinelinux 3.18 Virtual</name>
+      <name xml:lang="ko">알파인리눅스 3.18 가상</name>
+      <name xml:lang="uk">Alpinelinux 3.18 Virtual</name>
+      <name xml:lang="tr">Alpinelinux 3.18 Virtual</name>
+      <name xml:lang="pl">Alpinelinux 3.18 Virtual</name>
+      <name xml:lang="it">Alpinelinux 3.18 Virtual</name>
+      <name xml:lang="id">Alpinelinux 3.18 Virtual</name>
+    </variant>
+    <variant id="xen">
+      <name>Alpinelinux 3.18 Xen</name>
+      <name xml:lang="zh_Hans">Alpinelinux 3.18 Xen</name>
+      <name xml:lang="ka">Alpinelinux 3.18 Xen</name>
+      <name xml:lang="ko">알파인리눅스 3.18 Xen</name>
+      <name xml:lang="uk">Alpinelinux 3.18 Xen</name>
+      <name xml:lang="tr">Alpinelinux 3.18 Xen</name>
+      <name xml:lang="pl">Alpinelinux 3.18 Xen</name>
+      <name xml:lang="it">Alpinelinux 3.18 Xen</name>
+      <name xml:lang="id">Alpinelinux 3.18 Xen</name>
+    </variant>
+    <!-- Standard Installer !-->
+    <media arch="aarch64">
+      <variant id="standard"/>
+      <url>https://dl-cdn.alpinelinux.org/alpine/v3.18/releases/aarch64/alpine-standard-3.18.0-aarch64.iso</url>
+      <iso>
+        <volume-id>alpine-std 3\.18.* aarch64$</volume-id>
+      </iso>
+      <kernel>boot/vmlinuz-lts</kernel>
+      <initrd>boot/initramfs-lts</initrd>
+    </media>
+    <media arch="i686">
+      <variant id="standard"/>
+      <url>https://dl-cdn.alpinelinux.org/alpine/v3.18/releases/x86/alpine-standard-3.18.0-x86.iso</url>
+      <iso>
+        <volume-id>alpine-std 3\.18.* x86$</volume-id>
+      </iso>
+      <kernel>boot/vmlinuz-lts</kernel>
+      <initrd>boot/initramfs-lts</initrd>
+    </media>
+    <media arch="x86_64">
+      <variant id="standard"/>
+      <url>https://dl-cdn.alpinelinux.org/alpine/v3.18/releases/x86_64/alpine-standard-3.18.0-x86_64.iso</url>
+      <iso>
+        <volume-id>alpine-std 3\.18.* x86_64$</volume-id>
+      </iso>
+      <kernel>boot/vmlinuz-lts</kernel>
+      <initrd>boot/initramfs-lts</initrd>
+    </media>
+    <media arch="ppc64le">
+      <variant id="standard"/>
+      <url>https://dl-cdn.alpinelinux.org/alpine/v3.18/releases/ppc64le/alpine-standard-3.18.0-ppc64le.iso</url>
+      <iso>
+        <volume-id>alpine-std 3\.18.* ppc64le$</volume-id>
+      </iso>
+      <kernel>boot/vmlinuz-lts</kernel>
+      <initrd>boot/initramfs-lts</initrd>
+    </media>
+    <media arch="s390x">
+      <variant id="standard"/>
+      <url>https://dl-cdn.alpinelinux.org/alpine/v3.18/releases/s390x/alpine-standard-3.18.0-s390x.iso</url>
+      <iso>
+        <volume-id>alpine-std 3\.18.* s390x$</volume-id>
+      </iso>
+      <kernel>boot/vmlinuz-lts</kernel>
+      <initrd>boot/initramfs-lts</initrd>
+    </media>
+    <media arch="armv7l">
+      <variant id="standard"/>
+      <url>https://dl-cdn.alpinelinux.org/alpine/v3.18/releases/armv7/alpine-standard-3.18.0-armv7.iso</url>
+      <iso>
+        <volume-id>alpine-std 3\.18.* armv7$</volume-id>
+      </iso>
+      <kernel>boot/vmlinuz-lts</kernel>
+      <initrd>boot/initramfs-lts</initrd>
+    </media>
+    <!-- Extended Installer !-->
+    <media arch="i686">
+      <variant id="extended"/>
+      <url>https://dl-cdn.alpinelinux.org/alpine/v3.18/releases/x86/alpine-extended-3.18.0-x86.iso</url>
+      <iso>
+        <volume-id>alpine-ext 3\.18.* x86$</volume-id>
+      </iso>
+      <kernel>boot/vmlinuz-lts</kernel>
+      <initrd>boot/initramfs-lts</initrd>
+    </media>
+    <media arch="x86_64">
+      <variant id="extended"/>
+      <url>https://dl-cdn.alpinelinux.org/alpine/v3.18/releases/x86_64/alpine-extended-3.18.0-x86_64.iso</url>
+      <iso>
+        <volume-id>alpine-ext 3\.18.* x86_64$</volume-id>
+      </iso>
+      <kernel>boot/vmlinuz-lts</kernel>
+      <initrd>boot/initramfs-lts</initrd>
+    </media>
+    <!-- Virtual Installer !-->
+    <media arch="aarch64">
+      <variant id="virtual"/>
+      <url>https://dl-cdn.alpinelinux.org/alpine/v3.18/releases/aarch64/alpine-virt-3.18.0-aarch64.iso</url>
+      <iso>
+        <volume-id>alpine-virt 3\.18.* aarch64$</volume-id>
+      </iso>
+      <kernel>boot/vmlinuz-virt</kernel>
+      <initrd>boot/initramfs-virt</initrd>
+    </media>
+    <media arch="i686">
+      <variant id="virtual"/>
+      <url>https://dl-cdn.alpinelinux.org/alpine/v3.18/releases/x86/alpine-virt-3.18.0-x86.iso</url>
+      <iso>
+        <volume-id>alpine-virt 3\.18.* x86$</volume-id>
+      </iso>
+      <kernel>boot/vmlinuz-virt</kernel>
+      <initrd>boot/initramfs-virt</initrd>
+    </media>
+    <media arch="x86_64">
+      <variant id="virtual"/>
+      <url>https://dl-cdn.alpinelinux.org/alpine/v3.18/releases/x86_64/alpine-virt-3.18.0-x86_64.iso</url>
+      <iso>
+        <volume-id>alpine-virt 3\.18.* x86_64$</volume-id>
+      </iso>
+      <kernel>boot/vmlinuz-virt</kernel>
+      <initrd>boot/initramfs-virt</initrd>
+    </media>
+    <media arch="armv7l">
+      <variant id="virtual"/>
+      <url>https://dl-cdn.alpinelinux.org/alpine/v3.18/releases/armv7/alpine-virt-3.18.0-armv7.iso</url>
+      <iso>
+        <volume-id>alpine-virt 3\.18.* armv7$</volume-id>
+      </iso>
+      <kernel>boot/vmlinuz-virt</kernel>
+      <initrd>boot/initramfs-virt</initrd>
+    </media>
+    <!-- Xen Installer !-->
+    <media arch="x86_64">
+      <variant id="xen"/>
+      <url>https://dl-cdn.alpinelinux.org/alpine/v3.18/releases/x86_64/alpine-xen-3.18.0-x86_64.iso</url>
+      <iso>
+        <volume-id>alpine-xen 3\.18.* x86_64$</volume-id>
+      </iso>
+      <kernel>boot/vmlinuz-lts</kernel>
+      <initrd>boot/initramfs-lts</initrd>
+    </media>
+  </os>
+</libosinfo>

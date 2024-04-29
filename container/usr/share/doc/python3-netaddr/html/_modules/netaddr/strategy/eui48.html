@@ -1,0 +1,373 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>netaddr.strategy.eui48 &#8212; netaddr 0.8.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="copyright" title="Copyright" href="../../../copyright.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">netaddr 0.8.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">netaddr.strategy.eui48</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for netaddr.strategy.eui48</h1><div class="highlight"><pre>
+<span></span><span class="c1">#-----------------------------------------------------------------------------</span>
+<span class="c1">#   Copyright (c) 2008 by David P. D. Moss. All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1">#   Released under the BSD license. See the LICENSE file for details.</span>
+<span class="c1">#-----------------------------------------------------------------------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">IEEE 48-bit EUI (MAC address) logic.</span>
+
+<span class="sd">Supports numerous MAC string formats including Cisco&#39;s triple hextet as well</span>
+<span class="sd">as bare MACs containing no delimiters.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">struct</span> <span class="k">as</span> <span class="nn">_struct</span>
+<span class="kn">import</span> <span class="nn">re</span> <span class="k">as</span> <span class="nn">_re</span>
+
+<span class="c1">#   Check whether we need to use fallback code or not.</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">socket</span> <span class="kn">import</span> <span class="n">AF_LINK</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">AF_LINK</span> <span class="o">=</span> <span class="mi">48</span>
+
+<span class="kn">from</span> <span class="nn">netaddr.core</span> <span class="kn">import</span> <span class="n">AddrFormatError</span>
+<span class="kn">from</span> <span class="nn">netaddr.compat</span> <span class="kn">import</span> <span class="n">_is_str</span>
+<span class="kn">from</span> <span class="nn">netaddr.strategy</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">valid_words</span> <span class="k">as</span> <span class="n">_valid_words</span><span class="p">,</span> <span class="n">int_to_words</span> <span class="k">as</span> <span class="n">_int_to_words</span><span class="p">,</span>
+    <span class="n">words_to_int</span> <span class="k">as</span> <span class="n">_words_to_int</span><span class="p">,</span> <span class="n">valid_bits</span> <span class="k">as</span> <span class="n">_valid_bits</span><span class="p">,</span>
+    <span class="n">bits_to_int</span> <span class="k">as</span> <span class="n">_bits_to_int</span><span class="p">,</span> <span class="n">int_to_bits</span> <span class="k">as</span> <span class="n">_int_to_bits</span><span class="p">,</span>
+    <span class="n">valid_bin</span> <span class="k">as</span> <span class="n">_valid_bin</span><span class="p">,</span> <span class="n">int_to_bin</span> <span class="k">as</span> <span class="n">_int_to_bin</span><span class="p">,</span>
+    <span class="n">bin_to_int</span> <span class="k">as</span> <span class="n">_bin_to_int</span><span class="p">)</span>
+
+<span class="c1">#: The width (in bits) of this address type.</span>
+<span class="n">width</span> <span class="o">=</span> <span class="mi">48</span>
+
+<span class="c1">#: The AF_* constant value of this address type.</span>
+<span class="n">family</span> <span class="o">=</span> <span class="n">AF_LINK</span>
+
+<span class="c1">#: A friendly string name address type.</span>
+<span class="n">family_name</span> <span class="o">=</span> <span class="s1">&#39;MAC&#39;</span>
+
+<span class="c1">#: The version of this address type.</span>
+<span class="n">version</span> <span class="o">=</span> <span class="mi">48</span>
+
+<span class="c1">#: The maximum integer value that can be represented by this address type.</span>
+<span class="n">max_int</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">width</span> <span class="o">-</span> <span class="mi">1</span>
+
+<span class="c1">#-----------------------------------------------------------------------------</span>
+<span class="c1">#   Dialect classes.</span>
+<span class="c1">#-----------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="mac_eui48"><a class="viewcode-back" href="../../../api.html#netaddr.mac_eui48">[docs]</a><span class="k">class</span> <span class="nc">mac_eui48</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A standard IEEE EUI-48 dialect class.&quot;&quot;&quot;</span>
+    <span class="c1">#: The individual word size (in bits) of this address type.</span>
+    <span class="n">word_size</span> <span class="o">=</span> <span class="mi">8</span>
+
+    <span class="c1">#: The number of words in this address type.</span>
+    <span class="n">num_words</span> <span class="o">=</span> <span class="n">width</span> <span class="o">//</span> <span class="n">word_size</span>
+
+    <span class="c1">#: The maximum integer value for an individual word in this address type.</span>
+    <span class="n">max_word</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">word_size</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="c1">#: The separator character used between each word.</span>
+    <span class="n">word_sep</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span>
+
+    <span class="c1">#: The format string to be used when converting words to string values.</span>
+    <span class="n">word_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.2X</span><span class="s1">&#39;</span>
+
+    <span class="c1">#: The number base to be used when interpreting word values as integers.</span>
+    <span class="n">word_base</span> <span class="o">=</span> <span class="mi">16</span></div>
+
+
+<div class="viewcode-block" id="mac_unix"><a class="viewcode-back" href="../../../api.html#netaddr.mac_unix">[docs]</a><span class="k">class</span> <span class="nc">mac_unix</span><span class="p">(</span><span class="n">mac_eui48</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A UNIX-style MAC address dialect class.&quot;&quot;&quot;</span>
+    <span class="n">word_size</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">num_words</span> <span class="o">=</span> <span class="n">width</span> <span class="o">//</span> <span class="n">word_size</span>
+    <span class="n">word_sep</span> <span class="o">=</span> <span class="s1">&#39;:&#39;</span>
+    <span class="n">word_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%x</span><span class="s1">&#39;</span>
+    <span class="n">word_base</span> <span class="o">=</span> <span class="mi">16</span></div>
+
+
+<span class="k">class</span> <span class="nc">mac_unix_expanded</span><span class="p">(</span><span class="n">mac_unix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A UNIX-style MAC address dialect class with leading zeroes.&quot;&quot;&quot;</span>
+    <span class="n">word_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.2x</span><span class="s1">&#39;</span>
+
+
+<div class="viewcode-block" id="mac_cisco"><a class="viewcode-back" href="../../../api.html#netaddr.mac_cisco">[docs]</a><span class="k">class</span> <span class="nc">mac_cisco</span><span class="p">(</span><span class="n">mac_eui48</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A Cisco &#39;triple hextet&#39; MAC address dialect class.&quot;&quot;&quot;</span>
+    <span class="n">word_size</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">num_words</span> <span class="o">=</span> <span class="n">width</span> <span class="o">//</span> <span class="n">word_size</span>
+    <span class="n">word_sep</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
+    <span class="n">word_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.4x</span><span class="s1">&#39;</span>
+    <span class="n">word_base</span> <span class="o">=</span> <span class="mi">16</span></div>
+
+
+<div class="viewcode-block" id="mac_bare"><a class="viewcode-back" href="../../../api.html#netaddr.mac_bare">[docs]</a><span class="k">class</span> <span class="nc">mac_bare</span><span class="p">(</span><span class="n">mac_eui48</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A bare (no delimiters) MAC address dialect class.&quot;&quot;&quot;</span>
+    <span class="n">word_size</span> <span class="o">=</span> <span class="mi">48</span>
+    <span class="n">num_words</span> <span class="o">=</span> <span class="n">width</span> <span class="o">//</span> <span class="n">word_size</span>
+    <span class="n">word_sep</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">word_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.12X</span><span class="s1">&#39;</span>
+    <span class="n">word_base</span> <span class="o">=</span> <span class="mi">16</span></div>
+
+
+<div class="viewcode-block" id="mac_pgsql"><a class="viewcode-back" href="../../../api.html#netaddr.mac_pgsql">[docs]</a><span class="k">class</span> <span class="nc">mac_pgsql</span><span class="p">(</span><span class="n">mac_eui48</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A PostgreSQL style (2 x 24-bit words) MAC address dialect class.&quot;&quot;&quot;</span>
+    <span class="n">word_size</span> <span class="o">=</span> <span class="mi">24</span>
+    <span class="n">num_words</span> <span class="o">=</span> <span class="n">width</span> <span class="o">//</span> <span class="n">word_size</span>
+    <span class="n">word_sep</span> <span class="o">=</span> <span class="s1">&#39;:&#39;</span>
+    <span class="n">word_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.6x</span><span class="s1">&#39;</span>
+    <span class="n">word_base</span> <span class="o">=</span> <span class="mi">16</span></div>
+
+<span class="c1">#: The default dialect to be used when not specified by the user.</span>
+<span class="n">DEFAULT_DIALECT</span> <span class="o">=</span> <span class="n">mac_eui48</span>
+
+<span class="c1">#-----------------------------------------------------------------------------</span>
+<span class="c1">#: Regular expressions to match all supported MAC address formats.</span>
+<span class="n">RE_MAC_FORMATS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="c1">#   2 bytes x 6 (UNIX, Windows, EUI-48)</span>
+    <span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;([0-9A-F]{1,2})&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;([0-9A-F]{1,2})&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span>
+
+    <span class="c1">#   4 bytes x 3 (Cisco)</span>
+    <span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;([0-9A-F]{1,4})&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;([0-9A-F]{1,4})&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;\.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;([0-9A-F]{1,4})&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span>
+
+    <span class="c1">#   6 bytes x 2 (PostgreSQL)</span>
+    <span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;([0-9A-F]{5,6})&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;([0-9A-F]{5,6})&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span>
+
+    <span class="c1">#   12 bytes (bare, no delimiters)</span>
+    <span class="s1">&#39;^(&#39;</span> <span class="o">+</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;[0-9A-F]&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">12</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;)$&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;^(&#39;</span> <span class="o">+</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;[0-9A-F]&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">11</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;)$&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1">#   For efficiency, each string regexp converted in place to its compiled</span>
+<span class="c1">#   counterpart.</span>
+<span class="n">RE_MAC_FORMATS</span> <span class="o">=</span> <span class="p">[</span><span class="n">_re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">RE_MAC_FORMATS</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">valid_str</span><span class="p">(</span><span class="n">addr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param addr: An IEEE EUI-48 (MAC) address in string form.</span>
+
+<span class="sd">    :return: ``True`` if MAC address string is valid, ``False`` otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">regexp</span> <span class="ow">in</span> <span class="n">RE_MAC_FORMATS</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">match_result</span> <span class="o">=</span> <span class="n">regexp</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">match_result</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">str_to_int</span><span class="p">(</span><span class="n">addr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param addr: An IEEE EUI-48 (MAC) address in string form.</span>
+
+<span class="sd">    :return: An unsigned integer that is equivalent to value represented</span>
+<span class="sd">        by EUI-48/MAC string address formatted according to the dialect</span>
+<span class="sd">        settings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">_is_str</span><span class="p">(</span><span class="n">addr</span><span class="p">):</span>
+        <span class="n">found_match</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">regexp</span> <span class="ow">in</span> <span class="n">RE_MAC_FORMATS</span><span class="p">:</span>
+            <span class="n">match_result</span> <span class="o">=</span> <span class="n">regexp</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">match_result</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">found_match</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">match_result</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">):</span>
+                    <span class="n">words</span> <span class="o">=</span> <span class="n">match_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">words</span> <span class="o">=</span> <span class="p">(</span><span class="n">match_result</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found_match</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AddrFormatError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> is not a supported MAC format!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">addr</span><span class="p">,))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> is not str() or unicode()!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">addr</span><span class="p">,))</span>
+
+    <span class="n">int_val</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+        <span class="c1">#   2 bytes x 6 (UNIX, Windows, EUI-48)</span>
+        <span class="n">int_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">%.2x</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">]),</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="c1">#   4 bytes x 3 (Cisco)</span>
+        <span class="n">int_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">%.4x</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">]),</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1">#   6 bytes x 2 (PostgreSQL)</span>
+        <span class="n">int_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">%.6x</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">]),</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1">#   12 bytes (bare, no delimiters)</span>
+        <span class="n">int_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%012x</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">16</span><span class="p">),</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AddrFormatError</span><span class="p">(</span><span class="s1">&#39;unexpected word count in MAC address </span><span class="si">%r</span><span class="s1">!&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">addr</span><span class="p">,))</span>
+
+    <span class="k">return</span> <span class="n">int_val</span>
+
+
+<span class="k">def</span> <span class="nf">int_to_str</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param int_val: An unsigned integer.</span>
+
+<span class="sd">    :param dialect: (optional) a Python class defining formatting options.</span>
+
+<span class="sd">    :return: An IEEE EUI-48 (MAC) address string that is equivalent to</span>
+<span class="sd">        unsigned integer formatted according to the dialect settings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dialect</span> <span class="o">=</span> <span class="n">mac_eui48</span>
+
+    <span class="n">words</span> <span class="o">=</span> <span class="n">int_to_words</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">dialect</span><span class="p">)</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">dialect</span><span class="o">.</span><span class="n">word_fmt</span> <span class="o">%</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">words</span><span class="p">]</span>
+    <span class="n">addr</span> <span class="o">=</span> <span class="n">dialect</span><span class="o">.</span><span class="n">word_sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">addr</span>
+
+
+<span class="k">def</span> <span class="nf">int_to_packed</span><span class="p">(</span><span class="n">int_val</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param int_val: the integer to be packed.</span>
+
+<span class="sd">    :return: a packed string that is equivalent to value represented by an</span>
+<span class="sd">    unsigned integer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&gt;HI&quot;</span><span class="p">,</span> <span class="n">int_val</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span><span class="p">,</span> <span class="n">int_val</span> <span class="o">&amp;</span> <span class="mh">0xffffffff</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">packed_to_int</span><span class="p">(</span><span class="n">packed_int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param packed_int: a packed string containing an unsigned integer.</span>
+<span class="sd">        It is assumed that string is packed in network byte order.</span>
+
+<span class="sd">    :return: An unsigned integer equivalent to value of network address</span>
+<span class="sd">        represented by packed binary string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&gt;6B&#39;</span><span class="p">,</span> <span class="n">packed_int</span><span class="p">))</span>
+
+    <span class="n">int_val</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">words</span><span class="p">)):</span>
+        <span class="n">word</span> <span class="o">=</span> <span class="n">num</span>
+        <span class="n">word</span> <span class="o">=</span> <span class="n">word</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">i</span>
+        <span class="n">int_val</span> <span class="o">=</span> <span class="n">int_val</span> <span class="o">|</span> <span class="n">word</span>
+
+    <span class="k">return</span> <span class="n">int_val</span>
+
+
+<span class="k">def</span> <span class="nf">valid_words</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dialect</span> <span class="o">=</span> <span class="n">DEFAULT_DIALECT</span>
+    <span class="k">return</span> <span class="n">_valid_words</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">dialect</span><span class="o">.</span><span class="n">word_size</span><span class="p">,</span> <span class="n">dialect</span><span class="o">.</span><span class="n">num_words</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">int_to_words</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dialect</span> <span class="o">=</span> <span class="n">DEFAULT_DIALECT</span>
+    <span class="k">return</span> <span class="n">_int_to_words</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">dialect</span><span class="o">.</span><span class="n">word_size</span><span class="p">,</span> <span class="n">dialect</span><span class="o">.</span><span class="n">num_words</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">words_to_int</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dialect</span> <span class="o">=</span> <span class="n">DEFAULT_DIALECT</span>
+    <span class="k">return</span> <span class="n">_words_to_int</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">dialect</span><span class="o">.</span><span class="n">word_size</span><span class="p">,</span> <span class="n">dialect</span><span class="o">.</span><span class="n">num_words</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">valid_bits</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dialect</span> <span class="o">=</span> <span class="n">DEFAULT_DIALECT</span>
+    <span class="k">return</span> <span class="n">_valid_bits</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">dialect</span><span class="o">.</span><span class="n">word_sep</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">bits_to_int</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dialect</span> <span class="o">=</span> <span class="n">DEFAULT_DIALECT</span>
+    <span class="k">return</span> <span class="n">_bits_to_int</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">dialect</span><span class="o">.</span><span class="n">word_sep</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">int_to_bits</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dialect</span> <span class="o">=</span> <span class="n">DEFAULT_DIALECT</span>
+    <span class="k">return</span> <span class="n">_int_to_bits</span><span class="p">(</span>
+        <span class="n">int_val</span><span class="p">,</span> <span class="n">dialect</span><span class="o">.</span><span class="n">word_size</span><span class="p">,</span> <span class="n">dialect</span><span class="o">.</span><span class="n">num_words</span><span class="p">,</span> <span class="n">dialect</span><span class="o">.</span><span class="n">word_sep</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">valid_bin</span><span class="p">(</span><span class="n">bin_val</span><span class="p">,</span> <span class="n">dialect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">dialect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dialect</span> <span class="o">=</span> <span class="n">DEFAULT_DIALECT</span>
+    <span class="k">return</span> <span class="n">_valid_bin</span><span class="p">(</span><span class="n">bin_val</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">int_to_bin</span><span class="p">(</span><span class="n">int_val</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_int_to_bin</span><span class="p">(</span><span class="n">int_val</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">bin_to_int</span><span class="p">(</span><span class="n">bin_val</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_bin_to_int</span><span class="p">(</span><span class="n">bin_val</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">netaddr 0.8.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">netaddr.strategy.eui48</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; <a href="../../../copyright.html">Copyright</a> Copyright (c) 2008 by David P. D. Moss. All rights reserved..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

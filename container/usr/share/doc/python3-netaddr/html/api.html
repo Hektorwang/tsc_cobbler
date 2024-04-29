@@ -1,0 +1,2830 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Reference &#8212; netaddr 0.8.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="copyright" title="Copyright" href="copyright.html" />
+    <link rel="next" title="What’s new in netaddr 0.8.0" href="changes.html" />
+    <link rel="prev" title="Tutorial 3: Working with IP sets" href="tutorial_03.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="changes.html" title="What’s new in netaddr 0.8.0"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial_03.html" title="Tutorial 3: Working with IP sets"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">netaddr 0.8.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">API Reference</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="ip-class-hierarchy">
+<h2>IP Class Hierarchy<a class="headerlink" href="#ip-class-hierarchy" title="Permalink to this headline">¶</a></h2>
+<p>Here the class hierarchy for IP related classes</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>                           <span class="o">+--------+</span>    <span class="o">+-------------+</span>
+                           <span class="o">|</span> <span class="n">BaseIP</span> <span class="o">|</span>    <span class="o">|</span> <span class="n">IPListMixin</span> <span class="o">|</span>
+<span class="o">+---------+</span>                <span class="o">+--------+</span>    <span class="o">+-------------+</span>   <span class="o">+---------+</span>
+<span class="o">|</span> <span class="n">ipv4</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">|</span>                     <span class="o">|</span>          <span class="o">|</span>        <span class="o">|</span>      <span class="o">|</span> <span class="n">ipv6</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="o">|</span>
+<span class="o">+---------+</span>                     <span class="o">|</span>          <span class="o">|</span>        <span class="o">|</span>      <span class="o">+---------+</span>
+     <span class="o">|</span>         <span class="o">+----------------+----------------+</span>  <span class="o">|</span>           <span class="o">|</span>
+  <span class="p">(</span><span class="n">HAS</span> <span class="n">A</span><span class="p">)</span>      <span class="o">|</span>                <span class="o">|</span>          <span class="o">|</span>     <span class="o">|</span>  <span class="o">|</span>        <span class="p">(</span><span class="n">HAS</span> <span class="n">A</span><span class="p">)</span>
+     <span class="o">|</span>         <span class="o">|</span>                <span class="o">|</span>          <span class="o">|</span>     <span class="o">|</span>  <span class="o">|</span>           <span class="o">|</span>
+     <span class="o">+-----+----------------+-----------------+</span>  <span class="o">|</span>  <span class="o">|</span>           <span class="o">|</span>
+           <span class="o">|</span>   <span class="o">|</span>   <span class="o">+--------|-------+---------|--------+--------+</span>
+           <span class="o">|</span>   <span class="o">|</span>   <span class="o">|</span>        <span class="o">|</span>   <span class="o">|</span>   <span class="o">|</span>      <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>
+           <span class="o">|</span>   <span class="o">|</span>   <span class="o">|</span>        <span class="o">|</span>   <span class="o">|</span>   <span class="o">|</span>      <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>
+           <span class="n">v</span>   <span class="n">v</span>   <span class="n">v</span>        <span class="n">v</span>   <span class="n">v</span>   <span class="n">v</span>      <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>
+         <span class="o">+-----------+</span>    <span class="o">+-----------+</span>    <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>
+         <span class="o">|</span> <span class="n">IPAddress</span> <span class="o">|</span>    <span class="o">|</span> <span class="n">IPNetwork</span> <span class="o">|&lt;---+</span>  <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>
+         <span class="o">+-----------+</span>    <span class="o">+-----------+</span>       <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>
+               <span class="o">|</span>                <span class="o">|</span>             <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>
+            <span class="p">(</span><span class="n">HAS</span> <span class="n">A</span><span class="p">)</span>          <span class="p">(</span><span class="n">HAS</span> <span class="n">A</span><span class="p">)</span>          <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>  <span class="o">|</span>
+               <span class="o">|</span>                <span class="o">|</span>             <span class="n">v</span>  <span class="n">v</span>  <span class="n">v</span>  <span class="n">v</span>
+               <span class="o">+-------+--------+</span>           <span class="o">+------------+</span>
+                       <span class="o">|</span>                    <span class="o">|</span>  <span class="n">IPRange</span>   <span class="o">|</span>
+                       <span class="o">|</span>                    <span class="o">+------------+</span>
+                       <span class="n">v</span>                          <span class="o">|</span>
+                   <span class="o">+-------+</span>                      <span class="o">|</span>
+                   <span class="o">|</span> <span class="n">IPSet</span> <span class="o">|</span>                      <span class="n">v</span>
+                   <span class="o">+-------+</span>                  <span class="o">+--------+</span>
+                                              <span class="o">|</span> <span class="n">IPGlob</span> <span class="o">|</span>
+                                              <span class="o">+--------+</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="constants">
+<h2>Constants<a class="headerlink" href="#constants" title="Permalink to this headline">¶</a></h2>
+<p>The following constants are used by the various <em>flags</em> arguments on netaddr class constructors.</p>
+<dl class="py data">
+<dt id="P">
+<code class="sig-name descname">P</code><a class="headerlink" href="#P" title="Permalink to this definition">¶</a></dt>
+<dt id="INET_PTON">
+<code class="sig-name descname">INET_PTON</code><a class="headerlink" href="#INET_PTON" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use inet_pton() semantics instead of inet_aton() when parsing IPv4.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="Z">
+<code class="sig-name descname">Z</code><a class="headerlink" href="#Z" title="Permalink to this definition">¶</a></dt>
+<dt id="ZEROFILL">
+<code class="sig-name descname">ZEROFILL</code><a class="headerlink" href="#ZEROFILL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove any preceding zeros from IPv4 address octets before parsing.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="N">
+<code class="sig-name descname">N</code><a class="headerlink" href="#N" title="Permalink to this definition">¶</a></dt>
+<dt id="NOHOST">
+<code class="sig-name descname">NOHOST</code><a class="headerlink" href="#NOHOST" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove any host bits found to the right of an applied CIDR prefix</p>
+</dd></dl>
+
+</div>
+<div class="section" id="custom-exceptions">
+<h2>Custom Exceptions<a class="headerlink" href="#custom-exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="py exception">
+<dt id="netaddr.AddrConversionError">
+<em class="property">exception </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">AddrConversionError</code><a class="reference internal" href="_modules/netaddr/core.html#AddrConversionError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.AddrConversionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>An Exception indicating a failure to convert between address types or
+notations.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="netaddr.AddrFormatError">
+<em class="property">exception </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">AddrFormatError</code><a class="reference internal" href="_modules/netaddr/core.html#AddrFormatError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.AddrFormatError" title="Permalink to this definition">¶</a></dt>
+<dd><p>An Exception indicating a network address is not correctly formatted.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="netaddr.NotRegisteredError">
+<em class="property">exception </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">NotRegisteredError</code><a class="reference internal" href="_modules/netaddr/core.html#NotRegisteredError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.NotRegisteredError" title="Permalink to this definition">¶</a></dt>
+<dd><p>An Exception indicating that an OUI or IAB was not found in the IEEE
+Registry.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="ip-addresses">
+<h2>IP addresses<a class="headerlink" href="#ip-addresses" title="Permalink to this headline">¶</a></h2>
+<p>An IP address is a virtual address used to identify the source and destination of (layer 3) packets being transferred between hosts in a switched network. This library fully supports both IPv4 and the new IPv6 standards.</p>
+<p>The <cite>IPAddress</cite> class is used to identify individual IP addresses.</p>
+<dl class="py class">
+<dt id="netaddr.IPAddress">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">IPAddress</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flags</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress" title="Permalink to this definition">¶</a></dt>
+<dd><p>An individual IPv4 or IPv6 address without a net mask or subnet prefix.</p>
+<p>To support these and other network based operations, see <cite>IPNetwork</cite>.</p>
+<dl class="py method">
+<dt id="netaddr.IPAddress.__add__">
+<code class="sig-name descname">__add__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__add__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__add__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the numerical value of this IP address to num and provide the
+result as a new IPAddress object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>num</strong> – size of IP address increase.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a new IPAddress object with its numerical value increased by num.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__and__">
+<code class="sig-name descname">__and__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__and__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__and__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – An <cite>IPAddress</cite> object (or other int-like object).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bitwise AND (x &amp; y) between the integer value of this IP
+address and <code class="docutils literal notranslate"><span class="pre">other</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__bool__">
+<code class="sig-name descname">__bool__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#netaddr.IPAddress.__bool__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the numerical value of this IP address is not             zero, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__bytes__">
+<code class="sig-name descname">__bytes__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__bytes__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__bytes__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a bytes object equivalent to this IP address. In network</p>
+</dd>
+</dl>
+<p>byte order, big-endian.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__getstate__">
+<code class="sig-name descname">__getstate__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__getstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__getstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Pickled state of an <cite>IPAddress</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__hex__">
+<code class="sig-name descname">__hex__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__hex__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__hex__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a hexadecimal string representation of this IP address.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__iadd__">
+<code class="sig-name descname">__iadd__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__iadd__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__iadd__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increases the numerical value of this IPAddress by num.</p>
+<p>An IndexError is raised if result exceeds maximum IP address value or
+is less than zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>num</strong> – size of IP address increment.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__index__">
+<code class="sig-name descname">__index__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__index__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__index__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>return the integer value of this IP address when called by             hex(), oct() or bin().</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flags</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>addr</strong> – an IPv4 or IPv6 address which may be represented in an
+accepted string format, as an unsigned integer or as another
+IPAddress object (copy construction).</p></li>
+<li><p><strong>version</strong> – (optional) optimizes version detection if specified
+and distinguishes between IPv4 and IPv6 for addresses with an
+equivalent integer value.</p></li>
+<li><p><strong>flags</strong> – (optional) decides which rules are applied to the
+interpretation of the addr value. Supported constants are
+INET_PTON and ZEROFILL. See the netaddr.core docs for further
+details.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__int__">
+<code class="sig-name descname">__int__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__int__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__int__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the value of this IP address as an unsigned integer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__isub__">
+<code class="sig-name descname">__isub__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__isub__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__isub__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decreases the numerical value of this IPAddress by num.</p>
+<p>An IndexError is raised if result is less than zero or exceeds maximum
+IP address value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>num</strong> – size of IP address decrement.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__long__">
+<code class="sig-name descname">__long__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__long__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__long__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the value of this IP address as an unsigned integer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__lshift__">
+<code class="sig-name descname">__lshift__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">numbits</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__lshift__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__lshift__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>numbits</strong> – size of bitwise shift.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an <cite>IPAddress</cite> object based on this one with its integer
+value left shifted by <code class="docutils literal notranslate"><span class="pre">numbits</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__nonzero__">
+<code class="sig-name descname">__nonzero__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__nonzero__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__nonzero__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the numerical value of this IP address is not             zero, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__oct__">
+<code class="sig-name descname">__oct__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__oct__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__oct__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>an octal string representation of this IP address.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__or__">
+<code class="sig-name descname">__or__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__or__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__or__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – An <cite>IPAddress</cite> object (or other int-like object).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bitwise OR (x | y) between the integer value of this IP
+address and <code class="docutils literal notranslate"><span class="pre">other</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__radd__">
+<code class="sig-name descname">__radd__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num</span></em><span class="sig-paren">)</span><a class="headerlink" href="#netaddr.IPAddress.__radd__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the numerical value of this IP address to num and provide the
+result as a new IPAddress object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>num</strong> – size of IP address increase.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a new IPAddress object with its numerical value increased by num.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__repr__">
+<code class="sig-name descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__repr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Python statement to create an equivalent object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__rshift__">
+<code class="sig-name descname">__rshift__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">numbits</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__rshift__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__rshift__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>numbits</strong> – size of bitwise shift.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an <cite>IPAddress</cite> object based on this one with its integer
+value right shifted by <code class="docutils literal notranslate"><span class="pre">numbits</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__rsub__">
+<code class="sig-name descname">__rsub__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__rsub__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__rsub__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subtract num (lvalue) from the numerical value of this IP address
+(rvalue) providing the result as a new IPAddress object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>num</strong> – size of IP address decrease.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a new IPAddress object with its numerical value decreased by num.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__setstate__">
+<code class="sig-name descname">__setstate__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__setstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__setstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> – data used to unpickle a pickled <cite>IPAddress</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__str__">
+<code class="sig-name descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>IP address in presentational format</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__sub__">
+<code class="sig-name descname">__sub__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__sub__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__sub__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subtract the numerical value of this IP address from num providing
+the result as a new IPAddress object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>num</strong> – size of IP address decrease.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a new IPAddress object with its numerical value decreased by num.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.__xor__">
+<code class="sig-name descname">__xor__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.__xor__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.__xor__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – An <cite>IPAddress</cite> object (or other int-like object).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bitwise exclusive OR (x ^ y) between the integer value of
+this IP address and <code class="docutils literal notranslate"><span class="pre">other</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.bin">
+<em class="property">property </em><code class="sig-name descname">bin</code><a class="headerlink" href="#netaddr.IPAddress.bin" title="Permalink to this definition">¶</a></dt>
+<dd><p>The value of this IP adddress in standard Python binary
+representational form (0bxxx). A back port of the format provided by
+the builtin bin() function found in Python 2.6.x and higher.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.bits">
+<code class="sig-name descname">bits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">word_sep</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.bits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.bits" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>word_sep</strong> – (optional) the separator to insert between words.
+Default: None - use default separator for address type.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the value of this IP address as a binary digit string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.format">
+<code class="sig-name descname">format</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dialect</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only relevant for IPv6 addresses. Has no effect for IPv4.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dialect</strong> – An ipv6_* dialect class.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an alternate string representation for this IP address.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.ipv4">
+<code class="sig-name descname">ipv4</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.ipv4"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.ipv4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raises an <cite>AddrConversionError</cite> if IPv6 address cannot be converted
+to IPv4.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A numerically equivalent version 4 <cite>IPAddress</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.ipv6">
+<code class="sig-name descname">ipv6</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ipv4_compatible</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.ipv6"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.ipv6" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The IPv4-mapped IPv6 address format is now considered             deprecated. See RFC 4291 or later for details.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ipv4_compatible</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code> returns an IPv4-mapped address
+(::ffff:x.x.x.x), an IPv4-compatible (::x.x.x.x) address
+otherwise. Default: False (IPv4-mapped).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A numerically equivalent version 6 <cite>IPAddress</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.is_hostmask">
+<code class="sig-name descname">is_hostmask</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.is_hostmask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.is_hostmask" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if this IP address host mask, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.is_netmask">
+<code class="sig-name descname">is_netmask</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.is_netmask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.is_netmask" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if this IP address network mask, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.key">
+<code class="sig-name descname">key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.key" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a key tuple that uniquely identifies this IP address.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.netmask_bits">
+<code class="sig-name descname">netmask_bits</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.netmask_bits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.netmask_bits" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>&#64;return: If this IP is a valid netmask, the number of non-zero</dt><dd><p>bits are returned, otherwise it returns the width in bits for
+the IP address version.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.packed">
+<em class="property">property </em><code class="sig-name descname">packed</code><a class="headerlink" href="#netaddr.IPAddress.packed" title="Permalink to this definition">¶</a></dt>
+<dd><p>The value of this IP address as a packed binary string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.reverse_dns">
+<em class="property">property </em><code class="sig-name descname">reverse_dns</code><a class="headerlink" href="#netaddr.IPAddress.reverse_dns" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reverse DNS lookup record for this IP address</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.sort_key">
+<code class="sig-name descname">sort_key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPAddress.sort_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPAddress.sort_key" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A key tuple used to compare and sort this <cite>IPAddress</cite> correctly.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPAddress.words">
+<em class="property">property </em><code class="sig-name descname">words</code><a class="headerlink" href="#netaddr.IPAddress.words" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of unsigned integer words (octets for IPv4, hextets for IPv6)
+found in this IP address.</p>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="ipv6-formatting-dialects">
+<h3>IPv6 formatting dialects<a class="headerlink" href="#ipv6-formatting-dialects" title="Permalink to this headline">¶</a></h3>
+<p>The following dialect classes can be used with the IPAddress.format method.</p>
+<dl class="py class">
+<dt id="netaddr.ipv6_compact">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">ipv6_compact</code><a class="reference internal" href="_modules/netaddr/strategy/ipv6.html#ipv6_compact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.ipv6_compact" title="Permalink to this definition">¶</a></dt>
+<dd><p>An IPv6 dialect class - compact form.</p>
+<dl class="py attribute">
+<dt id="netaddr.ipv6_compact.compact">
+<code class="sig-name descname">compact</code><em class="property"> = True</em><a class="headerlink" href="#netaddr.ipv6_compact.compact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean flag indicating if IPv6 compaction algorithm should be used.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="netaddr.ipv6_compact.word_fmt">
+<code class="sig-name descname">word_fmt</code><em class="property"> = '%x'</em><a class="headerlink" href="#netaddr.ipv6_compact.word_fmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>The format string used to converting words into string values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="netaddr.ipv6_full">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">ipv6_full</code><a class="reference internal" href="_modules/netaddr/strategy/ipv6.html#ipv6_full"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.ipv6_full" title="Permalink to this definition">¶</a></dt>
+<dd><p>An IPv6 dialect class - ‘all zeroes’ form.</p>
+<dl class="py attribute">
+<dt id="netaddr.ipv6_full.compact">
+<code class="sig-name descname">compact</code><em class="property"> = False</em><a class="headerlink" href="#netaddr.ipv6_full.compact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean flag indicating if IPv6 compaction algorithm should be used.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="netaddr.ipv6_verbose">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">ipv6_verbose</code><a class="reference internal" href="_modules/netaddr/strategy/ipv6.html#ipv6_verbose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.ipv6_verbose" title="Permalink to this definition">¶</a></dt>
+<dd><p>An IPv6 dialect class - extra wide ‘all zeroes’ form.</p>
+<dl class="py attribute">
+<dt id="netaddr.ipv6_verbose.compact">
+<code class="sig-name descname">compact</code><em class="property"> = False</em><a class="headerlink" href="#netaddr.ipv6_verbose.compact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean flag indicating if IPv6 compaction algorithm should be used.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="netaddr.ipv6_verbose.word_fmt">
+<code class="sig-name descname">word_fmt</code><em class="property"> = '%.4x'</em><a class="headerlink" href="#netaddr.ipv6_verbose.word_fmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>The format string used to converting words into string values.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="ip-networks-and-subnets">
+<h2>IP networks and subnets<a class="headerlink" href="#ip-networks-and-subnets" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>IPNetwork</cite> class is used to represent a group of IP addresses that comprise a network/subnet/VLAN containing hosts.</p>
+<p>Nowadays, IP networks are usually specified using the CIDR format with a prefix indicating the size of the netmask. In the real world, there are a number of ways to express a “network”” and so the flexibility of the <cite>IPNetwork</cite> class constructor reflects this.</p>
+<dl class="py class">
+<dt id="netaddr.IPNetwork">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">IPNetwork</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em>, <em class="sig-param"><span class="n">implicit_prefix</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flags</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork" title="Permalink to this definition">¶</a></dt>
+<dd><p>An IPv4 or IPv6 network or subnet.</p>
+<p>A combination of an IP address and a network mask.</p>
+<p>Accepts CIDR and several related variants :</p>
+<ol class="loweralpha">
+<li><p>Standard CIDR:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">/</span><span class="n">y</span> <span class="o">-&gt;</span> <span class="mf">192.0</span><span class="o">.</span><span class="mf">2.0</span><span class="o">/</span><span class="mi">24</span>
+<span class="n">x</span><span class="p">::</span><span class="o">/</span><span class="n">y</span> <span class="o">-&gt;</span> <span class="n">fe80</span><span class="p">::</span><span class="o">/</span><span class="mi">10</span>
+</pre></div>
+</div>
+</li>
+<li><p>Hybrid CIDR format (netmask address instead of prefix), where ‘y’        address represent a valid netmask:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">/</span><span class="n">y</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">y</span> <span class="o">-&gt;</span> <span class="mf">192.0</span><span class="o">.</span><span class="mf">2.0</span><span class="o">/</span><span class="mf">255.255</span><span class="o">.</span><span class="mf">255.0</span>
+<span class="n">x</span><span class="p">::</span><span class="o">/</span><span class="n">y</span><span class="p">::</span> <span class="o">-&gt;</span> <span class="n">fe80</span><span class="p">::</span><span class="o">/</span><span class="n">ffc0</span><span class="p">::</span>
+</pre></div>
+</div>
+</li>
+<li><p>ACL hybrid CIDR format (hostmask address instead of prefix like        Cisco’s ACL bitmasks), where ‘y’ address represent a valid netmask:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">/</span><span class="n">y</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">y</span> <span class="o">-&gt;</span> <span class="mf">192.0</span><span class="o">.</span><span class="mf">2.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.255</span>
+<span class="n">x</span><span class="p">::</span><span class="o">/</span><span class="n">y</span><span class="p">::</span> <span class="o">-&gt;</span> <span class="n">fe80</span><span class="p">::</span><span class="o">/</span><span class="mi">3</span><span class="n">f</span><span class="p">:</span><span class="n">ffff</span><span class="p">:</span><span class="n">ffff</span><span class="p">:</span><span class="n">ffff</span><span class="p">:</span><span class="n">ffff</span><span class="p">:</span><span class="n">ffff</span><span class="p">:</span><span class="n">ffff</span><span class="p">:</span><span class="n">ffff</span>
+</pre></div>
+</div>
+</li>
+<li><p>Abbreviated CIDR format (as of netaddr 0.7.x this requires the        optional constructor argument <code class="docutils literal notranslate"><span class="pre">implicit_prefix=True</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">x</span>       <span class="o">-&gt;</span> <span class="mi">192</span>
+<span class="n">x</span><span class="o">/</span><span class="n">y</span>     <span class="o">-&gt;</span> <span class="mi">10</span><span class="o">/</span><span class="mi">8</span>
+<span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">/</span><span class="n">y</span>   <span class="o">-&gt;</span> <span class="mf">192.168</span><span class="o">/</span><span class="mi">16</span>
+<span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">/</span><span class="n">y</span> <span class="o">-&gt;</span> <span class="mf">192.168</span><span class="o">.</span><span class="mi">0</span><span class="o">/</span><span class="mi">24</span>
+
+<span class="n">which</span> <span class="n">are</span> <span class="n">equivalent</span> <span class="n">to</span><span class="p">::</span>
+
+<span class="n">x</span><span class="o">.</span><span class="mf">0.0</span><span class="o">.</span><span class="mi">0</span><span class="o">/</span><span class="n">y</span>   <span class="o">-&gt;</span> <span class="mf">192.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">24</span>
+<span class="n">x</span><span class="o">.</span><span class="mf">0.0</span><span class="o">.</span><span class="mi">0</span><span class="o">/</span><span class="n">y</span>   <span class="o">-&gt;</span> <span class="mf">10.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">8</span>
+<span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="n">y</span>   <span class="o">-&gt;</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">16</span>
+<span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="mi">0</span><span class="o">/</span><span class="n">y</span>   <span class="o">-&gt;</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">24</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The next release (0.9.0) will contain a backwards incompatible change
+connected to handling of RFC 6164 IPv6 addresses (/127 and /128 subnets).
+When iterating <code class="docutils literal notranslate"><span class="pre">IPNetwork</span></code> and <code class="docutils literal notranslate"><span class="pre">IPNetwork.iter_hosts()</span></code> the first
+addresses in the networks will no longer be excluded and <code class="docutils literal notranslate"><span class="pre">broadcast</span></code>
+will be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</div>
+<dl class="py method">
+<dt id="netaddr.IPNetwork.__contains__">
+<code class="sig-name descname">__contains__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.__contains__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.__contains__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an <cite>IPAddress</cite> or ranged IP object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if other falls within the boundary of this one,
+<code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.__getstate__">
+<code class="sig-name descname">__getstate__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.__getstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.__getstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Pickled state of an <cite>IPNetwork</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.__iadd__">
+<code class="sig-name descname">__iadd__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.__iadd__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.__iadd__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increases the value of this <cite>IPNetwork</cite> object by the current size
+multiplied by <code class="docutils literal notranslate"><span class="pre">num</span></code>.</p>
+<p>An <cite>IndexError</cite> is raised if result exceeds maximum IP address value
+or is less than zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>num</strong> – (optional) number of <cite>IPNetwork</cite> blocks to increment             this IPNetwork’s value by.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em>, <em class="sig-param"><span class="n">implicit_prefix</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flags</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>addr</strong> – an IPv4 or IPv6 address with optional CIDR prefix,
+netmask or hostmask. May be an IP address in presentation
+(string) format, an tuple containing and integer address and a
+network prefix, or another IPAddress/IPNetwork object (copy
+construction).</p></li>
+<li><p><strong>implicit_prefix</strong> – (optional) if True, the constructor uses
+classful IPv4 rules to select a default prefix when one is not
+provided. If False it uses the length of the IP address version.
+(default: False)</p></li>
+<li><p><strong>version</strong> – (optional) optimizes version detection if specified
+and distinguishes between IPv4 and IPv6 for addresses with an
+equivalent integer value.</p></li>
+<li><p><strong>flags</strong> – (optional) decides which rules are applied to the
+interpretation of the addr value. Currently only supports the
+NOHOST option. See the netaddr.core docs for further details.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.__isub__">
+<code class="sig-name descname">__isub__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.__isub__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.__isub__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decreases the value of this <cite>IPNetwork</cite> object by the current size
+multiplied by <code class="docutils literal notranslate"><span class="pre">num</span></code>.</p>
+<p>An <cite>IndexError</cite> is raised if result is less than zero or exceeds
+maximum IP address value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>num</strong> – (optional) number of <cite>IPNetwork</cite> blocks to decrement             this IPNetwork’s value by.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.__repr__">
+<code class="sig-name descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.__repr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Python statement to create an equivalent object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.__setstate__">
+<code class="sig-name descname">__setstate__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.__setstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.__setstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> – data used to unpickle a pickled <cite>IPNetwork</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.__str__">
+<code class="sig-name descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>this IPNetwork in CIDR format</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.broadcast">
+<em class="property">property </em><code class="sig-name descname">broadcast</code><a class="headerlink" href="#netaddr.IPNetwork.broadcast" title="Permalink to this definition">¶</a></dt>
+<dd><p>The broadcast address of this <cite>IPNetwork</cite> object.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The next release (0.9.0) will contain a backwards incompatible change
+connected to handling of RFC 6164 IPv6 addresses (/127 and /128 subnets).
+<code class="docutils literal notranslate"><span class="pre">broadcast</span></code> will be <code class="docutils literal notranslate"><span class="pre">None</span></code> when dealing with those networks.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.cidr">
+<em class="property">property </em><code class="sig-name descname">cidr</code><a class="headerlink" href="#netaddr.IPNetwork.cidr" title="Permalink to this definition">¶</a></dt>
+<dd><p>The true CIDR address for this <cite>IPNetwork</cite> object which omits any
+host bits to the right of the CIDR subnet prefix.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.first">
+<em class="property">property </em><code class="sig-name descname">first</code><a class="headerlink" href="#netaddr.IPNetwork.first" title="Permalink to this definition">¶</a></dt>
+<dd><p>The integer value of first IP address found within this <cite>IPNetwork</cite>
+object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.hostmask">
+<em class="property">property </em><code class="sig-name descname">hostmask</code><a class="headerlink" href="#netaddr.IPNetwork.hostmask" title="Permalink to this definition">¶</a></dt>
+<dd><p>The host mask of this <cite>IPNetwork</cite> object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.ip">
+<em class="property">property </em><code class="sig-name descname">ip</code><a class="headerlink" href="#netaddr.IPNetwork.ip" title="Permalink to this definition">¶</a></dt>
+<dd><p>The IP address of this <cite>IPNetwork</cite> object. This is may or may not be
+the same as the network IP address which varies according to the value
+of the CIDR subnet prefix.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.ipv4">
+<code class="sig-name descname">ipv4</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.ipv4"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.ipv4" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A numerically equivalent version 4 <cite>IPNetwork</cite> object.             Raises an <cite>AddrConversionError</cite> if IPv6 address cannot be             converted to IPv4.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.ipv6">
+<code class="sig-name descname">ipv6</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ipv4_compatible</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.ipv6"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.ipv6" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>the IPv4-mapped IPv6 address format is now considered         deprecated. See RFC 4291 or later for details.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ipv4_compatible</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code> returns an IPv4-mapped address
+(::ffff:x.x.x.x), an IPv4-compatible (::x.x.x.x) address
+otherwise. Default: False (IPv4-mapped).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A numerically equivalent version 6 <cite>IPNetwork</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.iter_hosts">
+<code class="sig-name descname">iter_hosts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.iter_hosts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.iter_hosts" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator that provides all the IP addresses that can be assigned
+to hosts within the range of this IP object’s subnet.</p>
+<ul class="simple">
+<li><p>for IPv4, the network and broadcast addresses are always excluded.           for subnets that contains less than 4 IP addresses /31 and /32           report in a manner per RFC 3021</p></li>
+<li><p>for IPv6, only the unspecified address ‘::’ or Subnet-Router anycast           address (first address in the network) is excluded.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The next release (0.9.0) will contain a backwards incompatible change
+connected to handling of RFC 6164 IPv6 addresses (/127 and /128 subnets).
+When iterating <code class="docutils literal notranslate"><span class="pre">IPNetwork</span></code> and <code class="docutils literal notranslate"><span class="pre">IPNetwork.iter_hosts()</span></code> the first
+addresses in the networks will no longer be excluded.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>an IPAddress iterator</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.key">
+<code class="sig-name descname">key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.key" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A key tuple used to uniquely identify this <cite>IPNetwork</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.last">
+<em class="property">property </em><code class="sig-name descname">last</code><a class="headerlink" href="#netaddr.IPNetwork.last" title="Permalink to this definition">¶</a></dt>
+<dd><p>The integer value of last IP address found within this <cite>IPNetwork</cite>
+object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.netmask">
+<em class="property">property </em><code class="sig-name descname">netmask</code><a class="headerlink" href="#netaddr.IPNetwork.netmask" title="Permalink to this definition">¶</a></dt>
+<dd><p>The subnet mask of this <cite>IPNetwork</cite> object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.network">
+<em class="property">property </em><code class="sig-name descname">network</code><a class="headerlink" href="#netaddr.IPNetwork.network" title="Permalink to this definition">¶</a></dt>
+<dd><p>The network address of this <cite>IPNetwork</cite> object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.next">
+<code class="sig-name descname">next</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">step</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.next" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>step</strong> – the number of IP subnets between this <cite>IPNetwork</cite> object
+and the expected subnet. Default: 1 (the next IP subnet).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The adjacent subnet succeeding this <cite>IPNetwork</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.prefixlen">
+<em class="property">property </em><code class="sig-name descname">prefixlen</code><a class="headerlink" href="#netaddr.IPNetwork.prefixlen" title="Permalink to this definition">¶</a></dt>
+<dd><p>size of the bitmask used to separate the network from the host bits</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.previous">
+<code class="sig-name descname">previous</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">step</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.previous"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.previous" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>step</strong> – the number of IP subnets between this <cite>IPNetwork</cite> object
+and the expected subnet. Default: 1 (the previous IP subnet).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The adjacent subnet preceding this <cite>IPNetwork</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.sort_key">
+<code class="sig-name descname">sort_key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.sort_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.sort_key" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A key tuple used to compare and sort this <cite>IPNetwork</cite> correctly.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.subnet">
+<code class="sig-name descname">subnet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefixlen</span></em>, <em class="sig-param"><span class="n">count</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.subnet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.subnet" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator that divides up this IPNetwork’s subnet into smaller
+subnets based on a specified CIDR prefix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prefixlen</strong> – a CIDR prefix indicating size of subnets to be
+returned.</p></li>
+<li><p><strong>count</strong> – (optional) number of consecutive IP subnets to be
+returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an iterator containing IPNetwork subnet objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPNetwork.supernet">
+<code class="sig-name descname">supernet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefixlen</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPNetwork.supernet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPNetwork.supernet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides a list of supernets for this <cite>IPNetwork</cite> object between the
+size of the current prefix and (if specified) an endpoint prefix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prefixlen</strong> – (optional) a CIDR prefix for the maximum supernet.
+Default: 0 - returns all possible supernets.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a tuple of supernet <cite>IPNetwork</cite> objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="arbitrary-ip-address-ranges">
+<h2>Arbitrary IP address ranges<a class="headerlink" href="#arbitrary-ip-address-ranges" title="Permalink to this headline">¶</a></h2>
+<p>netaddr was designed to accommodate the many different ways in which groups of IP addresses and IP networks are specified, not only in router configurations but also less standard but more human-readable forms found in, for instance, configuration files.</p>
+<p>Here are the options currently available.</p>
+<div class="section" id="bounded-ranges">
+<h3>bounded ranges<a class="headerlink" href="#bounded-ranges" title="Permalink to this headline">¶</a></h3>
+<p>A bounded range is a group of IP addresses specified using a start and end address forming a contiguous block. No bit boundaries are assumed but the end address must be numerically greater than or equal to the start address.</p>
+<dl class="py class">
+<dt id="netaddr.IPRange">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">IPRange</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">flags</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPRange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPRange" title="Permalink to this definition">¶</a></dt>
+<dd><p>An arbitrary IPv4 or IPv6 address range.</p>
+<p>Formed from a lower and upper bound IP address. The upper bound IP cannot
+be numerically smaller than the lower bound and the IP version of both
+must match.</p>
+<dl class="py method">
+<dt id="netaddr.IPRange.__contains__">
+<code class="sig-name descname">__contains__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPRange.__contains__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPRange.__contains__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an <cite>IPAddress</cite> or ranged IP object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if other falls within the boundary of this one,
+<code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPRange.__getstate__">
+<code class="sig-name descname">__getstate__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPRange.__getstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPRange.__getstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Pickled state of an <cite>IPRange</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPRange.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">flags</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPRange.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPRange.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> – an IPv4 or IPv6 address that forms the lower
+boundary of this IP range.</p></li>
+<li><p><strong>end</strong> – an IPv4 or IPv6 address that forms the upper
+boundary of this IP range.</p></li>
+<li><p><strong>flags</strong> – (optional) decides which rules are applied to the
+interpretation of the start and end values. Supported constants
+are INET_PTON and ZEROFILL. See the netaddr.core docs for further
+details.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPRange.__repr__">
+<code class="sig-name descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPRange.__repr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPRange.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Python statement to create an equivalent object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPRange.__setstate__">
+<code class="sig-name descname">__setstate__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPRange.__setstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPRange.__setstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> – data used to unpickle a pickled <cite>IPRange</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPRange.__str__">
+<code class="sig-name descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPRange.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPRange.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>this <cite>IPRange</cite> in a common representational format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPRange.cidrs">
+<code class="sig-name descname">cidrs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPRange.cidrs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPRange.cidrs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of CIDR addresses found within the lower and upper bound
+addresses of this <cite>IPRange</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPRange.first">
+<em class="property">property </em><code class="sig-name descname">first</code><a class="headerlink" href="#netaddr.IPRange.first" title="Permalink to this definition">¶</a></dt>
+<dd><p>The integer value of first IP address in this <cite>IPRange</cite> object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPRange.key">
+<code class="sig-name descname">key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPRange.key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPRange.key" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A key tuple used to uniquely identify this <cite>IPRange</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPRange.last">
+<em class="property">property </em><code class="sig-name descname">last</code><a class="headerlink" href="#netaddr.IPRange.last" title="Permalink to this definition">¶</a></dt>
+<dd><p>The integer value of last IP address in this <cite>IPRange</cite> object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPRange.sort_key">
+<code class="sig-name descname">sort_key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#IPRange.sort_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPRange.sort_key" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A key tuple used to compare and sort this <cite>IPRange</cite> correctly.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="ip-glob-ranges">
+<h3>IP glob ranges<a class="headerlink" href="#ip-glob-ranges" title="Permalink to this headline">¶</a></h3>
+<p>A very useful way to represent IP network in configuration files and on the command line for those who do not speak CIDR.</p>
+<p>The <cite>IPGlob</cite> class is used to represent individual glob ranges.</p>
+<dl class="py class">
+<dt id="netaddr.IPGlob">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">IPGlob</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ipglob</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/glob.html#IPGlob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPGlob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents an IP address range using a glob-style syntax <code class="docutils literal notranslate"><span class="pre">x.x.x-y.*</span></code></p>
+<p>Individual octets can be represented using the following shortcuts :</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">*</span></code> - the asterisk octet (represents values <code class="docutils literal notranslate"><span class="pre">0</span></code> through <code class="docutils literal notranslate"><span class="pre">255</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x-y</span></code> - the hyphenated octet (represents values <code class="docutils literal notranslate"><span class="pre">x</span></code> through <code class="docutils literal notranslate"><span class="pre">y</span></code>)</p></li>
+</ol>
+</div></blockquote>
+<p>A few basic rules also apply :</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">x</span></code> must always be less than <code class="docutils literal notranslate"><span class="pre">y</span></code>, therefore :</p></li>
+</ol>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">x</span></code> can only be <code class="docutils literal notranslate"><span class="pre">0</span></code> through <code class="docutils literal notranslate"><span class="pre">254</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y</span></code> can only be <code class="docutils literal notranslate"><span class="pre">1</span></code> through <code class="docutils literal notranslate"><span class="pre">255</span></code></p></li>
+</ul>
+<ol class="arabic simple" start="2">
+<li><p>only one hyphenated octet per IP glob is allowed</p></li>
+<li><p>only asterisks are permitted after a hyphenated octet</p></li>
+</ol>
+</div></blockquote>
+<p>Examples:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 38%" />
+<col style="width: 63%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>IP glob</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">192.0.2.1</span></code></p></td>
+<td><p>a single address</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">192.0.2.0-31</span></code></p></td>
+<td><p>32 addresses</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">192.0.2.*</span></code></p></td>
+<td><p>256 addresses</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">192.0.2-3.*</span></code></p></td>
+<td><p>512 addresses</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">192.0-1.*.*</span></code></p></td>
+<td><p>131,072 addresses</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">*.*.*.*</span></code></p></td>
+<td><p>the whole IPv4 address space</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>IP glob ranges are not directly equivalent to CIDR blocks.     They can represent address ranges that do not fall on strict bit mask     boundaries. They are suitable for use in configuration files, being     more obvious and readable than their CIDR counterparts, especially for     admins and end users with little or no networking knowledge or     experience. All CIDR addresses can always be represented as IP globs     but the reverse is not always true.</p>
+</div>
+<dl class="py method">
+<dt id="netaddr.IPGlob.__getstate__">
+<code class="sig-name descname">__getstate__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/glob.html#IPGlob.__getstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPGlob.__getstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Pickled state of an <cite>IPGlob</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPGlob.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ipglob</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/glob.html#IPGlob.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPGlob.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> – an IPv4 or IPv6 address that forms the lower
+boundary of this IP range.</p></li>
+<li><p><strong>end</strong> – an IPv4 or IPv6 address that forms the upper
+boundary of this IP range.</p></li>
+<li><p><strong>flags</strong> – (optional) decides which rules are applied to the
+interpretation of the start and end values. Supported constants
+are INET_PTON and ZEROFILL. See the netaddr.core docs for further
+details.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPGlob.__repr__">
+<code class="sig-name descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/glob.html#IPGlob.__repr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPGlob.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Python statement to create an equivalent object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPGlob.__setstate__">
+<code class="sig-name descname">__setstate__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/glob.html#IPGlob.__setstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPGlob.__setstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> – data used to unpickle a pickled <cite>IPGlob</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPGlob.__str__">
+<code class="sig-name descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/glob.html#IPGlob.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPGlob.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>IP glob in common representational format.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPGlob.glob">
+<em class="property">property </em><code class="sig-name descname">glob</code><a class="headerlink" href="#netaddr.IPGlob.glob" title="Permalink to this definition">¶</a></dt>
+<dd><p>an arbitrary IP address range in glob format.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="globbing-functions">
+<h3>globbing functions<a class="headerlink" href="#globbing-functions" title="Permalink to this headline">¶</a></h3>
+<p>It is also very useful to be able to convert between glob ranges and CIDR and IP ranges. The following function enable these various conversions.</p>
+<dl class="py function">
+<dt id="netaddr.cidr_to_glob">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">cidr_to_glob</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cidr</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/glob.html#cidr_to_glob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.cidr_to_glob" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function that accepts an IP subnet in a glob-style format and returns
+a list of CIDR subnets that exactly matches the specified glob.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cidr</strong> – an IP object CIDR subnet.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of one or more IP addresses and subnets.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.glob_to_cidrs">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">glob_to_cidrs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ipglob</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/glob.html#glob_to_cidrs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.glob_to_cidrs" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function that accepts a glob-style IP range and returns a list of one
+or more IP CIDRs that exactly matches it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ipglob</strong> – an IP address range in a glob-style format.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of one or more IP objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.glob_to_iprange">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">glob_to_iprange</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ipglob</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/glob.html#glob_to_iprange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.glob_to_iprange" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function that accepts a glob-style IP range and returns the equivalent
+IP range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ipglob</strong> – an IP address range in a glob-style format.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an IPRange object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.glob_to_iptuple">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">glob_to_iptuple</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ipglob</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/glob.html#glob_to_iptuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.glob_to_iptuple" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function that accepts a glob-style IP range and returns the component
+lower and upper bound IP address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ipglob</strong> – an IP address range in a glob-style format.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a tuple contain lower and upper bound IP objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.iprange_to_globs">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">iprange_to_globs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/glob.html#iprange_to_globs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.iprange_to_globs" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function that accepts an arbitrary start and end IP address or subnet
+and returns one or more glob-style IP ranges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> – the start IP address or subnet.</p></li>
+<li><p><strong>end</strong> – the end IP address or subnet.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list containing one or more IP globs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="nmap-ranges">
+<h3><code class="docutils literal notranslate"><span class="pre">nmap</span></code> ranges<a class="headerlink" href="#nmap-ranges" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">nmap</span></code> is a well known network security tool. It has a particularly flexible way of specifying IP address groupings.</p>
+<p>Functions are provided that allow the verification and enumeration of IP address specified in this format.</p>
+<dl class="py function">
+<dt id="netaddr.valid_nmap_range">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">valid_nmap_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target_spec</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/nmap.html#valid_nmap_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.valid_nmap_range" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target_spec</strong> – an nmap-style IP range target specification.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if IP range target spec is valid, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.iter_nmap_range">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">iter_nmap_range</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">nmap_target_spec</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/nmap.html#iter_nmap_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.iter_nmap_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>An generator that yields IPAddress objects from defined by nmap target
+specifications.</p>
+<p>See <a class="reference external" href="https://nmap.org/book/man-target-specification.html">https://nmap.org/book/man-target-specification.html</a> for details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>*nmap_target_spec</strong> – <p>one or more nmap IP range target specification.</p>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an iterator producing IPAddress objects for each IP in the target spec(s).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="ip-sets">
+<h2>IP sets<a class="headerlink" href="#ip-sets" title="Permalink to this headline">¶</a></h2>
+<p>When dealing with large numbers of IP addresses and ranges it is often useful to manipulate them as sets so you can calculate intersections, unions and differences between various groups of them.</p>
+<p>The <cite>IPSet</cite> class was built specifically for this purpose.</p>
+<dl class="py class">
+<dt id="netaddr.IPSet">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">IPSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iterable</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flags</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents an unordered collection (set) of unique IP addresses and
+subnets.</p>
+<dl class="py method">
+<dt id="netaddr.IPSet.__and__">
+<code class="sig-name descname">__and__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="headerlink" href="#netaddr.IPSet.__and__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the intersection of this IP set and another as a new IP set.
+(IP addresses and subnets common to both sets).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__bool__">
+<code class="sig-name descname">__bool__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#netaddr.IPSet.__bool__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if IPSet contains at least one IP, else False</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__contains__">
+<code class="sig-name descname">__contains__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ip</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.__contains__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.__contains__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ip</strong> – An IP address or subnet.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if IP address or subnet is a member of this IP set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__eq__">
+<code class="sig-name descname">__eq__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.__eq__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.__eq__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if this IP set is equivalent to the <code class="docutils literal notranslate"><span class="pre">other</span></code> IP set,
+<code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__ge__">
+<code class="sig-name descname">__ge__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="headerlink" href="#netaddr.IPSet.__ge__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if every IP address and subnet in other IP set
+is found within this one.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__getstate__">
+<code class="sig-name descname">__getstate__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.__getstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.__getstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Pickled state of an <code class="docutils literal notranslate"><span class="pre">IPSet</span></code> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__gt__">
+<code class="sig-name descname">__gt__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.__gt__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.__gt__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if this IP set is greater than the <code class="docutils literal notranslate"><span class="pre">other</span></code> IP set,
+<code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__hash__">
+<code class="sig-name descname">__hash__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.__hash__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.__hash__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raises <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> if this method is called.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>IPSet objects are not hashable and cannot be used as             dictionary keys or as members of other sets.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iterable</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flags</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iterable</strong> – (optional) an iterable containing IP addresses,
+subnets or ranges.</p></li>
+<li><p><strong>flags</strong> – decides which rules are applied to the interpretation
+of the addr value. See the netaddr.core namespace documentation
+for supported constant values.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__iter__">
+<code class="sig-name descname">__iter__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.__iter__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.__iter__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>an iterator over the IP addresses within this IP set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__le__">
+<code class="sig-name descname">__le__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="headerlink" href="#netaddr.IPSet.__le__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if every IP address and subnet in this IP set
+is found within <code class="docutils literal notranslate"><span class="pre">other</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__len__">
+<code class="sig-name descname">__len__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.__len__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.__len__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the cardinality of this IP set (i.e. sum of individual IP             addresses). Raises <code class="docutils literal notranslate"><span class="pre">IndexError</span></code> if size &gt; maxint (a Python             limitation). Use the .size property for subnets of any size.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__lt__">
+<code class="sig-name descname">__lt__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.__lt__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.__lt__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if this IP set is less than the <code class="docutils literal notranslate"><span class="pre">other</span></code> IP set,
+<code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__ne__">
+<code class="sig-name descname">__ne__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.__ne__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.__ne__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">False</span></code> if this IP set is equivalent to the <code class="docutils literal notranslate"><span class="pre">other</span></code> IP set,
+<code class="docutils literal notranslate"><span class="pre">True</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__nonzero__">
+<code class="sig-name descname">__nonzero__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.__nonzero__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.__nonzero__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if IPSet contains at least one IP, else False</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__or__">
+<code class="sig-name descname">__or__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="headerlink" href="#netaddr.IPSet.__or__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the union of this IP set and another as a new IP set
+(combines IP addresses and subnets from both sets).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__repr__">
+<code class="sig-name descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.__repr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Python statement to create an equivalent object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__setstate__">
+<code class="sig-name descname">__setstate__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.__setstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.__setstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> – data used to unpickle a pickled <code class="docutils literal notranslate"><span class="pre">IPSet</span></code> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__str__">
+<code class="sig-name descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#netaddr.IPSet.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Python statement to create an equivalent object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__sub__">
+<code class="sig-name descname">__sub__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="headerlink" href="#netaddr.IPSet.__sub__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the difference between this IP set and another as a new IP
+set (all IP addresses and subnets that are in this IP set but
+not found in the other.)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.__xor__">
+<code class="sig-name descname">__xor__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="headerlink" href="#netaddr.IPSet.__xor__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the symmetric difference of this IP set and another as a new
+IP set (all IP addresses and subnets that are in exactly one
+of the sets).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.add">
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em>, <em class="sig-param"><span class="n">flags</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an IP address or subnet or IPRange to this IP set. Has no effect if
+it is already present.</p>
+<p>Note that where possible the IP address or subnet is merged with other
+members of the set to form more concise CIDR blocks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>addr</strong> – An IP address or subnet in either string or object form, or
+an IPRange object.</p></li>
+<li><p><strong>flags</strong> – decides which rules are applied to the interpretation
+of the addr value. See the netaddr.core namespace documentation
+for supported constant values.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.clear">
+<code class="sig-name descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all IP addresses and subnets from this IP set.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.compact">
+<code class="sig-name descname">compact</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.compact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.compact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compact internal list of <cite>IPNetwork</cite> objects using a CIDR merge.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.copy" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a shallow copy of this IP set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.difference">
+<code class="sig-name descname">difference</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.difference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.difference" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the difference between this IP set and another as a new IP
+set (all IP addresses and subnets that are in this IP set but
+not found in the other.)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.intersection">
+<code class="sig-name descname">intersection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.intersection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.intersection" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the intersection of this IP set and another as a new IP set.
+(IP addresses and subnets common to both sets).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.iprange">
+<code class="sig-name descname">iprange</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.iprange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.iprange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an IPRange for this IPSet, if all its members
+form a single contiguous sequence.</p>
+<p>Raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> if the set is not contiguous.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An <code class="docutils literal notranslate"><span class="pre">IPRange</span></code> for all IPs in the IPSet.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.iscontiguous">
+<code class="sig-name descname">iscontiguous</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.iscontiguous"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.iscontiguous" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the members of the set form a contiguous IP
+address range (with no gaps), False otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the <code class="docutils literal notranslate"><span class="pre">IPSet</span></code> object is contiguous.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.isdisjoint">
+<code class="sig-name descname">isdisjoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.isdisjoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.isdisjoint" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if this IP set has no elements (IP addresses
+or subnets) in common with other. Intersection <em>must</em> be an
+empty set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.issubset">
+<code class="sig-name descname">issubset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.issubset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.issubset" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if every IP address and subnet in this IP set
+is found within <code class="docutils literal notranslate"><span class="pre">other</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.issuperset">
+<code class="sig-name descname">issuperset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.issuperset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.issuperset" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if every IP address and subnet in other IP set
+is found within this one.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.iter_cidrs">
+<code class="sig-name descname">iter_cidrs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.iter_cidrs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.iter_cidrs" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>an iterator over individual IP subnets within this IP set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.iter_ipranges">
+<code class="sig-name descname">iter_ipranges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.iter_ipranges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.iter_ipranges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the merged IPRanges for this IPSet.</p>
+<p>In contrast to self.iprange(), this will work even when the IPSet is
+not contiguous. Adjacent IPRanges will be merged together, so you
+get the minimal number of IPRanges.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.pop">
+<code class="sig-name descname">pop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.pop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes and returns an arbitrary IP address or subnet from this IP
+set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An IP address or subnet.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.remove">
+<code class="sig-name descname">remove</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em>, <em class="sig-param"><span class="n">flags</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes an IP address or subnet or IPRange from this IP set. Does
+nothing if it is not already a member.</p>
+<p>Note that this method behaves more like discard() found in regular
+Python sets because it doesn’t raise KeyError exceptions if the
+IP address or subnet is question does not exist. It doesn’t make sense
+to fully emulate that behaviour here as IP sets contain groups of
+individual IP addresses as individual set members using IPNetwork
+objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>addr</strong> – An IP address or subnet, or an IPRange.</p></li>
+<li><p><strong>flags</strong> – decides which rules are applied to the interpretation
+of the addr value. See the netaddr.core namespace documentation
+for supported constant values.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.size">
+<em class="property">property </em><code class="sig-name descname">size</code><a class="headerlink" href="#netaddr.IPSet.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>The cardinality of this IP set (based on the number of individual IP
+addresses including those implicitly defined in subnets).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.symmetric_difference">
+<code class="sig-name descname">symmetric_difference</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.symmetric_difference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.symmetric_difference" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the symmetric difference of this IP set and another as a new
+IP set (all IP addresses and subnets that are in exactly one
+of the sets).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.union">
+<code class="sig-name descname">union</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.union"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.union" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> – an IP set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the union of this IP set and another as a new IP set
+(combines IP addresses and subnets from both sets).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IPSet.update">
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iterable</span></em>, <em class="sig-param"><span class="n">flags</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/sets.html#IPSet.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IPSet.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the contents of this IP set with the union of itself and
+other IP set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iterable</strong> – an iterable containing IP addresses, subnets or ranges.</p></li>
+<li><p><strong>flags</strong> – decides which rules are applied to the interpretation
+of the addr value. See the netaddr.core namespace documentation
+for supported constant values.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="ip-functions-and-generators">
+<h2>IP functions and generators<a class="headerlink" href="#ip-functions-and-generators" title="Permalink to this headline">¶</a></h2>
+<p>The following are a set of useful helper functions related to the various format supported in this library.</p>
+<dl class="py function">
+<dt id="netaddr.all_matching_cidrs">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">all_matching_cidrs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ip</span></em>, <em class="sig-param"><span class="n">cidrs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#all_matching_cidrs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.all_matching_cidrs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matches an IP address or subnet against a given sequence of IP addresses
+and subnets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ip</strong> – a single IP address.</p></li>
+<li><p><strong>cidrs</strong> – a sequence of IP addresses and/or subnets.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>all matching IPAddress and/or IPNetwork objects from the provided
+sequence, an empty list if there was no match.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.cidr_abbrev_to_verbose">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">cidr_abbrev_to_verbose</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">abbrev_cidr</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#cidr_abbrev_to_verbose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.cidr_abbrev_to_verbose" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function that converts abbreviated IPv4 CIDRs to their more verbose
+equivalent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>abbrev_cidr</strong> – an abbreviated CIDR.</p>
+</dd>
+</dl>
+<p>Uses the old-style classful IP address rules to decide on a default
+subnet prefix if one is not explicitly provided.</p>
+<p>Only supports IPv4 addresses.</p>
+<p>Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">10</span>                  <span class="o">-</span> <span class="mf">10.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">8</span>
+<span class="mi">10</span><span class="o">/</span><span class="mi">16</span>               <span class="o">-</span> <span class="mf">10.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">16</span>
+<span class="mi">128</span>                 <span class="o">-</span> <span class="mf">128.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">16</span>
+<span class="mi">128</span><span class="o">/</span><span class="mi">8</span>               <span class="o">-</span> <span class="mf">128.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">8</span>
+<span class="mf">192.168</span>             <span class="o">-</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">16</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A verbose CIDR from an abbreviated CIDR or old-style classful         network address. The original value if it was not recognised as a         supported abbreviation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.cidr_exclude">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">cidr_exclude</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target</span></em>, <em class="sig-param"><span class="n">exclude</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#cidr_exclude"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.cidr_exclude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes an exclude IP address or subnet from target IP subnet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> – the target IP address or subnet to be divided up.</p></li>
+<li><p><strong>exclude</strong> – the IP address or subnet to be removed from target.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of <cite>IPNetwork</cite> objects remaining after exclusion.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.cidr_merge">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">cidr_merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ip_addrs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#cidr_merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.cidr_merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function that accepts an iterable sequence of IP addresses and subnets
+merging them into the smallest possible list of CIDRs. It merges adjacent
+subnets where possible, those contained within others and also removes
+any duplicates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ip_addrs</strong> – an iterable sequence of IP addresses, subnets or ranges.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a summarized list of <cite>IPNetwork</cite> objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.iprange_to_cidrs">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">iprange_to_cidrs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#iprange_to_cidrs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.iprange_to_cidrs" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function that accepts an arbitrary start and end IP address or subnet
+and returns a list of CIDR subnets that fit exactly between the boundaries
+of the two with no overlap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> – the start IP address or subnet.</p></li>
+<li><p><strong>end</strong> – the end IP address or subnet.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of one or more IP addresses and subnets.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.iter_iprange">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">iter_iprange</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">step</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#iter_iprange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.iter_iprange" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator that produces IPAddress objects between an arbitrary start
+and stop IP address with intervals of step between them. Sequences
+produce are inclusive of boundary IPs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> – start IP address.</p></li>
+<li><p><strong>end</strong> – end IP address.</p></li>
+<li><p><strong>step</strong> – (optional) size of step between IP addresses. Default: 1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an iterator of one or more <cite>IPAddress</cite> objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.iter_unique_ips">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">iter_unique_ips</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#iter_unique_ips"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.iter_unique_ips" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> – A list of IP addresses and subnets passed in as arguments.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A generator that flattens out IP subnets, yielding unique
+individual IP addresses (no duplicates).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.largest_matching_cidr">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">largest_matching_cidr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ip</span></em>, <em class="sig-param"><span class="n">cidrs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#largest_matching_cidr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.largest_matching_cidr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matches an IP address or subnet against a given sequence of IP addresses
+and subnets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ip</strong> – a single IP address or subnet.</p></li>
+<li><p><strong>cidrs</strong> – a sequence of IP addresses and/or subnets.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the largest (least specific) matching IPAddress or IPNetwork
+object from the provided sequence, None if there was no match.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.smallest_matching_cidr">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">smallest_matching_cidr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ip</span></em>, <em class="sig-param"><span class="n">cidrs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#smallest_matching_cidr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.smallest_matching_cidr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matches an IP address or subnet against a given sequence of IP addresses
+and subnets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ip</strong> – a single IP address or subnet.</p></li>
+<li><p><strong>cidrs</strong> – a sequence of IP addresses and/or subnets.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the smallest (most specific) matching IPAddress or IPNetwork
+object from the provided sequence, None if there was no match.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.spanning_cidr">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">spanning_cidr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ip_addrs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip.html#spanning_cidr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.spanning_cidr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that accepts a sequence of IP addresses and subnets returning
+a single <cite>IPNetwork</cite> subnet that is large enough to span the lower and
+upper bound IP addresses with a possible overlap on either end.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ip_addrs</strong> – sequence of IP addresses and subnets.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a single spanning <cite>IPNetwork</cite> subnet.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="mac-addresses-and-the-ieee-eui-standard">
+<h2>MAC addresses and the IEEE EUI standard<a class="headerlink" href="#mac-addresses-and-the-ieee-eui-standard" title="Permalink to this headline">¶</a></h2>
+<p>A MAC address is the 48-bit hardware address associated with a particular physical interface on a networked host. They are found in all networked devices and serve to identify (layer 2) frames in the networking stack.</p>
+<p>The <cite>EUI</cite> class is used to represents MACs (as well as their larger and less common 64-bit cousins).</p>
+<dl class="py class">
+<dt id="netaddr.EUI">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">EUI</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dialect</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI" title="Permalink to this definition">¶</a></dt>
+<dd><p>An IEEE EUI (Extended Unique Identifier).</p>
+<p>Both EUI-48 (used for layer 2 MAC addresses) and EUI-64 are supported.</p>
+<p>Input parsing for EUI-48 addresses is flexible, supporting many MAC
+variants.</p>
+<dl class="py method">
+<dt id="netaddr.EUI.__eq__">
+<code class="sig-name descname">__eq__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.__eq__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.__eq__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if this EUI object is numerically the same as other,             <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.__ge__">
+<code class="sig-name descname">__ge__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.__ge__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.__ge__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if this EUI object is numerically greater or equal             in value to other, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.__getitem__">
+<code class="sig-name descname">__getitem__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.__getitem__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The integer value of the word referenced by index (both             positive and negative). Raises <code class="docutils literal notranslate"><span class="pre">IndexError</span></code> if index is out             of bounds. Also supports Python list slices for accessing             word groups.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.__getstate__">
+<code class="sig-name descname">__getstate__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.__getstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.__getstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Pickled state of an <cite>EUI</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.__gt__">
+<code class="sig-name descname">__gt__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.__gt__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.__gt__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if this EUI object is numerically greater in value             than other, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.__hash__">
+<code class="sig-name descname">__hash__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.__hash__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.__hash__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>hash of this EUI object suitable for dict keys, sets etc</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dialect</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>addr</strong> – an EUI-48 (MAC) or EUI-64 address in string format or             an unsigned integer. May also be another EUI object (copy             construction).</p></li>
+<li><p><strong>version</strong> – (optional) the explicit EUI address version, either             48 or 64. Mainly used to distinguish EUI-48 and EUI-64 identifiers             specified as integers which may be numerically equivalent.</p></li>
+<li><p><strong>dialect</strong> – (optional) the mac_* dialect to be used to configure             the formatting of EUI-48 (MAC) addresses.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.__le__">
+<code class="sig-name descname">__le__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.__le__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.__le__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if this EUI object is numerically lower or equal in             value to other, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.__lt__">
+<code class="sig-name descname">__lt__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.__lt__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.__lt__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if this EUI object is numerically lower in value than             other, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.__ne__">
+<code class="sig-name descname">__ne__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.__ne__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.__ne__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if this EUI object is numerically the same as other,             <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.__repr__">
+<code class="sig-name descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.__repr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>executable Python string to recreate equivalent object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.__setitem__">
+<code class="sig-name descname">__setitem__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em>, <em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.__setitem__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.__setitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value of the word referenced by index in this address</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.__setstate__">
+<code class="sig-name descname">__setstate__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.__setstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.__setstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> – data used to unpickle a pickled <cite>EUI</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.__str__">
+<code class="sig-name descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>EUI in representational format</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.bin">
+<em class="property">property </em><code class="sig-name descname">bin</code><a class="headerlink" href="#netaddr.EUI.bin" title="Permalink to this definition">¶</a></dt>
+<dd><p>The value of this EUI adddress in standard Python binary
+representational form (0bxxx). A back port of the format provided by
+the builtin bin() function found in Python 2.6.x and higher.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.bits">
+<code class="sig-name descname">bits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">word_sep</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.bits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.bits" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>word_sep</strong> – (optional) the separator to insert between words.             Default: None - use default separator for address type.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>human-readable binary digit string of this address.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.dialect">
+<em class="property">property </em><code class="sig-name descname">dialect</code><a class="headerlink" href="#netaddr.EUI.dialect" title="Permalink to this definition">¶</a></dt>
+<dd><p>a Python class providing support for the interpretation of various MAC
+address formats.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.ei">
+<em class="property">property </em><code class="sig-name descname">ei</code><a class="headerlink" href="#netaddr.EUI.ei" title="Permalink to this definition">¶</a></dt>
+<dd><p>The EI (Extension Identifier) for this EUI</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.eui64">
+<code class="sig-name descname">eui64</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.eui64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.eui64" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p>If this object represents an EUI-48 it is converted to EUI-64             as per the standard.</p></li>
+<li><p>If this object is already an EUI-64, a new, numerically             equivalent object is returned instead.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The value of this EUI object as a new 64-bit EUI object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.format">
+<code class="sig-name descname">format</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dialect</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format the EUI into the representational format according to the given
+dialect</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dialect</strong> – the mac_* dialect defining the formatting of EUI-48             (MAC) addresses.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>EUI in representational format according to the given dialect</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.iab">
+<em class="property">property </em><code class="sig-name descname">iab</code><a class="headerlink" href="#netaddr.EUI.iab" title="Permalink to this definition">¶</a></dt>
+<dd><p>If is_iab() is True, the IAB (Individual Address Block) is returned,
+<code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.info">
+<em class="property">property </em><code class="sig-name descname">info</code><a class="headerlink" href="#netaddr.EUI.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>A record dict containing IEEE registration details for this EUI
+(MAC-48) if available, None otherwise.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.ipv6">
+<code class="sig-name descname">ipv6</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prefix</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.ipv6"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.ipv6" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This poses security risks in certain scenarios.             Please read RFC 4941 for details. Reference: RFCs 4291 and 4941.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prefix</strong> – ipv6 prefix</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>new IPv6 <cite>IPAddress</cite> object based on this <cite>EUI</cite>             using the technique described in RFC 4291.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.ipv6_link_local">
+<code class="sig-name descname">ipv6_link_local</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.ipv6_link_local"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.ipv6_link_local" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This poses security risks in certain scenarios.             Please read RFC 4941 for details. Reference: RFCs 4291 and 4941.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>new link local IPv6 <cite>IPAddress</cite> object based on this <cite>EUI</cite>             using the technique described in RFC 4291.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.is_iab">
+<code class="sig-name descname">is_iab</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.is_iab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.is_iab" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if this EUI is an IAB address, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.modified_eui64">
+<code class="sig-name descname">modified_eui64</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#EUI.modified_eui64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.EUI.modified_eui64" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p>create a new EUI object with a modified EUI-64 as described in RFC 4291 section 2.5.1</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a new and modified 64-bit EUI object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.oui">
+<em class="property">property </em><code class="sig-name descname">oui</code><a class="headerlink" href="#netaddr.EUI.oui" title="Permalink to this definition">¶</a></dt>
+<dd><p>The OUI (Organisationally Unique Identifier) for this EUI.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.packed">
+<em class="property">property </em><code class="sig-name descname">packed</code><a class="headerlink" href="#netaddr.EUI.packed" title="Permalink to this definition">¶</a></dt>
+<dd><p>The value of this EUI address as a packed binary string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.value">
+<em class="property">property </em><code class="sig-name descname">value</code><a class="headerlink" href="#netaddr.EUI.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>a positive integer representing the value of this EUI indentifier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.version">
+<em class="property">property </em><code class="sig-name descname">version</code><a class="headerlink" href="#netaddr.EUI.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>The EUI version represented by this EUI object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.EUI.words">
+<em class="property">property </em><code class="sig-name descname">words</code><a class="headerlink" href="#netaddr.EUI.words" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of unsigned integer octets found in this EUI address.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="netaddr.OUI">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">OUI</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">oui</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#OUI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.OUI" title="Permalink to this definition">¶</a></dt>
+<dd><p>An individual IEEE OUI (Organisationally Unique Identifier).</p>
+<p>For online details see - <a class="reference external" href="http://standards.ieee.org/regauth/oui/">http://standards.ieee.org/regauth/oui/</a></p>
+<dl class="py method">
+<dt id="netaddr.OUI.__eq__">
+<code class="sig-name descname">__eq__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#OUI.__eq__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.OUI.__eq__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return self==value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.OUI.__getstate__">
+<code class="sig-name descname">__getstate__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#OUI.__getstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.OUI.__getstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Pickled state of an <cite>OUI</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.OUI.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">oui</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#OUI.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.OUI.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>oui</strong> – an OUI string <code class="docutils literal notranslate"><span class="pre">XX-XX-XX</span></code> or an unsigned integer.             Also accepts and parses full MAC/EUI-48 address strings (but not             MAC/EUI-48 integers)!</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.OUI.__ne__">
+<code class="sig-name descname">__ne__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#OUI.__ne__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.OUI.__ne__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return self!=value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.OUI.__repr__">
+<code class="sig-name descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#OUI.__repr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.OUI.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>executable Python string to recreate equivalent object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.OUI.__setstate__">
+<code class="sig-name descname">__setstate__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#OUI.__setstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.OUI.__setstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> – data used to unpickle a pickled <cite>OUI</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.OUI.__str__">
+<code class="sig-name descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#OUI.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.OUI.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>string representation of this OUI</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.OUI.reg_count">
+<em class="property">property </em><code class="sig-name descname">reg_count</code><a class="headerlink" href="#netaddr.OUI.reg_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of registered organisations with this OUI</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.OUI.registration">
+<code class="sig-name descname">registration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#OUI.registration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.OUI.registration" title="Permalink to this definition">¶</a></dt>
+<dd><p>The IEEE registration details for this OUI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>index</strong> – the index of record (may contain multiple registrations)
+(Default: 0 - first registration)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Objectified Python data structure containing registration
+details.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="netaddr.IAB">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">IAB</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iab</span></em>, <em class="sig-param"><span class="n">strict</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#IAB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IAB" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="netaddr.IAB.IAB_EUI_VALUES">
+<code class="sig-name descname">IAB_EUI_VALUES</code><em class="property"> = (20674, 4249685)</em><a class="headerlink" href="#netaddr.IAB.IAB_EUI_VALUES" title="Permalink to this definition">¶</a></dt>
+<dd><p>An individual IEEE IAB (Individual Address Block) identifier.</p>
+<p>For online details see - <a class="reference external" href="http://standards.ieee.org/regauth/oui/">http://standards.ieee.org/regauth/oui/</a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IAB.__eq__">
+<code class="sig-name descname">__eq__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#IAB.__eq__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IAB.__eq__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return self==value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IAB.__getstate__">
+<code class="sig-name descname">__getstate__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#IAB.__getstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IAB.__getstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Pickled state of an <cite>IAB</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IAB.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iab</span></em>, <em class="sig-param"><span class="n">strict</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#IAB.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IAB.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iab</strong> – an IAB string <code class="docutils literal notranslate"><span class="pre">00-50-C2-XX-X0-00</span></code> or an unsigned             integer. This address looks like an EUI-48 but it should not             have any non-zero bits in the last 3 bytes.</p></li>
+<li><p><strong>strict</strong> – If True, raises a ValueError if the last 12 bits             of IAB MAC/EUI-48 address are non-zero, ignores them otherwise.             (Default: False)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IAB.__ne__">
+<code class="sig-name descname">__ne__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#IAB.__ne__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IAB.__ne__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return self!=value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IAB.__repr__">
+<code class="sig-name descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#IAB.__repr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IAB.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>executable Python string to recreate equivalent object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IAB.__setstate__">
+<code class="sig-name descname">__setstate__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#IAB.__setstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IAB.__setstate__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>state</strong> – data used to unpickle a pickled <cite>IAB</cite> object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IAB.__str__">
+<code class="sig-name descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#IAB.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IAB.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>string representation of this IAB</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IAB.registration">
+<code class="sig-name descname">registration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#IAB.registration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IAB.registration" title="Permalink to this definition">¶</a></dt>
+<dd><p>The IEEE registration details for this IAB</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="netaddr.IAB.split_iab_mac">
+<em class="property">classmethod </em><code class="sig-name descname">split_iab_mac</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">eui_int</span></em>, <em class="sig-param"><span class="n">strict</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/eui.html#IAB.split_iab_mac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.IAB.split_iab_mac" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eui_int</strong> – a MAC IAB as an unsigned integer.</p></li>
+<li><p><strong>strict</strong> – If True, raises a ValueError if the last 12 bits of
+IAB MAC/EUI-48 address are non-zero, ignores them otherwise.
+(Default: False)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="mac-formatting-dialects">
+<h3>MAC formatting dialects<a class="headerlink" href="#mac-formatting-dialects" title="Permalink to this headline">¶</a></h3>
+<p>The following dialects are used to specify the formatting of MAC addresses.</p>
+<dl class="py class">
+<dt id="netaddr.mac_bare">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">mac_bare</code><a class="reference internal" href="_modules/netaddr/strategy/eui48.html#mac_bare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.mac_bare" title="Permalink to this definition">¶</a></dt>
+<dd><p>A bare (no delimiters) MAC address dialect class.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="netaddr.mac_cisco">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">mac_cisco</code><a class="reference internal" href="_modules/netaddr/strategy/eui48.html#mac_cisco"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.mac_cisco" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Cisco ‘triple hextet’ MAC address dialect class.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="netaddr.mac_eui48">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">mac_eui48</code><a class="reference internal" href="_modules/netaddr/strategy/eui48.html#mac_eui48"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.mac_eui48" title="Permalink to this definition">¶</a></dt>
+<dd><p>A standard IEEE EUI-48 dialect class.</p>
+<dl class="py attribute">
+<dt id="netaddr.mac_eui48.max_word">
+<code class="sig-name descname">max_word</code><em class="property"> = 255</em><a class="headerlink" href="#netaddr.mac_eui48.max_word" title="Permalink to this definition">¶</a></dt>
+<dd><p>The maximum integer value for an individual word in this address type.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="netaddr.mac_eui48.num_words">
+<code class="sig-name descname">num_words</code><em class="property"> = 6</em><a class="headerlink" href="#netaddr.mac_eui48.num_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of words in this address type.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="netaddr.mac_eui48.word_base">
+<code class="sig-name descname">word_base</code><em class="property"> = 16</em><a class="headerlink" href="#netaddr.mac_eui48.word_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number base to be used when interpreting word values as integers.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="netaddr.mac_eui48.word_fmt">
+<code class="sig-name descname">word_fmt</code><em class="property"> = '%.2X'</em><a class="headerlink" href="#netaddr.mac_eui48.word_fmt" title="Permalink to this definition">¶</a></dt>
+<dd><p>The format string to be used when converting words to string values.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="netaddr.mac_eui48.word_sep">
+<code class="sig-name descname">word_sep</code><em class="property"> = '-'</em><a class="headerlink" href="#netaddr.mac_eui48.word_sep" title="Permalink to this definition">¶</a></dt>
+<dd><p>The separator character used between each word.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="netaddr.mac_eui48.word_size">
+<code class="sig-name descname">word_size</code><em class="property"> = 8</em><a class="headerlink" href="#netaddr.mac_eui48.word_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>The individual word size (in bits) of this address type.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="netaddr.mac_pgsql">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">mac_pgsql</code><a class="reference internal" href="_modules/netaddr/strategy/eui48.html#mac_pgsql"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.mac_pgsql" title="Permalink to this definition">¶</a></dt>
+<dd><p>A PostgreSQL style (2 x 24-bit words) MAC address dialect class.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="netaddr.mac_unix">
+<em class="property">class </em><code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">mac_unix</code><a class="reference internal" href="_modules/netaddr/strategy/eui48.html#mac_unix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.mac_unix" title="Permalink to this definition">¶</a></dt>
+<dd><p>A UNIX-style MAC address dialect class.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="validation-functions">
+<h2>Validation functions<a class="headerlink" href="#validation-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="netaddr.valid_ipv4">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">valid_ipv4</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em>, <em class="sig-param"><span class="n">flags</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#netaddr.valid_ipv4" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>addr</strong> – An IPv4 address in presentation (string) format.</p></li>
+<li><p><strong>flags</strong> – decides which rules are applied to the interpretation of the
+addr value. Supported constants are INET_PTON and ZEROFILL. See the
+netaddr.core docs for details.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if IPv4 address is valid, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.valid_ipv6">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">valid_ipv6</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em>, <em class="sig-param"><span class="n">flags</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#netaddr.valid_ipv6" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>addr</strong> – An IPv6 address in presentation (string) format.</p></li>
+<li><p><strong>flags</strong> – decides which rules are applied to the interpretation of the
+addr value. Future use - currently has no effect.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if IPv6 address is valid, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.valid_glob">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">valid_glob</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ipglob</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/glob.html#valid_glob"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.valid_glob" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ipglob</strong> – An IP address range in a glob-style format.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if IP range glob is valid, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.valid_mac">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">valid_mac</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em><span class="sig-paren">)</span><a class="headerlink" href="#netaddr.valid_mac" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addr</strong> – An IEEE EUI-48 (MAC) address in string form.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if MAC address string is valid, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="a-bit-of-fun">
+<h2>A bit of fun<a class="headerlink" href="#a-bit-of-fun" title="Permalink to this headline">¶</a></h2>
+<p>Who said networking was all about being serious? It’s always good to lighten up and have a bit of fun.</p>
+<p>Let’s face it, no networking library worth its salt would be complete without support for RFC 1924 - <a class="reference external" href="http://www.ietf.org/rfc/rfc1924">http://www.ietf.org/rfc/rfc1924</a> <code class="docutils literal notranslate"><span class="pre">:-)</span></code></p>
+<dl class="py function">
+<dt id="netaddr.base85_to_ipv6">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">base85_to_ipv6</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/rfc1924.html#base85_to_ipv6"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.base85_to_ipv6" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a base 85 IPv6 address to its hexadecimal format.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="netaddr.ipv6_to_base85">
+<code class="sig-prename descclassname">netaddr.</code><code class="sig-name descname">ipv6_to_base85</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/netaddr/ip/rfc1924.html#ipv6_to_base85"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#netaddr.ipv6_to_base85" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a regular IPv6 address to base 85.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">API Reference</a><ul>
+<li><a class="reference internal" href="#ip-class-hierarchy">IP Class Hierarchy</a></li>
+<li><a class="reference internal" href="#constants">Constants</a></li>
+<li><a class="reference internal" href="#custom-exceptions">Custom Exceptions</a></li>
+<li><a class="reference internal" href="#ip-addresses">IP addresses</a><ul>
+<li><a class="reference internal" href="#ipv6-formatting-dialects">IPv6 formatting dialects</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ip-networks-and-subnets">IP networks and subnets</a></li>
+<li><a class="reference internal" href="#arbitrary-ip-address-ranges">Arbitrary IP address ranges</a><ul>
+<li><a class="reference internal" href="#bounded-ranges">bounded ranges</a></li>
+<li><a class="reference internal" href="#ip-glob-ranges">IP glob ranges</a></li>
+<li><a class="reference internal" href="#globbing-functions">globbing functions</a></li>
+<li><a class="reference internal" href="#nmap-ranges"><code class="docutils literal notranslate"><span class="pre">nmap</span></code> ranges</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ip-sets">IP sets</a></li>
+<li><a class="reference internal" href="#ip-functions-and-generators">IP functions and generators</a></li>
+<li><a class="reference internal" href="#mac-addresses-and-the-ieee-eui-standard">MAC addresses and the IEEE EUI standard</a><ul>
+<li><a class="reference internal" href="#mac-formatting-dialects">MAC formatting dialects</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#validation-functions">Validation functions</a></li>
+<li><a class="reference internal" href="#a-bit-of-fun">A bit of fun</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial_03.html"
+                        title="previous chapter">Tutorial 3: Working with IP sets</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="changes.html"
+                        title="next chapter">What’s new in netaddr 0.8.0</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/api.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="changes.html" title="What’s new in netaddr 0.8.0"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial_03.html" title="Tutorial 3: Working with IP sets"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">netaddr 0.8.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">API Reference</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; <a href="copyright.html">Copyright</a> Copyright (c) 2008 by David P. D. Moss. All rights reserved..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

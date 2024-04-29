@@ -1,0 +1,3 @@
+#! /usr/bin/python3 -s
+from Cheetah.CheetahWrapper import _cheetah
+_cheetah()

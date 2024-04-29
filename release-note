@@ -1,0 +1,6 @@
+# release-note
+
+Version=0.9.0
+Date=20240429
+
+init: 新建, 尚未在 aarch64 上测试

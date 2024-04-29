@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<libosinfo version="0.0.1">
+  <!-- Licensed under the GNU General Public License version 2 or later.
+     See http://www.gnu.org/licenses/ for a copy of the license text -->
+  <os id="http://trisquel.info/trisquel/9">
+    <short-id>trisquel9</short-id>
+    <name>Trisquel 9.0 LTS</name>
+    <name xml:lang="zh_Hans">Trisquel 9.0 LTS</name>
+    <name xml:lang="ka">Trisquel 9.0 LTS</name>
+    <name xml:lang="ko">&#xD2B8;&#xB9AC;&#xC2A4;&#xD004; 9.0 LTS</name>
+    <name xml:lang="uk">Trisquel 9.0 LTS</name>
+    <name xml:lang="tr">Trisquel 9.0 LTS</name>
+    <name xml:lang="pl">Trisquel 9.0 LTS</name>
+    <name xml:lang="it">Trisquel 9.0 LTS</name>
+    <name xml:lang="id">Trisquel 9.0 LTS</name>
+    <version>9</version>
+    <vendor>The Trisquel Project</vendor>
+    <vendor xml:lang="zh_Hans">The Trisquel Project</vendor>
+    <vendor xml:lang="ka">The Trisquel Project</vendor>
+    <vendor xml:lang="ko">&#xD2B8;&#xB9AC;&#xC2A4;&#xD004; &#xD504;&#xB85C;&#xC81D;&#xD2B8;</vendor>
+    <vendor xml:lang="fi">The Trisquel Project</vendor>
+    <vendor xml:lang="uk">&#x41F;&#x440;&#x43E;&#x454;&#x43A;&#x442; Trisquel</vendor>
+    <vendor xml:lang="tr">Trisquel Projesi</vendor>
+    <vendor xml:lang="pl">Projekt Trisquel</vendor>
+    <vendor xml:lang="it">Progetto Trisquel</vendor>
+    <vendor xml:lang="id">Proyek Trisquel</vendor>
+    <vendor xml:lang="de">The Trisquel Project</vendor>
+    <family>linux</family>
+    <distro>trisquel</distro>
+    <derives-from id="http://ubuntu.com/ubuntu/18.04"/>
+    <release-date>2021-10-16</release-date>
+    <eol-date>2023-05-30</eol-date>
+    <variant id="trisquel">
+      <name>Trisquel 9</name>
+      <name xml:lang="zh_Hans">Trisquel 9</name>
+      <name xml:lang="ka">Trisquel 9</name>
+      <name xml:lang="ko">&#xD2B8;&#xB9AC;&#xC2A4;&#xD004; 9</name>
+      <name xml:lang="uk">Trisquel 9</name>
+      <name xml:lang="tr">Trisquel 9</name>
+      <name xml:lang="pl">Trisquel 9</name>
+      <name xml:lang="it">Trisquel 9</name>
+      <name xml:lang="id">Trisquel 9</name>
+      <name xml:lang="de">Trisquel 9</name>
+    </variant>
+    <variant id="triskel">
+      <name>Triskel 9</name>
+      <name xml:lang="zh_Hans">Triskel 9</name>
+      <name xml:lang="ka">Triskel 9</name>
+      <name xml:lang="ko">&#xD2B8;&#xB9AC;&#xC2A4;&#xCF08; 9</name>
+      <name xml:lang="uk">Triskel 9</name>
+      <name xml:lang="tr">Triskel 9</name>
+      <name xml:lang="pl">Triskel 9</name>
+      <name xml:lang="it">Triskel 9</name>
+      <name xml:lang="id">Triskel 9</name>
+      <name xml:lang="de">Triskel 9</name>
+    </variant>
+    <variant id="mini">
+      <name>Trisquel 9 Mini</name>
+      <name xml:lang="zh_Hans">Trisquel 9 Mini</name>
+      <name xml:lang="ka">Trisquel 9 Mini</name>
+      <name xml:lang="ko">&#xD2B8;&#xB9AC;&#xC2A4;&#xD004; 9 &#xBBF8;&#xB2C8;</name>
+      <name xml:lang="uk">Trisquel 9 Mini</name>
+      <name xml:lang="tr">Trisquel 9 Mini</name>
+      <name xml:lang="pl">Trisquel 9 Mini</name>
+      <name xml:lang="it">Trisquel 9 Mini</name>
+      <name xml:lang="id">Trisquel 9 Mini</name>
+      <name xml:lang="de">Trisquel 9 Mini</name>
+    </variant>
+    <variant id="sugar-toast">
+      <name>Trisquel 9 Sugar Toast</name>
+      <name xml:lang="zh_Hans">Trisquel 9 Sugar Toast</name>
+      <name xml:lang="ka">Trisquel 9 Sugar Toast</name>
+      <name xml:lang="ko">&#xD2B8;&#xB9AC;&#xC2A4;&#xD004; 9 &#xC288;&#xAC00; &#xD1A0;&#xC2A4;&#xD2B8;</name>
+      <name xml:lang="uk">Trisquel 9 Sugar Toast</name>
+      <name xml:lang="tr">Trisquel 9 Sugar Toast</name>
+      <name xml:lang="pl">Trisquel 9 Sugar Toast</name>
+      <name xml:lang="it">Trisquel 9 Sugar Toast</name>
+      <name xml:lang="id">Trisquel 9 Sugar Toast</name>
+      <name xml:lang="de">Trisquel 9 Sugar Toast</name>
+    </variant>
+    <!-- x86_64 -->
+    <media arch="x86_64" live="true" installer-script="false">
+      <variant id="trisquel"/>
+      <iso>
+        <volume-id>trisquel 9.0.(\d) amd64.*</volume-id>
+      </iso>
+      <kernel>casper/vmlinuz</kernel>
+      <initrd>casper/initrd</initrd>
+    </media>
+    <media arch="x86_64" live="true" installer-script="false">
+      <variant id="mini"/>
+      <iso>
+        <volume-id>trisquel-mini 9.0.(\d) amd64.*</volume-id>
+      </iso>
+      <kernel>casper/vmlinuz</kernel>
+      <initrd>casper/initrd</initrd>
+    </media>
+    <media arch="x86_64" live="true" installer-script="false">
+      <variant id="sugar-toast"/>
+      <iso>
+        <volume-id>trisquel-sugar 9.0.(\d) amd64.*</volume-id>
+      </iso>
+      <kernel>casper/vmlinuz</kernel>
+      <initrd>casper/initrd</initrd>
+    </media>
+    <media arch="x86_64" live="true" installer-script="false">
+      <variant id="triskel"/>
+      <iso>
+        <volume-id>triskel 9.0.(\d) amd64.*</volume-id>
+      </iso>
+      <kernel>casper/vmlinuz</kernel>
+      <initrd>casper/initrd</initrd>
+    </media>
+    <resources arch="all">
+      <recommended>
+        <cpu>1000000000</cpu>
+        <ram>1073741824</ram>
+        <storage>16106127360</storage>
+      </recommended>
+    </resources>
+  </os>
+</libosinfo>

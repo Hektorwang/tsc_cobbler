@@ -1,0 +1,78 @@
+1.10.0
+======
+
+- Port to libsoup3 (optional)
+- Several CI improvements
+- Several translation improvements
+
+1.9.0
+====
+
+- Several CI improvements
+- Several translation improvements
+- Fix export/import tests
+
+1.8.0
+=====
+
+- Several CI improvements
+- Several release scripts improvements
+- Several translations improvements
+- Several syntax-check improvements
+
+1.7.0
+=====
+
+- Switch to meson build system
+
+1.6.0
+=====
+
+- Use libsoup for "http://" & "https://" requests for
+  osinfo-db-import
+- Drop GVFS dependency
+
+1.5.0
+=====
+
+- Add a test suite covering all the tools
+- Improve usage of --root by not requiring its argument to end with '/'
+- Fix memory leak on osinfo-db-validate
+- Fix wording of osinfo-db-export --help
+
+1.4.0
+=====
+
+- Refreshed translations from Zanata
+- Drop deprecated gnome-common and intltool
+
+1.3.0
+=====
+
+- Avoid warnings on osinfo-db-export due to calling g_object_unref()
+  on a NULL object
+- Improvements on osinfo-db-import manpage
+- Remove outdated FSF address from source file headers
+- Make osinfo-db-import capable to deal with URLs
+- Introduce osinfo-db-import --latest
+- Refreshed translations from zanata
+
+1.2.0
+=====
+
+- Don't expand XML entities
+- Fix build with CLang
+- Don't hardcode perl interpretor path
+
+1.1.0
+=====
+
+- Add --license option to osinfo-db-export
+- Fix license file to refer to GPL, not LGPL
+- Fix typos in help output
+- List libarchive as pre-req in README
+
+1.0.0
+=====
+
+- First public release after split from libosinfo

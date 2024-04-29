@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<libosinfo version="0.0.1">
+  <!-- Licensed under the GNU General Public License version 2 or later.
+     See http://www.gnu.org/licenses/ for a copy of the license text -->
+  <os id="http://freenix.net/freenix/14.2">
+    <short-id>freenix14.2</short-id>
+    <name>Freenix 14.2</name>
+    <name xml:lang="zh_Hans">Freenix 14.2</name>
+    <name xml:lang="ka">Freenix 14.2</name>
+    <name xml:lang="ko">&#xD504;&#xB9AC;&#xB2C9;&#xC2A4; 14.2</name>
+    <name xml:lang="uk">Freenix 14.2</name>
+    <name xml:lang="tr">Freenix 14.2</name>
+    <name xml:lang="pl">Freenix 14.2</name>
+    <name xml:lang="it">Freenix 14.2</name>
+    <name xml:lang="id">Freenix 14.2</name>
+    <name xml:lang="de">Freenix 14.2</name>
+    <version>14.2</version>
+    <vendor>Freenix Project</vendor>
+    <vendor xml:lang="zh_Hans">Freenix Project</vendor>
+    <vendor xml:lang="ka">Freenix Project</vendor>
+    <vendor xml:lang="ko">&#xD504;&#xB9AC;&#xB2C9;&#xC2A4; &#xD504;&#xB85C;&#xC81D;&#xD2B8;</vendor>
+    <vendor xml:lang="fi">Freenix Project</vendor>
+    <vendor xml:lang="uk">&#x41F;&#x440;&#x43E;&#x454;&#x43A;&#x442; Freenix</vendor>
+    <vendor xml:lang="tr">Freenix Projesi</vendor>
+    <vendor xml:lang="pl">Projekt Freenix</vendor>
+    <vendor xml:lang="it">Progetto Freenix</vendor>
+    <vendor xml:lang="id">Proyek Freenix</vendor>
+    <vendor xml:lang="de">Freenix Project</vendor>
+    <family>linux</family>
+    <distro>freenix</distro>
+    <release-date>2020-11-30</release-date>
+    <derives-from id="http://slackware.com/slackware/14.2"/>
+    <variant id="freenix">
+      <name>freenix</name>
+      <name xml:lang="zh_Hans">freenix</name>
+      <name xml:lang="ka">freenix</name>
+      <name xml:lang="ko">freenix</name>
+      <name xml:lang="uk">freenix</name>
+      <name xml:lang="tr">freenix</name>
+      <name xml:lang="pl">freenix</name>
+      <name xml:lang="it">freenix</name>
+      <name xml:lang="id">freenix</name>
+      <name xml:lang="de">freenix</name>
+    </variant>
+    <!-- x86_64 -->
+    <media arch="x86_64" live="true" installer-script="false">
+      <variant id="freenix"/>
+      <url>https://freenix.net/fxp-iso/freenix64-14.2-iso/freenix64-14.2-install-dvd.iso</url>
+      <iso>
+        <volume-id>FXPDVD.*</volume-id>
+      </iso>
+    </media>
+  </os>
+</libosinfo>
