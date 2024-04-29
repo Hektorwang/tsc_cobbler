@@ -2,27 +2,15 @@ EL7-aarch64/*
 EL7-x86_64/*
 FHOS-aarch64/*
 FHOS-x86_64/*
+!EL7-aarch64
+!EL7-x86_64
+!FHOS-aarch64
+!FHOS-x86_64
 tmp/*
-<<<<<<< HEAD
-*container.lck
-=======
 .#container.lck
->>>>>>> 1c2c5389f0c304e0e7b28e542daf29aa72fa22b9
 __pycache__
 *.py[cod]
 container/var/www/cobbler/images/.link_cache/
 container/var/lib/tftpboot/images/.link_cache/*
-container/var/log/cobbler/*
-container/tmp/*
-container/var/cache/*
-container/var/log/httpd/*
-container/var/log/cobbler/*
-container/var/log/*
-!container/var/log
-!container/var/log/httpd
-!container/var/log/cobbler
-container/var/lib/dhcpd/dhcpd.leases~
-container/var/lib/dhcpd/dhcpd.leases
 etc/container/etc/cobbler/settings.d/tsc.settings
-container/etc/shadow
 !.gitignore

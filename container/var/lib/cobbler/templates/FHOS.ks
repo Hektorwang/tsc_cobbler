@@ -1,21 +1,21 @@
-url --url=$tree
-$yum_repo_stanza
-eula --agreed
-keyboard --vckeymap=us --xlayouts='us'
-lang en_US.UTF-8
-firewall --disabled
-rootpw --iscrypted $default_password_crypted
-text
-firstboot --disable
-selinux --disable
-logging --level=info
-reboot
-services --disabled="chronyd"
-timezone Asia/Shanghai --isUtc --nontp
+# graphical
 # network --bootproto=dhcp --device=bootif --onboot=on
 $SNIPPET('network_config')
+$yum_repo_stanza
+eula --agreed
+firewall --disabled
+firstboot --disable
+keyboard --vckeymap=us --xlayouts='us'
+lang en_US.UTF-8
+logging --level=info
+reboot
+rootpw --iscrypted $default_password_crypted
+selinux --disable
+services --disabled="chronyd"
 skipx
-
+text
+timezone Asia/Shanghai --isUtc --nontp
+url --url=$tree
 
 bootloader --location=mbr
 zerombr
@@ -66,4 +66,3 @@ systemctl set-default multi-user.target
 $SNIPPET('post_anamon')
 $SNIPPET('autoinstall_done')
 %end
-

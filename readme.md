@@ -17,7 +17,7 @@
 
 ### 解压
 
-将 tsc_cobbler-EL789-x86_64-版本-日期.tar.gz 解压到安装主机的 `/home/` 目录下.
+将 `tsc_cobbler-EL789-x86_64-版本-日期.tar.gz` 解压到安装主机的 `/home/` 目录下.
 
 ### 配置
 
@@ -60,4 +60,30 @@ mount -t iso9660 -o loop CentOS-7-x86_64-Everything-1708.iso EL7-x86_64
 mount -t iso9660 -o loop CentOS-7-aarch64-Everything-1810.iso EL7-aarch64
 mount -t iso9660 -o loop fitstarryskyos-22.06.1-x86_64-everything-20240126.iso FHOS-x86_64
 mount -t iso9660 -o loop fitstarryskyos-22.06.1-aarch64-everything-20240126.iso FHOS-aarch64
+```
+
+### 运行工具
+
+```bash
+./run.sh
+```
+
+```text
+[2024-04-30 01:04:29]   INFO    run.sh  start
+[2024-04-30 01:04:29]   WARNING run.sh  已启动安装服务, 将在 10 秒内结束已启动的安装服务, 如需保留现有服务请在 10 秒内按 ctrl + c
+[2024-04-30 01:04:39]   INFO    run.sh  check_env
+[2024-04-30 01:04:39]   SUCCESS run.sh  IP在网络内: 192.168.123.2 192.168.123.1 255.255.255.192
+[2024-04-30 01:04:39]   SUCCESS run.sh  IP在网络内: 192.168.123.10 192.168.123.1 255.255.255.192
+[2024-04-30 01:04:39]   SUCCESS run.sh  已挂载 EL7-x86_64 ISO 到 /home/tsc_cobbler/EL7-x86_64
+[2024-04-30 01:04:39]   WARNING run.sh  未挂载 EL7-aarch64 ISO 到 /home/tsc_cobbler/EL7-aarch64, 将无法提供该操作系统远程安装服务
+[2024-04-30 01:04:39]   WARNING run.sh  未挂载 FHOS-x86_64 ISO 到 /home/tsc_cobbler/FHOS-x86_64, 将无法提供该操作系统远程安装服务
+[2024-04-30 01:04:39]   WARNING run.sh  未挂载 FHOS-aarch64 ISO 到 /home/tsc_cobbler/FHOS-aarch64, 将无法提供该操作系统远程安装服务
+[2024-04-30 01:04:39]   SUCCESS run.sh  check_env
+[2024-04-30 01:04:39]   INFO    run.sh  config_nic
+[2024-04-30 01:04:39]   SUCCESS run.sh  config_nic
+[2024-04-30 01:04:39]   INFO    run.sh  config_container
+[2024-04-30 01:04:39]   SUCCESS run.sh  config_container
+[2024-04-30 01:04:39]   INFO    run.sh  start_container
+[2024-04-30 01:04:39]   INFO    run.sh  开启 cobbler 服务, 可能需要数分钟, 请稍候...
+[2024-04-30 01:06:20]   SUCCESS run.sh  start_container
 ```

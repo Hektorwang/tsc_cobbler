@@ -10,19 +10,12 @@ isset ${menu-default} || set menu-default local
 menu Cobbler | https://cobbler.github.io
 item local (local)
 item EL7-x86_64 EL7-x86_64
-item FHOS-x86_64 FHOS-x86_64
 choose --default ${menu-default} --timeout ${menu-timeout} target && goto ${target}
 
 
 :EL7-x86_64
-kernel /images/EL7-x86_64/vmlinuz   inst.ks.sendmac inst.ks=http://172.16.233.28/cblr/svc/op/autoinstall/profile/EL7-x86_64 inst.repo=http://172.16.233.28/EL7-x86_64/ initrd=initrd.magic
+kernel /images/EL7-x86_64/vmlinuz   inst.ks.sendmac inst.ks=http://192.168.115.1/cblr/svc/op/autoinstall/profile/EL7-x86_64 inst.repo=http://192.168.115.1/EL7-x86_64/ initrd=initrd.magic
 initrd /images/EL7-x86_64/initrd.img
-boot
-
-
-:FHOS-x86_64
-kernel /images/FHOS-x86_64/vmlinuz   inst.ks.sendmac inst.ks=http://172.16.233.28/cblr/svc/op/autoinstall/profile/FHOS-x86_64 inst.repo=http://172.16.233.28/FHOS-x86_64/ initrd=initrd.magic
-initrd /images/FHOS-x86_64/initrd.img
 boot
 
 

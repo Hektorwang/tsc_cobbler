@@ -56,19 +56,35 @@ function check_env {
     fi
 
     mounted_cnt=0
-    if ! ls "${BASE_DIR}"/EL7-x86_64/Packages/centos-release-7-*.el7.centos.x86_64.rpm &>/dev/null; then
+    if ls "${BASE_DIR}"/EL7-x86_64/Packages/centos-release-7-*.el7.centos.x86_64.rpm &>/dev/null; then
+        LOGSUCCESS "已挂载 EL7-x86_64 ISO 到 ${BASE_DIR}/EL7-x86_64"
+        \cp "${BASE_DIR}"/etc/distros/EL7-x86_64.json "${rootfs}"/var/lib/cobbler/collections/distros/
+        \cp "${BASE_DIR}"/etc/profiles/EL7-x86_64.json "${rootfs}"/var/lib/cobbler/collections/profiles/
+    else
         LOGWARNING "未挂载 EL7-x86_64 ISO 到 ${BASE_DIR}/EL7-x86_64", 将无法提供该操作系统远程安装服务
         ((mounted_cnt++))
     fi
-    if ! ls "${BASE_DIR}"/EL7-aarch64/Packages/centos-release-7-*.el7.centos.a.aarch64.rpm &>/dev/null; then
+    if ls "${BASE_DIR}"/EL7-aarch64/Packages/centos-release-7-*.el7.centos.a.aarch64.rpm &>/dev/null; then
+        LOGSUCCESS "已挂载 EL7-aarch64 ISO 到 ${BASE_DIR}/EL7-aarch64"
+        \cp "${BASE_DIR}"/etc/distros/EL7-aarch64-aarch64.json "${rootfs}"/var/lib/cobbler/collections/distros/
+        \cp "${BASE_DIR}"/etc/profiles/EL7-aarch64-aarch64.json "${rootfs}"/var/lib/cobbler/collections/profiles/
+    else
         LOGWARNING "未挂载 EL7-aarch64 ISO 到 ${BASE_DIR}/EL7-aarch64", 将无法提供该操作系统远程安装服务
         ((mounted_cnt++))
     fi
-    if ! ls "${BASE_DIR}"/FHOS-x86_64/Packages/FitStarrySkyOS-release-22.06.1-*.x86_64.rpm &>/dev/null; then
+    if ls "${BASE_DIR}"/FHOS-x86_64/Packages/FitStarrySkyOS-release-22.06.1-*.x86_64.rpm &>/dev/null; then
+        LOGSUCCESS "已挂载 FHOS-x86_64 ISO 到 ${BASE_DIR}/ FHOS-x86_64"
+        \cp "${BASE_DIR}"/etc/distros/FHOS-x86_64.json "${rootfs}"/var/lib/cobbler/collections/distros/
+        \cp "${BASE_DIR}"/etc/profiles/FHOS-x86_64.json "${rootfs}"/var/lib/cobbler/collections/profiles/
+    else
         LOGWARNING "未挂载 FHOS-x86_64 ISO 到 ${BASE_DIR}/FHOS-x86_64", 将无法提供该操作系统远程安装服务
         ((mounted_cnt++))
     fi
-    if ! ls "${BASE_DIR}"/FHOS-aarch64/Packages/FitStarrySkyOS-release-22.06.1-*.aarch64.rpm &>/dev/null; then
+    if ls "${BASE_DIR}"/FHOS-aarch64/Packages/FitStarrySkyOS-release-22.06.1-*.aarch64.rpm &>/dev/null; then
+        LOGSUCCESS "已挂载 FHOS-aarch64 ISO 到 ${BASE_DIR}/ FHOS-aarch64"
+        \cp "${BASE_DIR}"/etc/distros/FHOS-aarch64-aarch64.json "${rootfs}"/var/lib/cobbler/collections/distros/
+        \cp "${BASE_DIR}"/etc/profiles/FHOS-aarch64-aarch64.json "${rootfs}"/var/lib/cobbler/collections/profiles/
+    else
         LOGWARNING "未挂载 FHOS-aarch64 ISO 到 ${BASE_DIR}/FHOS-aarch64", 将无法提供该操作系统远程安装服务
         ((mounted_cnt++))
     fi
@@ -82,7 +98,9 @@ function check_env {
 
 function config_nic {
     LOGINFO "${FUNCNAME[0]}"
+    ifconfig "${cobbler_nic}" down
     ifconfig "${cobbler_nic}" "${cobbler_ip}"/"${cobbler_netprefix}"
+    ifconfig "${cobbler_nic}" up
     if ifconfig "${cobbler_nic}" | grep -qP "^\s*inet\s+${cobbler_ip}\s*netmask\s+${cobbler_netmask}"; then
         LOGSUCCESS "${FUNCNAME[0]}"
     else
@@ -95,15 +113,15 @@ function config_container {
     LOGINFO "${FUNCNAME[0]}"
     local hashed_passwd output_file
     hashed_passwd="$(openssl passwd -1 "${root_passwd}")"
-    if ! systemd-nspawn --register=no -D "${rootfs}" \
-        --setenv=root_passwd="${root_passwd}" \
-        -- /bin/bash -c "echo \"${root_passwd}\" | passwd --stdin root" &>>"${log_file}"; then
-        LOGERROR systemd-nspawn --register=no -D "${rootfs}" \
-            --setenv=root_passwd="${root_passwd}" \
-            -- /bin/bash -c "echo \"${root_passwd}\" | passwd --stdin root"
-        LOGERROR "${FUNCNAME[0]}"
-        exit 31
-    fi
+    # if ! systemd-nspawn --register=no -D "${rootfs}" \
+    #    --setenv=root_passwd="${root_passwd}" \
+    #    -- /bin/bash -c "echo \"${root_passwd}\" | passwd --stdin root" &>>"${log_file}"; then
+    #    LOGERROR systemd-nspawn --register=no -D "${rootfs}" \
+    #        --setenv=root_passwd="${root_passwd}" \
+    #        -- /bin/bash -c "echo \"${root_passwd}\" | passwd --stdin root"
+    #    LOGERROR "${FUNCNAME[0]}"
+    #    exit 31
+    # fi
 
     output_file="${BASE_DIR}"/container/var/www/cobbler/pub/custom_os_disk_config
     mkdir -p "$(dirname "${output_file}")"
@@ -132,36 +150,7 @@ server: ${cobbler_ip}" >"${output_file}"
         -e "s/max_lease_time/${max_lease_time}/g" >"${output_file}"
 
     output_file="${BASE_DIR}"/tmp/init.sh
-    echo "#!/bin/bash
-    source /tmp/globe.common.conf
-    if ! systemctl status httpd; then
-        systemctl restart httpd
-    fi
-    if ! ls /var/www/html/EL7-x86_64/Packages/centos-release-7-*.el7.centos.x86_64.rpm; then
-        # cobbler distro remove --recursive --name EL7-x86_64
-        rm -f /var/lib/cobbler/collections/{distros,profiles}/EL7-x86_64
-    fi
-    if ! ls /var/www/html/EL7-aarch64/Packages/centos-release-7-*.el7.centos.a.aarch64.rpm; then
-        # cobbler distro remove --recursive --name EL7-aarch64
-        rm -f /var/lib/cobbler/collections/{distros,profiles}/EL7-aarch64
-    fi
-    if ! ls /var/www/html/FHOS-x86_64/Packages/FitStarrySkyOS-release-22.06.1-*.x86_64.rpm; then
-        # cobbler distro remove --recursive --name FHOS-x86_64
-        rm -f /var/lib/cobbler/collections/{distros,profiles}/FHOS-x86_64
-    fi
-    if ! ls /var/www/html/FHOS-aarch64/Packages/FitStarrySkyOS-release-22.06.1-*.aarch64.rpm; then
-        # cobbler distro remove --recursive --name FHOS-aarch64
-        rm -f /var/lib/cobbler/collections/{distros,profiles}/FHOS-aarch64
-    fi
-    systemctl restart cobblerd
-    cobbler distro edit --name EL7-x86_64 --autoinstall-meta=tree=http://${cobbler_ip}/EL7-x86_64/
-    cobbler distro edit --name EL7-aarch64-aarch64 --autoinstall-meta=tree=http://${cobbler_ip}/EL7-aarch64/
-    cobbler distro edit --name FHOS-x86_64 --autoinstall-meta=tree=http://${cobbler_ip}/FHOS-x86_64/
-    cobbler distro edit --name FHOS-aarch64-aarch64 --autoinstall-meta=tree=http://${cobbler_ip}/FHOS-aarch64/
-    cobbler mkloaders
-    cobbler sync
-    systemctl restart cobblerd dhcpd
-    " >"${output_file}"
+    sed "s/cobbler_ip/${cobbler_ip}/g" "${BASE_DIR}"/etc/init.sh >"${output_file}"
     chmod a+x "${output_file}"
     LOGSUCCESS "${FUNCNAME[0]}"
 }
@@ -182,7 +171,7 @@ function start_container {
         &>>"${log_file}"
 
     cobbler_boot_flag=0
-    for _ in {1..60}; do
+    for dot_cnt in {1..120}; do
         running_ports=()
         for port in "${ports[@]}"; do
             if [[ $(ss -lnoptu src ":${port}" | wc -l) -gt 1 ]]; then
@@ -190,17 +179,19 @@ function start_container {
             fi
         done
         if [[ ${#running_ports[@]} -ne ${#ports[@]} ]]; then
-            sleep 10
-            LOGINFO "等待 cobbler 启动完成"
+            sleep 5
+            echo -en "\033[2K\r$(printf '.%.0s' $(seq 1 "${dot_cnt}"))"
         else
             cobbler_boot_flag=1
             break
         fi
     done
     if [[ ${cobbler_boot_flag} -eq 0 ]]; then
+        echo -en "\033[2K\r"
         LOGERROR "启动失败, 请查看: ${log_file}"
         exit 41
     else
+        echo -en "\033[2K\r"
         LOGSUCCESS "${FUNCNAME[0]}"
     fi
 }
@@ -208,12 +199,13 @@ function start_container {
 LOGINFO start
 if pgrep -f "systemd-nspawn --register=no --machine=tsc_cobbler" &>/dev/null; then
     LOGWARNING 已启动安装服务, 将在 10 秒内结束已启动的安装服务, 如需保留现有服务请在 10 秒内按 ctrl + c
-    LOGDEBUG $(pgrep -alf "systemd-nspawn --register=no --machine=tsc_cobbler")
+    # pgrep -alf "systemd-nspawn --register=no --machine=tsc_cobbler"
     for dot_cnt in {10..1}; do
         sleep 1
         echo -en "\033[2K\r$(printf '.%.0s' $(seq 1 "${dot_cnt}"))"
     done
-    mapfile -t pids <(pgrep -f "systemd-nspawn --register=no --machine=tsc_cobbler")
+    echo -en "\033[2K\r"
+    mapfile -t pids < <(pgrep -f "systemd-nspawn --register=no --machine=tsc_cobbler")
     for pid in "${pids[@]}"; do
         kill -9 "${pid}"
     done

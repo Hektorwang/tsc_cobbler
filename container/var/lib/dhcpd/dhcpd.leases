@@ -1,0 +1,31 @@
+# The format of this file is documented in the dhcpd.leases(5) manual page.
+# This lease file was written by isc-dhcp-4.4.2b1
+
+# authoring-byte-order entry is generated, DO NOT DELETE
+authoring-byte-order little-endian;
+
+server-duid "\000\001\000\001-\302\214\370\000\025]\307f\005";
+
+lease 192.168.115.2 {
+  starts 1 2024/04/29 17:12:00;
+  ends 1 2024/04/29 17:42:00;
+  cltt 1 2024/04/29 17:12:00;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:15:5d:c7:66:06;
+  uid "\000\215\252ix\2740\012C\231]t\267\337!R\337";
+  set vendor-class-identifier = "PXEClient:Arch:00007:UNDI:003000";
+  set vendorclass = "PXEClient:Arch:00007:UNDI:003000";
+}
+lease 192.168.115.3 {
+  starts 1 2024/04/29 17:12:17;
+  ends 1 2024/04/29 17:42:17;
+  cltt 1 2024/04/29 17:12:17;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:15:5d:c7:66:06;
+  set vendor-class-identifier = "anaconda-Linux 3.10.0-693.el7.x86_64 x86_64";
+  set vendorclass = "anaconda-Linux 3.10.0-693.el7.x86_64 x86_64";
+}
