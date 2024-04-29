@@ -1,0 +1,23 @@
+DEFAULT menu
+PROMPT 0
+MENU TITLE Cobbler | https://cobbler.github.io
+TIMEOUT 200
+TOTALTIMEOUT 6000
+ONTIMEOUT local
+
+LABEL local
+        MENU LABEL (local)
+        MENU DEFAULT
+        LOCALBOOT -1
+
+LABEL EL7-x86_64
+	MENU LABEL EL7-x86_64
+	kernel /images/EL7-x86_64/vmlinuz
+	append initrd=/images/EL7-x86_64/initrd.img  inst.ks.sendmac inst.ks=http://172.16.233.28/cblr/svc/op/autoinstall/profile/EL7-x86_64 inst.repo=http://172.16.233.28/EL7-x86_64/
+	ipappend 2
+LABEL FHOS-x86_64
+	MENU LABEL FHOS-x86_64
+	kernel /images/FHOS-x86_64/vmlinuz
+	append initrd=/images/FHOS-x86_64/initrd.img  inst.ks.sendmac inst.ks=http://172.16.233.28/cblr/svc/op/autoinstall/profile/FHOS-x86_64 inst.repo=http://172.16.233.28/FHOS-x86_64/
+	ipappend 2
+MENU end

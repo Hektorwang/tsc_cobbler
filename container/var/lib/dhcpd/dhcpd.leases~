@@ -15,56 +15,6 @@ lease 172.16.233.30 {
   set vendor-class-identifier = "anaconda-Linux 3.10.0-693.el7.x86_64 x86_64";
 }
 lease 172.16.233.29 {
-  starts 5 2024/04/26 09:21:39;
-  ends 5 2024/04/26 09:51:39;
-  tstp 5 2024/04/26 09:51:39;
-  cltt 5 2024/04/26 09:21:39;
-  binding state active;
-  next binding state free;
-  rewind binding state free;
-  hardware ethernet bc:24:11:1a:5a:83;
-  uid "\000\256\317\206\301\373\341\322F\201\000\355\017\302|\2047";
-  set vendor-class-identifier = "PXEClient:Arch:00007:UNDI:003001";
-  set vendorclass = "PXEClient:Arch:00007:UNDI:003001";
-}
-lease 172.16.233.31 {
-  starts 5 2024/04/26 09:21:50;
-  ends 5 2024/04/26 09:51:50;
-  tstp 5 2024/04/26 09:51:50;
-  cltt 5 2024/04/26 09:21:50;
-  binding state active;
-  next binding state free;
-  rewind binding state free;
-  hardware ethernet bc:24:11:1a:5a:83;
-  set vendorclass = "anaconda-Linux 3.10.0-693.el7.x86_64 x86_64";
-  set vendor-class-identifier = "anaconda-Linux 3.10.0-693.el7.x86_64 x86_64";
-}
-server-duid "\000\001\000\001-\275\276\300\274$\021\022\376\357";
-
-lease 172.16.233.29 {
-  starts 5 2024/04/26 09:50:19;
-  ends 5 2024/04/26 10:20:19;
-  cltt 5 2024/04/26 09:50:19;
-  binding state active;
-  next binding state free;
-  rewind binding state free;
-  hardware ethernet bc:24:11:1a:5a:83;
-  uid "\000\256\317\206\301\373\341\322F\201\000\355\017\302|\2047";
-  set vendor-class-identifier = "PXEClient:Arch:00007:UNDI:003001";
-  set vendorclass = "PXEClient:Arch:00007:UNDI:003001";
-}
-lease 172.16.233.31 {
-  starts 5 2024/04/26 09:50:32;
-  ends 5 2024/04/26 10:20:32;
-  cltt 5 2024/04/26 09:50:32;
-  binding state active;
-  next binding state free;
-  rewind binding state free;
-  hardware ethernet bc:24:11:1a:5a:83;
-  set vendorclass = "anaconda-Linux 3.10.0-693.el7.x86_64 x86_64";
-  set vendor-class-identifier = "anaconda-Linux 3.10.0-693.el7.x86_64 x86_64";
-}
-lease 172.16.233.29 {
   starts 5 2024/04/26 09:50:19;
   ends 5 2024/04/26 10:20:19;
   tstp 5 2024/04/26 10:20:19;
@@ -85,3 +35,5 @@ lease 172.16.233.31 {
   set vendor-class-identifier = "anaconda-Linux 3.10.0-693.el7.x86_64 x86_64";
   set vendorclass = "anaconda-Linux 3.10.0-693.el7.x86_64 x86_64";
 }
+server-duid "\000\001\000\001-\275\276\300\274$\021\022\376\357";
+

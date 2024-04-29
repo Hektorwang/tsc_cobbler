@@ -3,8 +3,9 @@ EL7-x86_64/*
 FHOS-aarch64/*
 FHOS-x86_64/*
 tmp/*
-.#container.lck
-__pycache__/*
+*container.lck
+__pycache__
+*.py[cod]
 container/var/www/cobbler/images/.link_cache/
 container/var/lib/tftpboot/images/.link_cache/*
 container/var/log/cobbler/*
@@ -13,6 +14,11 @@ container/var/cache/*
 container/var/log/httpd/*
 container/var/log/cobbler/*
 container/var/log/*
+!container/var/log
 !container/var/log/httpd
 !container/var/log/cobbler
+container/var/lib/dhcpd/dhcpd.leases~
+container/var/lib/dhcpd/dhcpd.leases
+etc/container/etc/cobbler/settings.d/tsc.settings
+container/etc/shadow
 !.gitignore
