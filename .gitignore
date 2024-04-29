@@ -4,7 +4,8 @@ FHOS-aarch64/*
 FHOS-x86_64/*
 tmp/*
 .#container.lck
-__pycache__/*
+__pycache__
+*.py[cod]
 container/var/www/cobbler/images/.link_cache/
 container/var/lib/tftpboot/images/.link_cache/*
 container/var/log/cobbler/*

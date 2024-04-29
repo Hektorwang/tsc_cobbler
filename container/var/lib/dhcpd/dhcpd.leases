@@ -35,5 +35,3 @@ lease 172.16.233.31 {
   set vendor-class-identifier = "anaconda-Linux 3.10.0-693.el7.x86_64 x86_64";
   set vendorclass = "anaconda-Linux 3.10.0-693.el7.x86_64 x86_64";
 }
-server-duid "\000\001\000\001-\275\276\300\274$\021\022\376\357";
-
