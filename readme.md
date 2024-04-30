@@ -87,3 +87,25 @@ mount -t iso9660 -o loop fitstarryskyos-22.06.1-aarch64-everything-20240126.iso 
 [2024-04-30 01:04:39]   INFO    run.sh  开启 cobbler 服务, 可能需要数分钟, 请稍候...
 [2024-04-30 01:06:20]   SUCCESS run.sh  start_container
 ```
+
+## 故障排查
+
+若执行 `./run.sh` 后, 10 分钟后 cobbler 容器仍未拉起所有服务, 则需检查容器内服务启动状态.
+
+```bash
+screen -r tsc_cobbler_containe
+# 登录容器, 用户: root, 密码: Fiberhome@2024
+# 检查服务状态
+systemctl status httpd cobblerd dhcpd tftp.socket
+# 检查各配置中 IP 是否正确
+cat /var/lib/cobbler/collections/distros/*.json
+cat /etc/dhcpd/dhcpd.conf
+cat /etc/cobbler/settings.d/tsc.settings 
+# 若 IP 正确, 尝试重新启动服务
+/tmp/init.sh
+# 检查 cobbler 服务配置是否同步
+cobbler distro report
+# 检查服务状态
+systemctl status httpd cobblerd dhcpd tftp.socket
+```
+

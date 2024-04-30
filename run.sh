@@ -167,8 +167,8 @@ function start_container {
         --bind-ro="${BASE_DIR}"/"${EL7__x86_64[0]}-${EL7__x86_64[1]}":"/var/www/html/${EL7__x86_64[0]}-${EL7__x86_64[1]}" \
         --bind-ro="${BASE_DIR}"/"${EL7__aarch64[0]}-${EL7__aarch64[1]}":"/var/www/html/${EL7__aarch64[0]}-${EL7__aarch64[1]}" \
         --bind-ro="${BASE_DIR}"/"${FHOS__x86_64[0]}-${FHOS__x86_64[1]}":"/var/www/html/${FHOS__x86_64[0]}-${FHOS__x86_64[1]}" \
-        --bind-ro="${BASE_DIR}"/"${FHOS__aarch64[0]}-${FHOS__aarch64[1]}":"/var/www/html/${FHOS__aarch64[0]}-${FHOS__aarch64[1]}" \
-        &>>"${log_file}"
+        --bind-ro="${BASE_DIR}"/"${FHOS__aarch64[0]}-${FHOS__aarch64[1]}":"/var/www/html/${FHOS__aarch64[0]}-${FHOS__aarch64[1]}" # \
+        # &>>"${log_file}"
 
     cobbler_boot_flag=0
     for dot_cnt in {1..120}; do
@@ -188,7 +188,7 @@ function start_container {
     done
     if [[ ${cobbler_boot_flag} -eq 0 ]]; then
         echo -en "\033[2K\r"
-        LOGERROR "启动失败, 请查看: ${log_file}"
+        LOGERROR "启动失败, 请参考 readme.md 排查"
         exit 41
     else
         echo -en "\033[2K\r"
@@ -209,6 +209,7 @@ if pgrep -f "systemd-nspawn --register=no --machine=tsc_cobbler" &>/dev/null; th
     for pid in "${pids[@]}"; do
         kill -9 "${pid}"
     done
+    screen -wipe
 fi
 check_env
 config_nic
