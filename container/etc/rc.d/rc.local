@@ -12,4 +12,5 @@
 
 touch /var/lock/subsys/local
 
-/tmp/init.sh
+timeout -s9 600 /tmp/init.sh
+exit 0
