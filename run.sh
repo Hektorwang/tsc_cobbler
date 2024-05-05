@@ -133,7 +133,7 @@ function config_container {
         echo "# This is a sample to define OS disk
 ignoredisk --only-use=${sys_disk}" >"${output_file}"
     else
-        LOGWARNING The sys_disk variable is undefined. OS will be installed on the first hard disk recognized by the device, which might cause data loss.
+        LOGWARNING The sys_disk variable is undefined. OS will be installed on the first hard disk of the client device, which might cause data loss.
         : >"${output_file}"
     fi
 
