@@ -6,8 +6,8 @@
 
 - 服务主机要求
   - CPU 架构: `x86_64`
-  - 操作系统为 `EL7/8/9`
-  - 已安装组件: `initscripts`, `net-tools`, `screen`, `systemd`(EL7)/`systemd-container`(EL9)
+  - 操作系统为 `EL7/9`， `FHOS`
+  - 已安装组件: `initscripts`, `net-tools`, `screen`, `systemd`(EL7)/`systemd-container`(EL9/FHOS)
 - 客户端支持
   - 部署 `CentOS-7` 和 `FitStarrySkyOS` 操作系统
   - 支持 `x86_64` 和 `aarch64` 架构
@@ -25,10 +25,10 @@
 
 - 远程安装操作系统需要在服务主机启动一个虚拟机网卡, 用来指定一个和本地业务网络不同的网段作为操作系统安装网段以避免冲突
 - 并指定新装操作系统的 root 用户密码
-- 指定待安装操作系统服务器的系统盘块设备文件名( sda, hda, /dev/mapper/mp1... )
+- 指定待安装操作系统服务器的系统盘块设备文件名( sda, sdb, hda, mp1... )
 
 ```ini
-# [必须配置] 需要启动虚拟 IP 的网卡, 一般在内网通信网卡名后加 ":1". cobbler_nic="eth0:1"
+# [必须配置] 需要启动虚拟 IP 的网卡, 一般在提供远程文件服务的通信网卡名后加 ":1". cobbler_nic="eth0:1"
 cobbler_nic="eth0:1"
 # [必须配置] 用来进行作为操作系统远程安装服务的虚拟网卡 IP. cobbler_ip="172.16.233.28"
 cobbler_ip="172.16.233.28"
@@ -38,7 +38,7 @@ cobbler_netmask="255.255.255.192"
 dhcp_range="172.16.233.29 172.16.233.35"
 # [必须配置] 新安装操作系统的 root 密码. passwd="Fhaw0025."
 root_passwd="Fhaw0025."
-# [必须配置] 新装系统服务器的系统盘块设备名 sys_disk=sda
+# [必须配置] 新装系统服务器的系统盘块设备文件名 sys_disk=sda
 sys_disk=vda
 ```
 
@@ -48,12 +48,12 @@ sys_disk=vda
 - 本工具理论支持所有版本和 CPU 架构的 `CentOS-7`, `FitStarrySkyOS-22.06.1` 的操作系统 ISO 镜像文件.
 - 本工具在如下 ISO 文件下进行测试:
 
-| md5                              | 文件名                                                 |
-| -------------------------------- | ------------------------------------------------------ |
-| b1157154969df920bda486fa84adcdb0 | CentOS-7-aarch64-Everything-1810.iso                   |
-| d23eab94eaa22e3bd34ac13caf923801 | CentOS-7-x86_64-Everything-1708.iso                    |
-| 268c1b127b57f6a7307abac9a9ffa369 | fitstarryskyos-22.06.1-aarch64-everything-20240126.iso |
-| ef9495c99d0a94be11a5cc56dadc182a | fitstarryskyos-22.06.1-x86_64-everything-20240126.iso  |
+| md5                              | 文件名                                                 | 挂载点       |
+| -------------------------------- | ------------------------------------------------------ | ------------ |
+| b1157154969df920bda486fa84adcdb0 | CentOS-7-aarch64-Everything-1810.iso                   | EL7-aarch64  |
+| d23eab94eaa22e3bd34ac13caf923801 | CentOS-7-x86_64-Everything-1708.iso                    | EL7-x86_64   |
+| 268c1b127b57f6a7307abac9a9ffa369 | fitstarryskyos-22.06.1-aarch64-everything-20240126.iso | FHOS-aarch64 |
+| ef9495c99d0a94be11a5cc56dadc182a | fitstarryskyos-22.06.1-x86_64-everything-20240126.iso  | FHOS-x86_64  |
 
 ```bash
 mount -t iso9660 -o loop CentOS-7-x86_64-Everything-1708.iso EL7-x86_64
@@ -65,7 +65,8 @@ mount -t iso9660 -o loop fitstarryskyos-22.06.1-aarch64-everything-20240126.iso 
 ### 运行工具
 
 ```bash
-./run.sh
+# 必须使用管理权限用户
+sudo ./run.sh
 ```
 
 ```text
@@ -90,7 +91,7 @@ mount -t iso9660 -o loop fitstarryskyos-22.06.1-aarch64-everything-20240126.iso 
 
 ## 故障排查
 
-若执行 `./run.sh` 后, 10 分钟后 cobbler 容器仍未拉起所有服务, 则需检查容器内服务启动状态.
+若执行 `./run.sh` 10 分钟后 cobbler 容器仍未拉起所有服务, 则需检查容器内服务启动状态.
 
 ```bash
 screen -r tsc_cobbler_containe
@@ -100,12 +101,11 @@ systemctl status httpd cobblerd dhcpd tftp.socket
 # 检查各配置中 IP 是否正确
 cat /var/lib/cobbler/collections/distros/*.json
 cat /etc/dhcpd/dhcpd.conf
-cat /etc/cobbler/settings.d/tsc.settings 
+cat /etc/cobbler/settings.d/tsc.settings
 # 若 IP 正确, 尝试重新启动服务
 /tmp/init.sh
-# 检查 cobbler 服务配置是否同步
-cobbler distro report
 # 检查服务状态
 systemctl status httpd cobblerd dhcpd tftp.socket
+# 检查 cobbler 服务配置是否同步, 其中配置 IP 是否正确
+cobbler distro report
 ```
-

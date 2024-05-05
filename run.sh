@@ -11,15 +11,16 @@ log_file="${BASE_DIR}"/log/"${script_name}".log
 
 source "${BASE_DIR}"/lib/func
 source "${BASE_DIR}"/globe.common.conf
-cobbler_netprefix="$(ipcalc -p "${cobbler_ip}" "${cobbler_netmask}" | cut -d'=' -f2)"
-cobbler_network=$(ipcalc -n "${cobbler_ip}" "${cobbler_netmask}" | cut -d'=' -f2)
 
 rootfs="${BASE_DIR}"/container
 
 function check_env {
     LOGINFO "${FUNCNAME[0]}"
-    local requirements requirements_lacks requirement ports dup_ports
-    requirements=("ipcalc" "systemd-nspawn" "ifconfig" "screen")
+    if [[ $(id -u) -ne 0 ]]; then
+        LOGERROR This tool must be run as root.
+        exit 10
+    fi
+    local requirements_lacks requirement ports dup_ports
     requirements_lacks=()
     for requirement in "${requirements[@]}"; do
         if ! command -v "${requirement}" &>/dev/null; then
@@ -98,6 +99,9 @@ function check_env {
 
 function config_nic {
     LOGINFO "${FUNCNAME[0]}"
+    cobbler_netprefix="$(ipcalc -p "${cobbler_ip}" "${cobbler_netmask}" | cut -d'=' -f2)"
+    cobbler_network=$(ipcalc -n "${cobbler_ip}" "${cobbler_netmask}" | cut -d'=' -f2)
+    export cobbler_netprefix cobbler_network
     ifconfig "${cobbler_nic}" down
     ifconfig "${cobbler_nic}" "${cobbler_ip}"/"${cobbler_netprefix}"
     ifconfig "${cobbler_nic}" up
@@ -168,13 +172,14 @@ function start_container {
         --bind-ro="${BASE_DIR}"/"${EL7__aarch64[0]}-${EL7__aarch64[1]}":"/var/www/html/${EL7__aarch64[0]}-${EL7__aarch64[1]}" \
         --bind-ro="${BASE_DIR}"/"${FHOS__x86_64[0]}-${FHOS__x86_64[1]}":"/var/www/html/${FHOS__x86_64[0]}-${FHOS__x86_64[1]}" \
         --bind-ro="${BASE_DIR}"/"${FHOS__aarch64[0]}-${FHOS__aarch64[1]}":"/var/www/html/${FHOS__aarch64[0]}-${FHOS__aarch64[1]}" # \
-        # &>>"${log_file}"
+    # &>>"${log_file}"
 
     cobbler_boot_flag=0
     for dot_cnt in {1..120}; do
         running_ports=()
         for port in "${ports[@]}"; do
             if [[ $(ss -lnoptu src ":${port}" | wc -l) -gt 1 ]]; then
+                # lsof -nP -iTCP:80 -sTCP:LISTEN
                 running_ports+=("${port}")
             fi
         done
@@ -205,9 +210,10 @@ if pgrep -f "systemd-nspawn --register=no --machine=tsc_cobbler" &>/dev/null; th
         echo -en "\033[2K\r$(printf '.%.0s' $(seq 1 "${dot_cnt}"))"
     done
     echo -en "\033[2K\r"
+    screen -S tsc_cobbler_container -R -X quit
     mapfile -t pids < <(pgrep -f "systemd-nspawn --register=no --machine=tsc_cobbler")
     for pid in "${pids[@]}"; do
-        kill -9 "${pid}"
+        kill -9 "${pid}" &>/dev/null
     done
     screen -wipe
 fi
