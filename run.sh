@@ -129,8 +129,13 @@ function config_container {
 
     output_file="${BASE_DIR}"/container/var/www/cobbler/pub/custom_os_disk_config
     mkdir -p "$(dirname "${output_file}")"
-    echo "# This is a sample to define OS disk
+    if [[ -n "${sys_disk}" ]]; then
+        echo "# This is a sample to define OS disk
 ignoredisk --only-use=${sys_disk}" >"${output_file}"
+    else
+        LOGWARNING The sys_disk variable is undefined. OS will be installed on the first hard disk recognized by the device, which might cause data loss.
+        : >"${output_file}"
+    fi
 
     output_file="${BASE_DIR}"/etc/container/etc/cobbler/settings.d/tsc.settings
     mkdir -p "$(dirname "${output_file}")"
