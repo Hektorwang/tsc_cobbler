@@ -1,6 +1,7 @@
 #!/bin/bash
 # shellcheck disable=SC1091,SC2154
 source /tmp/globe.common.conf
+source /tmp/.private.sh
 
 function check_distro {
     if ls /var/www/html/EL7-x86_64/Packages/centos-release-7-*.el7.centos.x86_64.rpm; then
@@ -45,3 +46,7 @@ while [[ ${ok_flag} -eq 0 ]]; do
 done
 
 systemctl restart cobblerd dhcpd
+
+if systemctl status dhcpd cobblerd httpd; then
+    echo 1 >/tmp/tsc_cobbler_status
+fi
