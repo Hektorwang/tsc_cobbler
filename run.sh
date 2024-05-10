@@ -176,7 +176,7 @@ server: ${cobbler_ip}" >"${output_file}"
 function start_container {
     LOGINFO "${FUNCNAME[0]}"
     LOGINFO "开启 cobbler 服务, 可能需要数分钟, 请稍候..."
-    screen -dmS tsc_cobbler_container systemd-nspawn --register=no --machine=tsc_cobbler -qbD "${rootfs}" \
+    screen -dmS tsc_cobbler_container systemd-nspawn --register=no -qbD "${rootfs}" \
         --bind-ro="${BASE_DIR}"/etc/container/var/lib/cobbler/distro_signatures.json.tsc:/var/lib/cobbler/distro_signatures.json \
         --bind-ro="${BASE_DIR}"/etc/container/etc/cobbler/dhcp.template:/etc/cobbler/dhcp.template \
         --bind-ro="${BASE_DIR}"/etc/container/etc/cobbler/settings.d/tsc.settings:/etc/cobbler/settings.d/tsc.settings \
@@ -210,7 +210,7 @@ function start_container {
 }
 
 LOGINFO start
-if pgrep -f "systemd-nspawn --register=no --machine=tsc_cobbler" &>/dev/null; then
+if pgrep -f "systemd-nspawn --register=no" &>/dev/null; then
     LOGWARNING 已启动 tsc_cobbler, 将在 10 秒内结束已启动的 tsc_cobbler, 如需保留现有服务请在 10 秒内按 ctrl + c
     # pgrep -alf "systemd-nspawn --register=no --machine=tsc_cobbler"
     for dot_cnt in {10..1}; do
