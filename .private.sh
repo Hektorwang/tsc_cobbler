@@ -15,7 +15,7 @@ requirements=(
     ["screen"]="screen"
     ["ipcalc"]="initscripts"
     ["ifconfig"]="net-tools"
-    ["systemd-nspawn"]="systemd(EL7) or systemd-container(FHOS)"
+    ["systemd-nspawn"]="systemd(EL7), systemd-container(EL9), systemd-nspawn(FHOS)"
 )
 declare -A ports
 # ports=(80 67 69)
