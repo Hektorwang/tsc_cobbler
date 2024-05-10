@@ -7,7 +7,7 @@
 - 服务主机要求
   - CPU 架构: `x86_64`
   - 操作系统为 `EL7/9`， `FHOS`
-  - 已安装组件: `initscripts`, `net-tools`, `screen`, `systemd`(EL7)/`systemd-container`(EL9/FHOS)
+  - 已安装组件: `initscripts`, `net-tools`, `screen`, `systemd`(EL7)/`systemd-container`(EL9)/`systemd-nspawn`(FHOS)
 - 客户端支持
   - 部署 `CentOS-7` 和 `FitStarrySkyOS` 操作系统
   - 支持 `x86_64` 和 `aarch64` 架构
