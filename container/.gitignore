@@ -1,0 +1,4 @@
+# don't need to change files already exist
+*
+**/*
+!.gitignore

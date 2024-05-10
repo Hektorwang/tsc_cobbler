@@ -38,8 +38,7 @@ cobbler_netmask="255.255.255.192"
 dhcp_range="172.16.233.29 172.16.233.35"
 # [必须配置] 新安装操作系统的 root 密码. passwd="Fhaw0025."
 root_passwd="Fhaw0025."
-# [必须配置] 新装系统服务器的系统盘块设备文件名 sys_disk=sda
-# !!!若置为空 sys_disk= ,则会安装到系统识别到的第一块硬盘上, 该硬盘有可能是数据盘导致数据被覆盖!!!
+# [必须配置] 新装系统服务器的系统盘块设备文件名 sys_disk=sda, sys_disk=vda, sys_disk=mp1
 sys_disk=vda
 ```
 

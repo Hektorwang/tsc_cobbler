@@ -48,5 +48,6 @@ done
 systemctl restart cobblerd dhcpd
 
 if systemctl status dhcpd cobblerd httpd; then
+    cobbler sync
     echo 1 >/tmp/tsc_cobbler_status
 fi

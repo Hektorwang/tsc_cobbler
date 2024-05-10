@@ -169,7 +169,7 @@ server: ${cobbler_ip}" >"${output_file}"
     output_file="${BASE_DIR}"/tmp/init.sh
     sed "s/cobbler_ip/${cobbler_ip}/g" "${BASE_DIR}"/etc/init.sh >"${output_file}"
     chmod a+x "${output_file}"
-    rm -f "${rootfs}"/tmp/tsc_cobbler_status
+    echo 0 >"${BASE_DIR}"/tmp/tsc_cobbler_status
     LOGSUCCESS "${FUNCNAME[0]}"
 }
 
@@ -183,6 +183,7 @@ function start_container {
         --bind-ro="${BASE_DIR}"/globe.common.conf:/tmp/globe.common.conf \
         --bind-ro="${BASE_DIR}"/.private.sh:/tmp/.private.sh \
         --bind-ro="${BASE_DIR}"/tmp/init.sh:/tmp/init.sh \
+        --bind="${BASE_DIR}"/tmp/tsc_cobbler_status:/tmp/tsc_cobbler_status \
         --bind-ro="${BASE_DIR}"/"${EL7__x86_64[0]}-${EL7__x86_64[1]}":"/var/www/html/${EL7__x86_64[0]}-${EL7__x86_64[1]}" \
         --bind-ro="${BASE_DIR}"/"${EL7__aarch64[0]}-${EL7__aarch64[1]}":"/var/www/html/${EL7__aarch64[0]}-${EL7__aarch64[1]}" \
         --bind-ro="${BASE_DIR}"/"${FHOS__x86_64[0]}-${FHOS__x86_64[1]}":"/var/www/html/${FHOS__x86_64[0]}-${FHOS__x86_64[1]}" \
@@ -191,7 +192,7 @@ function start_container {
 
     cobbler_boot_flag=0
     for dot_cnt in {1..120}; do
-        if [[ -f "${rootfs}"/tmp/tsc_cobbler_status ]]; then
+        if grep -q 1 "${BASE_DIR}"/tmp/tsc_cobbler_status &>/dev/null; then
             cobbler_boot_flag=1
             break
         else

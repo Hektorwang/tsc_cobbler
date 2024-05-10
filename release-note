@@ -1,5 +1,10 @@
 # release-note
 
+Version=0.9.2
+Date=20240510
+
+fix: 在 EL7-x86_64 上搭建服务并测试可安装 EL7-x86_64-BIOS, EL7-x86_64-UEFI, FHOS-x86_64-BIOS, FHOS-x86_64-UEFI
+
 Version=0.9.1
 Date=20240430
 
