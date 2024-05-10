@@ -2,6 +2,7 @@
 # shellcheck disable=SC1091,SC2154
 source /tmp/globe.common.conf
 source /tmp/.private.sh
+mkdir -p /var/lib/tftpboot/images
 
 function check_distro {
     if ls /var/www/html/EL7-x86_64/Packages/centos-release-7-*.el7.centos.x86_64.rpm; then
