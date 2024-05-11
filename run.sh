@@ -102,6 +102,25 @@ function check_env {
         exit 18
     fi
 
+    if [[ $(getenforce) != Disabled ]]; then
+        LOGERROR "SELinux is not disabled"
+        exit 19
+    fi
+
+    if command -v iptables-save &>/dev/null; then
+        if [[ $(iptables-save | wc -l) -gt 0 ]]; then
+            LOGERROR "iptables have rules，delete them and retry."
+            exit 19
+        fi
+    fi
+
+    if command -v nft &>/dev/null; then
+        if [[ $(nft list tables | wc -l) -gt 0 ]]; then
+            LOGERROR "nftables have rules, delete them and retry."
+            exit 19
+        fi
+    fi
+
     LOGSUCCESS "${FUNCNAME[0]}"
 }
 
@@ -110,10 +129,12 @@ function config_nic {
     cobbler_netprefix="$(ipcalc -p "${cobbler_ip}" "${cobbler_netmask}" | cut -d'=' -f2)"
     cobbler_network=$(ipcalc -n "${cobbler_ip}" "${cobbler_netmask}" | cut -d'=' -f2)
     export cobbler_netprefix cobbler_network
-    ifconfig "${cobbler_nic}" down
-    ifconfig "${cobbler_nic}" "${cobbler_ip}"/"${cobbler_netprefix}"
-    ifconfig "${cobbler_nic}" up
-    if ifconfig "${cobbler_nic}" | grep -qP "^\s*inet\s+${cobbler_ip}\s*netmask\s+${cobbler_netmask}"; then
+    {
+        ifconfig "${cobbler_nic}" down
+        ifconfig "${cobbler_nic}" "${cobbler_ip}"/"${cobbler_netprefix}"
+        ifconfig "${cobbler_nic}" up
+    } 2>&1 | tee -a" ${log_file}"
+    if ifconfig "${cobbler_nic}" 2>&1 | grep -qP "^\s*inet\s+${cobbler_ip}\s*netmask\s+${cobbler_netmask}"; then
         LOGSUCCESS "${FUNCNAME[0]}"
     else
         LOGERROR "${FUNCNAME[0]}"
@@ -169,13 +190,14 @@ server: ${cobbler_ip}" >"${output_file}"
     output_file="${BASE_DIR}"/tmp/init.sh
     sed "s/cobbler_ip/${cobbler_ip}/g" "${BASE_DIR}"/etc/init.sh >"${output_file}"
     chmod a+x "${output_file}"
-    echo 0 >"${BASE_DIR}"/tmp/tsc_cobbler_status
     LOGSUCCESS "${FUNCNAME[0]}"
 }
 
 function start_container {
     LOGINFO "${FUNCNAME[0]}"
     LOGINFO "开启 cobbler 服务, 可能需要数分钟, 请稍候..."
+    : >"${BASE_DIR}"/log/cobbler_start.log
+    : >"${BASE_DIR}"/tmp/tsc_cobbler_status
     screen -dmS tsc_cobbler_container systemd-nspawn --register=no -qbD "${rootfs}" \
         --bind-ro="${BASE_DIR}"/etc/container/var/lib/cobbler/distro_signatures.json.tsc:/var/lib/cobbler/distro_signatures.json \
         --bind-ro="${BASE_DIR}"/etc/container/etc/cobbler/dhcp.template:/etc/cobbler/dhcp.template \
@@ -184,6 +206,7 @@ function start_container {
         --bind-ro="${BASE_DIR}"/.private.sh:/tmp/.private.sh \
         --bind-ro="${BASE_DIR}"/tmp/init.sh:/tmp/init.sh \
         --bind="${BASE_DIR}"/tmp/tsc_cobbler_status:/tmp/tsc_cobbler_status \
+        --bind="${BASE_DIR}"/log/cobbler_start.log:/tmp/cobbler_start.log \
         --bind-ro="${BASE_DIR}"/"${EL7__x86_64[0]}-${EL7__x86_64[1]}":"/var/www/html/${EL7__x86_64[0]}-${EL7__x86_64[1]}" \
         --bind-ro="${BASE_DIR}"/"${EL7__aarch64[0]}-${EL7__aarch64[1]}":"/var/www/html/${EL7__aarch64[0]}-${EL7__aarch64[1]}" \
         --bind-ro="${BASE_DIR}"/"${FHOS__x86_64[0]}-${FHOS__x86_64[1]}":"/var/www/html/${FHOS__x86_64[0]}-${FHOS__x86_64[1]}" \

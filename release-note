@@ -1,5 +1,12 @@
 # release-note
 
+Version=0.9.3
+Date=20240511
+
+feat: 增加检测 SELinux 和 防火墙是否关闭
+feat: cobbler 容器中服务启动增加日志 log/cobbler_start.log
+
+
 Version=0.9.2
 Date=20240510
 

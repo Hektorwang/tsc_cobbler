@@ -1,5 +1,6 @@
 #!/bin/bash
 # shellcheck disable=SC1091,SC2154
+set -x
 source /tmp/globe.common.conf
 source /tmp/.private.sh
 mkdir -p /var/lib/tftpboot/images
@@ -28,17 +29,17 @@ function check_distro {
 }
 
 if ! systemctl status httpd; then
-    systemctl restart httpd
+    systemctl start httpd
 fi
 systemctl disable --now dhcpd
 
 ok_flag=0
-i=0
+# i=0
 while [[ ${ok_flag} -eq 0 ]]; do
-    ((i++))
-    systemctl restart cobblerd
-    sleep $((i * 5))
+    # ((i++))
     check_distro
+    systemctl restart cobblerd
+    sleep 10
     cobbler sync
     if cobbler distro report | grep cobbler_ip; then
         ok_flag=1
@@ -49,6 +50,7 @@ done
 systemctl restart cobblerd dhcpd
 
 if systemctl status dhcpd cobblerd httpd; then
-    cobbler sync
-    echo 1 >/tmp/tsc_cobbler_status
+    if cobbler sync; then
+        echo 1 >/tmp/tsc_cobbler_status
+    fi
 fi

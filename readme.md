@@ -5,19 +5,27 @@
 在一台主机上部署 `cobbler` 服务, 提供该主机作为**无人值守操作系统安装服务主机**能力.
 
 - 服务主机要求
+
   - CPU 架构: `x86_64`
   - 操作系统为 `EL7/9`， `FHOS`
   - 已安装组件: `initscripts`, `net-tools`, `screen`, `systemd`(EL7)/`systemd-container`(EL9)/`systemd-nspawn`(FHOS)
-- 客户端支持
-  - 部署 `CentOS-7` 和 `FitStarrySkyOS` 操作系统
-  - 支持 `x86_64` 和 `aarch64` 架构
-  - 支持 `legacy BIOS` 和 `UEFI` 引导模式.
+  - 未开启防火墙, `iptables` 和 `nftables` 中规则数量为 **0**
+  - SELinux 状态为 `Disabled`
+
+- 客户端支持部署
+
+  - CentOS-7-x86_64 BIOS 引导
+  - CentOS-7-x86_64 UEFI 引导
+  - CentOS-7-aarch64 UEFI 引导
+  - FitStarrySkyOS-22.06.1-x86_64 BIOS 引导
+  - FitStarrySkyOS-22.06.1-x86_64 UEFI 引导
+  - FitStarrySkyOS-22.06.1-aarch64 UEFI 引导
 
 ## 使用方法
 
 ### 解压
 
-将 `tsc_cobbler-EL789-x86_64-版本-日期.tar.gz` 解压到安装主机的 `/home/` 目录下.
+将 `tsc_cobbler-版本-系统-日期.tar.gz` 解压到安装主机的 `/home/` 目录下.
 
 ### 配置
 
@@ -28,7 +36,7 @@
 - 指定待安装操作系统服务器的系统盘块设备文件名( sda, sdb, hda, mp1... )
 
 ```ini
-# [必须配置] 需要启动虚拟 IP 的网卡, 一般在提供远程文件服务的通信网卡名后加 ":1". cobbler_nic="eth0:1"
+# [必须配置] 需要启动虚拟 IP 的网卡, 一般在提供远程文件服务的通信网卡名后加 ":n". cobbler_nic="eth0:1"
 cobbler_nic="eth0:1"
 # [必须配置] 用来进行作为操作系统远程安装服务的虚拟网卡 IP. cobbler_ip="172.16.233.28"
 cobbler_ip="172.16.233.28"

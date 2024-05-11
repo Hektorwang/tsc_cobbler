@@ -12,5 +12,5 @@
 
 touch /var/lock/subsys/local
 
-timeout -s9 600 /tmp/init.sh
+timeout -s9 300 /tmp/init.sh &>/tmp/cobbler_start.log
 exit 0
