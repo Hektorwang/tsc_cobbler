@@ -108,7 +108,7 @@ function check_env {
     fi
 
     if command -v iptables-save &>/dev/null; then
-        if [[ $(iptables-save | wc -l) -gt 0 ]]; then
+        if [[ $(iptables-save | grep -vE "^#|^:|^COMMIT|^*" | wc -l) -gt 0 ]]; then
             LOGERROR "iptables have rules，delete them and retry."
             exit 19
         fi
@@ -133,7 +133,7 @@ function config_nic {
         ifconfig "${cobbler_nic}" down
         ifconfig "${cobbler_nic}" "${cobbler_ip}"/"${cobbler_netprefix}"
         ifconfig "${cobbler_nic}" up
-    } 2>&1 | tee -a" ${log_file}"
+    } 2>&1 | tee -a "${log_file}"
     if ifconfig "${cobbler_nic}" 2>&1 | grep -qP "^\s*inet\s+${cobbler_ip}\s*netmask\s+${cobbler_netmask}"; then
         LOGSUCCESS "${FUNCNAME[0]}"
     else
