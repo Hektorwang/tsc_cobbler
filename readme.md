@@ -102,13 +102,13 @@ sudo ./run.sh
 若执行 `./run.sh` 10 分钟后 cobbler 容器仍未拉起所有服务, 则需检查容器内服务启动状态.
 
 ```bash
-screen -r tsc_cobbler_containe
+screen -r tsc_cobbler_container
 # 登录容器, 用户: root, 密码: Fiberhome@2024
 # 检查服务状态
 systemctl status httpd cobblerd dhcpd tftp.socket
 # 检查各配置中 IP 是否正确
 cat /var/lib/cobbler/collections/distros/*.json
-cat /etc/dhcpd/dhcpd.conf
+cat /etc/dhcp/dhcpd.conf
 cat /etc/cobbler/settings.d/tsc.settings
 # 若 IP 正确, 尝试重新启动服务
 /tmp/init.sh
