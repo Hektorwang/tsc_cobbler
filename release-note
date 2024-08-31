@@ -1,5 +1,9 @@
 # release-note
 
+Version=0.9.4
+Date=20240830
+feat: 优化了启动容器中 cobblerd 的逻辑, 提高成功率
+
 Version=0.9.3
 Date=20240511
 
