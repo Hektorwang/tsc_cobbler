@@ -16,6 +16,7 @@ requirements=(
     ["ipcalc"]="initscripts(EL7), ipcalc(FHOS)"
     ["ifconfig"]="net-tools"
     ["systemd-nspawn"]="systemd(EL7), systemd-nspawn(FHOS)"
+    ["fuser"]="psmisc"
 )
 declare -A ports
 # ports=(80 67 69)

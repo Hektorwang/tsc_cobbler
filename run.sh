@@ -234,7 +234,7 @@ function start_container {
 
 LOGINFO start
 if pgrep -f "systemd-nspawn --register=no" &>/dev/null; then
-    LOGWARNING 已启动 tsc_cobbler, 将在 10 秒内结束已启动的 tsc_cobbler, 如需保留现有服务请在 10 秒内按 ctrl + c
+    LOGWARNING 已启动 tsc_cobbler, 将在 10 秒内结束已启动的 tsc_cobbler 及监听 80/tcp, 25151/tcp, 67/udp, 69/udp 的程序, 如需保留现有服务请在 10 秒内按 ctrl + c
     # pgrep -alf "systemd-nspawn --register=no --machine=tsc_cobbler"
     for dot_cnt in {10..1}; do
         sleep 1
@@ -243,7 +243,11 @@ if pgrep -f "systemd-nspawn --register=no" &>/dev/null; then
     echo -en "\033[2K\r"
     screen -S tsc_cobbler_container -R -X quit
     mapfile -t pids < <(pgrep -f "systemd-nspawn --register=no --machine=tsc_cobbler")
-    pkill -9f /tmp/tsc_cobbler_status
+    pkill -9f /tmp/tsc_cobbler_status &>/dev/null
+    fuser -k 80/tcp &>/dev/null
+    fuser -k 25151/tcp &>/dev/null
+    fuser -k 67/udp &>/dev/null
+    fuser -k 69/udp &>/dev/null
     for pid in "${pids[@]}"; do
         kill -9 "${pid}" &>/dev/null
     done

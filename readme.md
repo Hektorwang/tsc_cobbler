@@ -8,7 +8,7 @@
 
   - CPU 架构: `x86_64`
   - 操作系统为 `EL7` 或 `FHOS`
-  - 已安装组件: `initscripts`, `net-tools`, `screen`, `systemd`(EL7)/`systemd-nspawn`(FHOS)
+  - 已安装组件: `initscripts`, `net-tools`, `screen`, `fuser`, `systemd`(EL7)/`systemd-nspawn`(FHOS)
   - 未开启防火墙, `iptables` 和 `nftables` 中规则数量为 **0**
   - SELinux 状态为 `Disabled`
 

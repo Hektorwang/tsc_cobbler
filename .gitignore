@@ -7,6 +7,7 @@ FHOS-x86_64/*
 !FHOS-aarch64
 !FHOS-x86_64
 tmp/*
+container/*
 .#container.lck
 __pycache__
 *.py[cod]
