@@ -1,5 +1,11 @@
 # release-note
 
+Version=0.9.5
+Date=20240904
+
+fix: 因 EL8 后已经废弃 `screen` 建议采用 `tmux`, 而 EL7 中默认又没有 `tmux`, 故服务端删除 `EL9` 支持
+fix: etc/init.sh 里面 IP 错误写死了, 改成变量
+
 Version=0.9.4
 Date=20240830
 feat: 优化了启动容器中 cobblerd 的逻辑, 提高成功率

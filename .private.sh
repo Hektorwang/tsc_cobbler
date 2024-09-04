@@ -13,9 +13,9 @@ declare -A requirements
 requirements=(
     ["lsof"]="lsof"
     ["screen"]="screen"
-    ["ipcalc"]="initscripts"
+    ["ipcalc"]="initscripts(EL7), ipcalc(FHOS)"
     ["ifconfig"]="net-tools"
-    ["systemd-nspawn"]="systemd(EL7), systemd-container(EL9), systemd-nspawn(FHOS)"
+    ["systemd-nspawn"]="systemd(EL7), systemd-nspawn(FHOS)"
 )
 declare -A ports
 # ports=(80 67 69)
@@ -23,4 +23,5 @@ ports=(
     ['httpd']='TCP:80'
     ['dhcpd']='UDP:67'
     ['tftp']='UDP:69'
+    ['cobblerd']='TCP:25151'
 )

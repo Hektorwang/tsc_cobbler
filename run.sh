@@ -243,6 +243,7 @@ if pgrep -f "systemd-nspawn --register=no" &>/dev/null; then
     echo -en "\033[2K\r"
     screen -S tsc_cobbler_container -R -X quit
     mapfile -t pids < <(pgrep -f "systemd-nspawn --register=no --machine=tsc_cobbler")
+    pkill -9f /tmp/tsc_cobbler_status
     for pid in "${pids[@]}"; do
         kill -9 "${pid}" &>/dev/null
     done
