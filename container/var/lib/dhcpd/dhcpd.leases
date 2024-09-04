@@ -6,26 +6,126 @@ authoring-byte-order little-endian;
 
 server-duid "\000\001\000\001-\302\214\370\000\025]\307f\005";
 
-lease 192.168.115.2 {
-  starts 1 2024/04/29 17:12:00;
-  ends 1 2024/04/29 17:42:00;
-  cltt 1 2024/04/29 17:12:00;
+lease 192.168.100.2 {
+  starts 3 2024/09/04 06:20:36;
+  ends 3 2024/09/04 06:50:36;
+  cltt 3 2024/09/04 06:20:36;
   binding state active;
   next binding state free;
   rewind binding state free;
-  hardware ethernet 00:15:5d:c7:66:06;
-  uid "\000\215\252ix\2740\012C\231]t\267\337!R\337";
-  set vendor-class-identifier = "PXEClient:Arch:00007:UNDI:003000";
-  set vendorclass = "PXEClient:Arch:00007:UNDI:003000";
+  hardware ethernet 00:0c:29:59:39:7c;
+  uid "\000VM\336G\276<e\345\012\346\261\003\240Y9|";
+  set vendor-class-identifier = "PXEClient:Arch:00000:UNDI:002001";
+  set vendorclass = "PXEClient:Arch:00000:UNDI:002001";
 }
-lease 192.168.115.3 {
-  starts 1 2024/04/29 17:12:17;
-  ends 1 2024/04/29 17:42:17;
-  cltt 1 2024/04/29 17:12:17;
+lease 192.168.100.3 {
+  starts 3 2024/09/04 06:21:52;
+  ends 3 2024/09/04 06:51:52;
+  cltt 3 2024/09/04 06:21:52;
   binding state active;
   next binding state free;
   rewind binding state free;
-  hardware ethernet 00:15:5d:c7:66:06;
-  set vendor-class-identifier = "anaconda-Linux 3.10.0-693.el7.x86_64 x86_64";
-  set vendorclass = "anaconda-Linux 3.10.0-693.el7.x86_64 x86_64";
+  hardware ethernet 00:0c:29:59:39:7c;
+  set vendor-class-identifier = "anaconda-Linux 3.10.0-1160.el7.x86_64 x86_64";
+  set vendorclass = "anaconda-Linux 3.10.0-1160.el7.x86_64 x86_64";
+}
+lease 192.168.100.3 {
+  starts 3 2024/09/04 06:33:21;
+  ends 3 2024/09/04 07:03:21;
+  cltt 3 2024/09/04 06:33:21;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:0c:29:59:39:7c;
+  set vendor-class-identifier = "anaconda-Linux 3.10.0-1160.el7.x86_64 x86_64";
+}
+lease 192.168.100.3 {
+  starts 3 2024/09/04 06:45:54;
+  ends 3 2024/09/04 07:15:54;
+  cltt 3 2024/09/04 06:45:54;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:0c:29:59:39:7c;
+  set vendor-class-identifier = "anaconda-Linux 3.10.0-1160.el7.x86_64 x86_64";
+}
+lease 192.168.100.2 {
+  starts 3 2024/09/04 06:20:36;
+  ends 3 2024/09/04 06:50:36;
+  tstp 3 2024/09/04 06:50:36;
+  cltt 3 2024/09/04 06:20:36;
+  binding state free;
+  hardware ethernet 00:0c:29:59:39:7c;
+  uid "\000VM\336G\276<e\345\012\346\261\003\240Y9|";
+  set vendor-class-identifier = "PXEClient:Arch:00000:UNDI:002001";
+  set vendorclass = "PXEClient:Arch:00000:UNDI:002001";
+}
+lease 192.168.100.3 {
+  starts 3 2024/09/04 07:00:48;
+  ends 3 2024/09/04 07:30:48;
+  cltt 3 2024/09/04 07:00:48;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:0c:29:59:39:7c;
+  set vendor-class-identifier = "anaconda-Linux 3.10.0-1160.el7.x86_64 x86_64";
+}
+lease 192.168.100.3 {
+  starts 3 2024/09/04 07:13:08;
+  ends 3 2024/09/04 07:43:08;
+  cltt 3 2024/09/04 07:13:08;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:0c:29:59:39:7c;
+  set vendor-class-identifier = "anaconda-Linux 3.10.0-1160.el7.x86_64 x86_64";
+}
+lease 192.168.100.3 {
+  starts 3 2024/09/04 07:25:13;
+  ends 3 2024/09/04 07:55:13;
+  cltt 3 2024/09/04 07:25:13;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:0c:29:59:39:7c;
+  set vendor-class-identifier = "anaconda-Linux 3.10.0-1160.el7.x86_64 x86_64";
+}
+lease 192.168.100.3 {
+  starts 3 2024/09/04 07:37:33;
+  ends 3 2024/09/04 08:07:33;
+  cltt 3 2024/09/04 07:37:33;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:0c:29:59:39:7c;
+  set vendor-class-identifier = "anaconda-Linux 3.10.0-1160.el7.x86_64 x86_64";
+}
+lease 192.168.100.3 {
+  starts 3 2024/09/04 07:52:02;
+  ends 3 2024/09/04 08:22:02;
+  cltt 3 2024/09/04 07:52:02;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:0c:29:59:39:7c;
+  set vendor-class-identifier = "anaconda-Linux 3.10.0-1160.el7.x86_64 x86_64";
+}
+lease 192.168.100.3 {
+  starts 3 2024/09/04 08:07:03;
+  ends 3 2024/09/04 08:37:03;
+  cltt 3 2024/09/04 08:07:03;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:0c:29:59:39:7c;
+  set vendor-class-identifier = "anaconda-Linux 3.10.0-1160.el7.x86_64 x86_64";
+}
+lease 192.168.100.3 {
+  starts 3 2024/09/04 08:07:03;
+  ends 3 2024/09/04 08:37:03;
+  tstp 3 2024/09/04 08:37:03;
+  cltt 3 2024/09/04 08:07:03;
+  binding state free;
+  hardware ethernet 00:0c:29:59:39:7c;
+  set vendor-class-identifier = "anaconda-Linux 3.10.0-1160.el7.x86_64 x86_64";
 }

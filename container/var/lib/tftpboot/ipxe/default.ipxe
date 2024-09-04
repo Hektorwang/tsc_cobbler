@@ -14,7 +14,7 @@ choose --default ${menu-default} --timeout ${menu-timeout} target && goto ${targ
 
 
 :EL7-x86_64
-kernel /images/EL7-x86_64/vmlinuz   inst.ks.sendmac inst.ks=http://192.168.115.1/cblr/svc/op/autoinstall/profile/EL7-x86_64 inst.repo=http://192.168.115.1/EL7-x86_64/ initrd=initrd.magic
+kernel /images/EL7-x86_64/vmlinuz   inst.ks.sendmac inst.ks=http://192.168.100.1/cblr/svc/op/autoinstall/profile/EL7-x86_64 inst.repo=http://192.168.100.1/EL7-x86_64/ initrd=initrd.magic
 initrd /images/EL7-x86_64/initrd.img
 boot
 
