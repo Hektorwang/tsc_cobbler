@@ -7,8 +7,8 @@
 - 服务主机要求
 
   - CPU 架构: `x86_64`
-  - 操作系统为 `EL7` 或 `FHOS`
-  - 已安装组件: `initscripts`, `net-tools`, `screen`, `fuser`, `systemd`(EL7)/`systemd-nspawn`(FHOS)
+  - 操作系统为 `EL7` `openEuler` 或 `FHOS`
+  - 已安装组件: `initscripts`, `net-tools`, `screen`, `fuser`, `systemd`(EL7)/`systemd-nspawn`(openEuler/FHOS)
   - 未开启防火墙, `iptables` 和 `nftables` 中规则数量为 **0**
   - SELinux 状态为 `Disabled`
 
@@ -20,6 +20,9 @@
   - FitStarrySkyOS-22.06.1-x86_64 BIOS 引导
   - FitStarrySkyOS-22.06.1-x86_64 UEFI 引导
   - FitStarrySkyOS-22.06.1-aarch64 UEFI 引导
+  - openEuler-22.03-x86_64 BIOS 引导
+  - openEuler-22.03-x86_64 UEFI 引导
+  - openEuler-22.03-aarch64 UEFI 引导
 
 ## 使用方法
 
@@ -52,8 +55,8 @@ sys_disk=vda
 
 ### 挂载操作系统镜像
 
-- 根据所需安装的操作系统, 将对应的 iso 文件挂载到工具主目录下对应的 `EL7-x86_64`, `EL7-aarch64`, `FHOS-x86_64`, `FHOS-aarch64` 的目录中.
-- 本工具理论支持所有版本和 CPU 架构的 `CentOS-7`, `FitStarrySkyOS-22.06.1` 的操作系统 ISO 镜像文件.
+- 根据所需安装的操作系统, 将对应的 iso 文件挂载到工具主目录下对应的 `EL7-x86_64`, `EL7-aarch64`, `FHOS-x86_64`, `FHOS-aarch64`, `Euler-x86_64`, `Euler-aarch64` 的目录中.
+- 本工具理论支持所有版本和 CPU 架构的 `CentOS-7`, `FitStarrySkyOS-22.06.1` 和 `openEuler-22/24` 的操作系统 ISO 镜像文件.
 - 本工具在如下 ISO 文件下进行测试:
 
 | md5                              | 文件名                                                 | 挂载点       |
@@ -62,12 +65,14 @@ sys_disk=vda
 | d23eab94eaa22e3bd34ac13caf923801 | CentOS-7-x86_64-Everything-1708.iso                    | EL7-x86_64   |
 | 268c1b127b57f6a7307abac9a9ffa369 | fitstarryskyos-22.06.1-aarch64-everything-20240126.iso | FHOS-aarch64 |
 | ef9495c99d0a94be11a5cc56dadc182a | fitstarryskyos-22.06.1-x86_64-everything-20240126.iso  | FHOS-x86_64  |
+| 95d2b5800b7e23222586eaf166705f2b | openEuler-22.03-LTS-SP4-x86_64-dvd.iso                 | Euler-x86_64 |
 
 ```bash
 mount -t iso9660 -o loop CentOS-7-x86_64-Everything-1708.iso EL7-x86_64
 mount -t iso9660 -o loop CentOS-7-aarch64-Everything-1810.iso EL7-aarch64
 mount -t iso9660 -o loop fitstarryskyos-22.06.1-x86_64-everything-20240126.iso FHOS-x86_64
 mount -t iso9660 -o loop fitstarryskyos-22.06.1-aarch64-everything-20240126.iso FHOS-aarch64
+# ...
 ```
 
 ### 运行工具
