@@ -12,8 +12,8 @@ lease 192.168.100.5 {
   binding state free;
   hardware ethernet 00:50:56:9b:72:93;
   uid "\000B\033{/\330\266\001\017in^r\327\274\213\000";
-  set vendorclass = "PXEClient:Arch:00007:UNDI:003000";
   set vendor-class-identifier = "PXEClient:Arch:00007:UNDI:003000";
+  set vendorclass = "PXEClient:Arch:00007:UNDI:003000";
 }
 lease 192.168.100.3 {
   starts 3 2025/09/17 02:02:47;
@@ -37,9 +37,7 @@ lease 192.168.100.4 {
   ends 3 2025/09/17 03:50:05;
   tstp 3 2025/09/17 03:50:05;
   cltt 3 2025/09/17 03:20:05;
-  binding state active;
-  next binding state free;
-  rewind binding state free;
+  binding state free;
   hardware ethernet 00:50:56:9b:72:93;
   uid "\001\000PV\233r\223";
 }
