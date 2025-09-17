@@ -1,0 +1,13 @@
+[Unit]
+Description=Init Cobbler Config
+After=multi-user.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/tmp/init.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
