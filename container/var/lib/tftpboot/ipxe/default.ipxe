@@ -9,13 +9,13 @@ isset ${menu-default} || set menu-default local
 :Cobbler
 menu Cobbler | https://cobbler.github.io
 item local (local)
-item EL7-x86_64 EL7-x86_64
+item Euler-x86_64 Euler-x86_64
 choose --default ${menu-default} --timeout ${menu-timeout} target && goto ${target}
 
 
-:EL7-x86_64
-kernel /images/EL7-x86_64/vmlinuz   inst.ks.sendmac inst.ks=http://192.168.100.1/cblr/svc/op/autoinstall/profile/EL7-x86_64 inst.repo=http://192.168.100.1/EL7-x86_64/ initrd=initrd.magic
-initrd /images/EL7-x86_64/initrd.img
+:Euler-x86_64
+kernel /images/Euler-x86_64/vmlinuz   inst.ks.sendmac inst.ks=http://192.168.100.1/cblr/svc/op/autoinstall/profile/Euler-x86_64 inst.repo=http://192.168.100.1/Euler-x86_64/ initrd=initrd.magic
+initrd /images/Euler-x86_64/initrd.img
 boot
 
 

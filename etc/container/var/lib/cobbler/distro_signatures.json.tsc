@@ -1,6 +1,31 @@
 {
   "breeds": {
     "redhat": {
+      "Euler": {
+        "signatures": [
+          "Packages"
+        ],
+        "version_file": "openEuler-release-(.*).rpm",
+        "version_file_regex": null,
+        "kernel_arch": "kernel-(.*).rpm",
+        "kernel_arch_regex": null,
+        "supported_arches": [
+          "x86_64",
+          "aarch64"
+        ],
+        "supported_repo_breeds": [
+          "rsync",
+          "yum"
+        ],
+        "kernel_file": "vmlinuz(.*)",
+        "initrd_file": "initrd(.*)\\.img",
+        "isolinux_ok": false,
+        "default_kickstart": "/var/lib/cobbler/kickstarts/sample_end.ks",
+        "default_autoinstall": "sample.ks",
+        "kernel_options": "",
+        "kernel_options_post": "",
+        "boot_files": []
+      },
       "fitstarryskyos": {
         "signatures": [
           "Packages"

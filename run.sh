@@ -15,7 +15,7 @@ source "${BASE_DIR}"/.private.sh
 
 rootfs="${BASE_DIR}"/container
 
-function check_env {
+check_env() {
     LOGINFO "${FUNCNAME[0]}"
     local requirements_lacks dup_ports protocol
 
@@ -64,40 +64,31 @@ function check_env {
         exit 17
     fi
 
-    mounted_cnt=0
-    if ls "${BASE_DIR}"/EL7-x86_64/Packages/centos-release-7-*.el7.centos.x86_64.rpm &>/dev/null; then
-        LOGSUCCESS "已挂载 EL7-x86_64 ISO 到 ${BASE_DIR}/EL7-x86_64"
-        \cp "${BASE_DIR}"/etc/distros/EL7-x86_64.json "${rootfs}"/var/lib/cobbler/collections/distros/
-        \cp "${BASE_DIR}"/etc/profiles/EL7-x86_64.json "${rootfs}"/var/lib/cobbler/collections/profiles/
-    else
-        LOGWARNING "未挂载 EL7-x86_64 ISO 到 ${BASE_DIR}/EL7-x86_64", 将无法提供该操作系统远程安装服务
-        ((mounted_cnt++))
-    fi
-    if ls "${BASE_DIR}"/EL7-aarch64/Packages/centos-release-7-*.el7.centos.a.aarch64.rpm &>/dev/null; then
-        LOGSUCCESS "已挂载 EL7-aarch64 ISO 到 ${BASE_DIR}/EL7-aarch64"
-        \cp "${BASE_DIR}"/etc/distros/EL7-aarch64-aarch64.json "${rootfs}"/var/lib/cobbler/collections/distros/
-        \cp "${BASE_DIR}"/etc/profiles/EL7-aarch64-aarch64.json "${rootfs}"/var/lib/cobbler/collections/profiles/
-    else
-        LOGWARNING "未挂载 EL7-aarch64 ISO 到 ${BASE_DIR}/EL7-aarch64", 将无法提供该操作系统远程安装服务
-        ((mounted_cnt++))
-    fi
-    if ls "${BASE_DIR}"/FHOS-x86_64/Packages/FitStarrySkyOS-release-22.06.1-*.x86_64.rpm &>/dev/null; then
-        LOGSUCCESS "已挂载 FHOS-x86_64 ISO 到 ${BASE_DIR}/ FHOS-x86_64"
-        \cp "${BASE_DIR}"/etc/distros/FHOS-x86_64.json "${rootfs}"/var/lib/cobbler/collections/distros/
-        \cp "${BASE_DIR}"/etc/profiles/FHOS-x86_64.json "${rootfs}"/var/lib/cobbler/collections/profiles/
-    else
-        LOGWARNING "未挂载 FHOS-x86_64 ISO 到 ${BASE_DIR}/FHOS-x86_64", 将无法提供该操作系统远程安装服务
-        ((mounted_cnt++))
-    fi
-    if ls "${BASE_DIR}"/FHOS-aarch64/Packages/FitStarrySkyOS-release-22.06.1-*.aarch64.rpm &>/dev/null; then
-        LOGSUCCESS "已挂载 FHOS-aarch64 ISO 到 ${BASE_DIR}/ FHOS-aarch64"
-        \cp "${BASE_DIR}"/etc/distros/FHOS-aarch64-aarch64.json "${rootfs}"/var/lib/cobbler/collections/distros/
-        \cp "${BASE_DIR}"/etc/profiles/FHOS-aarch64-aarch64.json "${rootfs}"/var/lib/cobbler/collections/profiles/
-    else
-        LOGWARNING "未挂载 FHOS-aarch64 ISO 到 ${BASE_DIR}/FHOS-aarch64", 将无法提供该操作系统远程安装服务
-        ((mounted_cnt++))
-    fi
-    if [[ ${mounted_cnt} -eq 4 ]]; then
+    local mounted_cnt=0
+    # 定义每个操作系统的参数：目录名|rpm匹配|distros文件|profiles文件
+    local os_images=(
+        "EL7-x86_64|centos-release-7-*.el7.centos.x86_64.rpm|EL7-x86_64.json|EL7-x86_64.json"
+        "EL7-aarch64|centos-release-7-*.el7.centos.a.aarch64.rpm|EL7-aarch64-aarch64.json|EL7-aarch64-aarch64.json"
+        "FHOS-x86_64|FitStarrySkyOS-release-22.06.1-*.x86_64.rpm|FHOS-x86_64.json|FHOS-x86_64.json"
+        "FHOS-aarch64|FitStarrySkyOS-release-22.06.1-*.aarch64.rpm|FHOS-aarch64-aarch64.json|FHOS-aarch64-aarch64.json"
+        "Euler-x86_64|openEuler-release-*.x86_64.rpm|Euler-x86_64.json|Euler-x86_64.json"
+        "Euler-aarch64|openEuler-release-*.aarch64.rpm|Euler-aarch64.json|Euler-aarch64.json"
+    )
+    local os_info os_dir rpm_pattern distros_file profiles_file
+    for os_info in "${os_images[@]}"; do
+        IFS='|' read -r os_dir rpm_pattern distros_file profiles_file <<<"$os_info"
+        if [[ -n "$(
+            find "${BASE_DIR}/${os_dir}/Packages/" -type f -name "${rpm_pattern}" 2>/dev/null
+        )" ]]; then
+            LOGSUCCESS "已挂载 ${os_dir} ISO 到 ${BASE_DIR}/${os_dir}"
+            \cp "${BASE_DIR}/etc/distros/${distros_file}" "${rootfs}/var/lib/cobbler/collections/distros/"
+            \cp "${BASE_DIR}/etc/profiles/${profiles_file}" "${rootfs}/var/lib/cobbler/collections/profiles/"
+            ((mounted_cnt++))
+        # else
+        #     LOGWARNING "未挂载 ${os_dir} ISO 到 ${BASE_DIR}/${os_dir}, 将无法提供该操作系统远程安装服务"
+        fi
+    done
+    if [[ ${mounted_cnt} -eq 0 ]]; then
         LOGERROR 未挂载任何操作系统镜像, 无法提供安装服务.
         exit 18
     fi
@@ -108,7 +99,7 @@ function check_env {
     fi
 
     if command -v iptables-save &>/dev/null; then
-        if [[ $(iptables-save | grep -vE "^#|^:|^COMMIT|^*" | wc -l) -gt 0 ]]; then
+        if [[ $(iptables-save | grep -cvE "^#|^:|^COMMIT|^\*") -gt 0 ]]; then
             LOGERROR "iptables have rules，delete them and retry."
             exit 19
         fi
@@ -124,7 +115,7 @@ function check_env {
     LOGSUCCESS "${FUNCNAME[0]}"
 }
 
-function config_nic {
+config_nic() {
     LOGINFO "${FUNCNAME[0]}"
     cobbler_netprefix="$(ipcalc -p "${cobbler_ip}" "${cobbler_netmask}" | cut -d'=' -f2)"
     cobbler_network=$(ipcalc -n "${cobbler_ip}" "${cobbler_netmask}" | cut -d'=' -f2)
@@ -142,7 +133,7 @@ function config_nic {
     fi
 }
 
-function config_container {
+config_container() {
     LOGINFO "${FUNCNAME[0]}"
     local hashed_passwd output_file
     hashed_passwd="$(openssl passwd -1 "${root_passwd}")"
@@ -160,7 +151,13 @@ function config_container {
     mkdir -p "$(dirname "${output_file}")"
     if [[ -n "${sys_disk}" ]]; then
         echo "# This is a sample to define OS disk
-ignoredisk --only-use=${sys_disk}" >"${output_file}"
+ignoredisk --only-use=${sys_disk}
+bootloader --location=mbr
+zerombr
+clearpart --all --initlabel
+part /boot --asprimary --fstype=xfs --size=1024
+part swap --fstype=swap --size=8192
+part / --fstype=xfs --grow" >"${output_file}"
     else
         LOGWARNING The sys_disk variable is undefined. OS will be installed on the first hard disk of the client device, which might cause data loss.
         : >"${output_file}"
@@ -190,10 +187,11 @@ server: ${cobbler_ip}" >"${output_file}"
     output_file="${BASE_DIR}"/tmp/init.sh
     sed "s/cobbler_ip/${cobbler_ip}/g" "${BASE_DIR}"/etc/init.sh >"${output_file}"
     chmod a+x "${output_file}"
+    \cp "${BASE_DIR}"/etc/ks/*.ks "${rootfs}"/var/lib/cobbler/templates/
     LOGSUCCESS "${FUNCNAME[0]}"
 }
 
-function start_container {
+start_container() {
     LOGINFO "${FUNCNAME[0]}"
     LOGINFO "开启 cobbler 服务, 可能需要数分钟, 请稍候..."
     : >"${BASE_DIR}"/log/cobbler_start.log
@@ -210,7 +208,9 @@ function start_container {
         --bind-ro="${BASE_DIR}"/"${EL7__x86_64[0]}-${EL7__x86_64[1]}":"/var/www/html/${EL7__x86_64[0]}-${EL7__x86_64[1]}" \
         --bind-ro="${BASE_DIR}"/"${EL7__aarch64[0]}-${EL7__aarch64[1]}":"/var/www/html/${EL7__aarch64[0]}-${EL7__aarch64[1]}" \
         --bind-ro="${BASE_DIR}"/"${FHOS__x86_64[0]}-${FHOS__x86_64[1]}":"/var/www/html/${FHOS__x86_64[0]}-${FHOS__x86_64[1]}" \
-        --bind-ro="${BASE_DIR}"/"${FHOS__aarch64[0]}-${FHOS__aarch64[1]}":"/var/www/html/${FHOS__aarch64[0]}-${FHOS__aarch64[1]}" # \
+        --bind-ro="${BASE_DIR}"/"${FHOS__aarch64[0]}-${FHOS__aarch64[1]}":"/var/www/html/${FHOS__aarch64[0]}-${FHOS__aarch64[1]}" \
+        --bind-ro="${BASE_DIR}"/"${Euler__x86_64[0]}-${Euler__x86_64[1]}":"/var/www/html/${Euler__x86_64[0]}-${Euler__x86_64[1]}" \
+        --bind-ro="${BASE_DIR}"/"${Euler__aarch64[0]}-${Euler__aarch64[1]}":"/var/www/html/${Euler__aarch64[0]}-${Euler__aarch64[1]}"
     # &>>"${log_file}"
 
     cobbler_boot_flag=0

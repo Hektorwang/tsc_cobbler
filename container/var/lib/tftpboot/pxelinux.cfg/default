@@ -10,9 +10,9 @@ LABEL local
         MENU DEFAULT
         LOCALBOOT -1
 
-LABEL EL7-x86_64
-	MENU LABEL EL7-x86_64
-	kernel /images/EL7-x86_64/vmlinuz
-	append initrd=/images/EL7-x86_64/initrd.img  inst.ks.sendmac inst.ks=http://192.168.100.1/cblr/svc/op/autoinstall/profile/EL7-x86_64 inst.repo=http://192.168.100.1/EL7-x86_64/
+LABEL Euler-x86_64
+	MENU LABEL Euler-x86_64
+	kernel /images/Euler-x86_64/vmlinuz
+	append initrd=/images/Euler-x86_64/initrd.img  inst.ks.sendmac inst.ks=http://192.168.100.1/cblr/svc/op/autoinstall/profile/Euler-x86_64 inst.repo=http://192.168.100.1/Euler-x86_64/
 	ipappend 2
 MENU end

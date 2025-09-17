@@ -2,10 +2,8 @@ EL7-aarch64/*
 EL7-x86_64/*
 FHOS-aarch64/*
 FHOS-x86_64/*
-!EL7-aarch64
-!EL7-x86_64
-!FHOS-aarch64
-!FHOS-x86_64
+Euler-aarch64/*
+Euler-x86_64/*
 tmp/*
 container/*
 .#container.lck

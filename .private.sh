@@ -1,21 +1,22 @@
 #!/bin/bash
 set +o posix
 
-declare -a EL7__x86_64 EL7__aarch64 FHOS__x86_64 FHOS__aarch64
+declare -a EL7__x86_64 EL7__aarch64 FHOS__x86_64 FHOS__aarch64 Euler__x86_64 Euler__aarch64
 # os arch ksfile
 EL7__x86_64=("EL7" "x86_64" "EL7.ks")
 EL7__aarch64=("EL7" "aarch64" "EL7.ks")
 FHOS__x86_64=("FHOS" "x86_64" "FHOS.ks")
 FHOS__aarch64=("FHOS" "aarch64" "FHOS.ks")
-
+Euler__x86_64=("Euler" "x86_64" "Euler.ks")
+Euler__aarch64=("Euler" "aarch64" "Euler.ks")
 declare -A requirements
 # requirements=("ipcalc" "systemd-nspawn" "ifconfig" "screen")
 requirements=(
     ["lsof"]="lsof"
     ["screen"]="screen"
-    ["ipcalc"]="initscripts(EL7), ipcalc(FHOS)"
+    ["ipcalc"]="initscripts(EL7), ipcalc(FHOS/Euler)"
     ["ifconfig"]="net-tools"
-    ["systemd-nspawn"]="systemd(EL7), systemd-nspawn(FHOS)"
+    ["systemd-nspawn"]="systemd(EL7), systemd-nspawn(FHOS/Euler)"
     ["fuser"]="psmisc"
 )
 declare -A ports

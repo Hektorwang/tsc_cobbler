@@ -106,6 +106,8 @@ screen -r tsc_cobbler_container
 # 登录容器, 用户: root, 密码: Fiberhome@2024
 # 检查服务状态
 systemctl status httpd cobblerd dhcpd tftp.socket
+# 检查日志
+journalctl -fxeu init_cobbler
 # 检查各配置中 IP 是否正确
 cat /var/lib/cobbler/collections/distros/*.json
 cat /etc/dhcp/dhcpd.conf

@@ -1,2 +1,8 @@
 # This is a sample to define OS disk
 ignoredisk --only-use=sda
+bootloader --location=mbr
+zerombr
+clearpart --all --initlabel
+part /boot --asprimary --fstype=xfs --size=1024
+part swap --fstype=swap --size=8192
+part / --fstype=xfs --grow
